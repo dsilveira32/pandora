@@ -1,0 +1,49 @@
+{% load static from staticfiles %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+	<a class="navbar-brand" href="/">
+		<img src="{% static 'logo.png' %}" height="50" class="d-inline-block align-top" alt="">
+	</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+			{% if contest %}
+			 <li class="nav-item dropdown">
+			 	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			 		<span class="oi oi-project"></span> {{ contest.short_name }}
+			 	</a>
+			 	<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}status/"><span class="oi oi-graph"></span> Status</a>
+			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}atempt/"><span class="oi oi-data-transfer-upload"></span> Submit</a>
+			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}ranking/"><span class="oi oi-sort-ascending"></span> Ranking</a>
+			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}myteam/"><span class="oi oi-people"></span> Team</a>
+
+			 	</div>
+			 </li>
+			{% endif %}
+
+		</ul>
+
+		<ul class="navbar-nav navbar-right">
+			{% if user.is_authenticated %}
+			 <li class="nav-item dropdown">
+			 	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			 		<span class="oi oi-person"></span>
+			 	</a>
+			 	<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+			 		<a class="dropdown-item" href="/profile/"><span class="oi oi-person"></span> My Info</a>
+			 		<a class="dropdown-item" href="{% url 'logout' %}"><span class="oi oi-account-logout"></span> Logout</a>
+			 		<a class="dropdown-item" href="/about/"><span class="oi oi-info"></span> About</a>
+			 	</div>
+			 </li>
+			{% else %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'login' %}"><span class="oi oi-account-login"></span> login</a>
+			</li>
+			{% endif %}	
+		</ul>
+	</div>
+</nav>

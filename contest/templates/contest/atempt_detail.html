@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% block content %}
+
+<div class="row justify-content-center align-items-center">
+	<div class="col-md-6">
+		<div class="card border rounded shadow-sm mb-4 mt-4">
+			<div class="card-body text-center">
+				<h5 class="car-title mb-2 text-primary">Results Summary</h5>
+				<p class="card-text mb-auto">
+					<table class="table">
+						<tbody>
+							<tr>
+								<td>Compilation</td>
+								<td>{% if atempt.compile_error %}
+									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-compilation"><span class="oi oi-x"></span></button>
+								{% else %}<span class="oi oi-check text-success"></span>{% endif %}</td>
+							</tr>
+							<tr>
+								<td>Mandatory Tests</td>
+								<td>{{ mandatory_passed }}/{{ mandatory_total }}</td>
+							</tr>
+							<tr>
+								<td>General Tests</td>
+								<td>{{ n_passed }}/{{ n_total }}</td>
+							</tr>
+							<tr>
+								<td>Classification</td>
+								<td>{{ atempt.grade }}</td>						
+							</tr>
+						</tbody>
+					</table>
+				</p>
+			</div>
+		</div>
+	</div>	
+</div>
+
+<div class="row justify-content-center align-items-center">
+	<div class="col-md-12">
+		<div class="card border rounded shadow-sm mb-4 mt-4">
+			<div class="card-body text-center">
+				<h5 class="car-title mb-2 text-primary">Detailed Results</h5>
+				<p class="card-text mb-auto">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Test #</th>
+								<th>Weight </th>
+								<th>Execution Time</th>
+								<th>Memory Usage</th>
+								<th>Type</th>
+								<th>Result</th>
+								<th>Info</th>
+								<th>Exp./Obt.</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% for r in results %}
+							<tr>
+								<td>{{ forloop.counter }}</td>
+								<td>{{ r.test.weight_pct|floatformat }} &#37;</td>
+								<td>{% if r.execution_time == maxsize %}Inf{% else %}{{ r.execution_time }} (&mu;s){% endif %}</td>
+								<td>{{ r.memory_usage }} (kbytes)</td>					
+								<td>{% if r.test.mandatory %}Mandatory{% else %}General{% endif %}</td>
+								<td>{% if r.passed %}<span class="oi oi-check text-success"></span>{% else %}<span class="oi oi-x text-danger"></span>{% endif %}</td>
+								<td>
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-error{{ forloop.counter }}">More</button>
+								</td>
+								<td>
+									{% if r.test.type_of_feedback == 1 %}
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-expected{{ forloop.counter }}">Open</button>
+									{% endif %}
+								</td>
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+				</p>
+			</div>
+		</div>
+	</div>	
+</div>
+
+<div class="modal fade bd-example-modal-xl" id="modal-compilation" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Compilation Errors</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+<pre>{{ atempt.error_description }}</pre>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% for r in results %}
+{% if r.test.type_of_feedback == 1 %}
+<div class="modal fade bd-example-modal-xl" id="modal-expected{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Expected Output / Obtained Output</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-6">
+<pre>{{ r.expected_output }}</pre>
+					</div>
+					<div class="col-md-6">
+<pre>{{ r.obtained_output }}</pre>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endif %}
+<div class="modal fade" id="modal-error{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Error Description</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+<pre>{{ r.error_description }}</pre>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endfor %}
+{% endblock %}
