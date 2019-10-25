@@ -25,7 +25,7 @@
 								<td>{{ a.grade }}</td>
 								<td>{% if a.time_benchmark == maxsize %}Inf{% else %}{{ a.time_benchmark }} (&mu;s){% endif %}</td>
 								<td>{% if a.memory_benchmark == maxsize %}Inf{% else %}{{ a.memory_benchmark }} (kbytes){% endif %}</td>
-								<td>{{ a.number_of_atempts }}</td>
+								<td>{{ a.atempts }}</td>
 							</tr>
 							{% endfor %}
 						</tbody>

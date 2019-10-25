@@ -1,7 +1,7 @@
 {% load static from staticfiles %}
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-	<a class="navbar-brand" href="/">
+	<a class="navbar-brand" href="{% url 'home' %}">
 		<img src="{% static 'logo.png' %}" height="50" class="d-inline-block align-top" alt="">
 	</a>
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,9 +34,9 @@
 			 		<span class="oi oi-person"></span>
 			 	</a>
 			 	<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-			 		<a class="dropdown-item" href="/profile/"><span class="oi oi-person"></span> My Info</a>
+			 		<a class="dropdown-item" href="{% url 'profile' %}"><span class="oi oi-person"></span> My Info</a>
 			 		<a class="dropdown-item" href="{% url 'logout' %}"><span class="oi oi-account-logout"></span> Logout</a>
-			 		<a class="dropdown-item" href="/about/"><span class="oi oi-info"></span> About</a>
+			 		<a class="dropdown-item" href="{% url 'about' %}"><span class="oi oi-info"></span> About</a>
 			 	</div>
 			 </li>
 			{% else %}

@@ -23,13 +23,14 @@ from contest.views import (
 )
 
 from .views import about_page
-
 urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
-    re_path(r'^about/$', about_page),
+    re_path(r'^about/$', about_page, name='about'),
     path('admin/', admin.site.urls),
     path('', include('contest.urls')),
 ] + staticfiles_urlpatterns()
+
+
 
 if settings.DEBUG:
     # test mode
