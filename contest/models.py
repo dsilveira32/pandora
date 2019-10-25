@@ -35,6 +35,7 @@ class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 	number =  models.IntegerField(null=True, blank=True)
 	gprd = models.BooleanField(null=True, default=True, blank=True)
+	valid = models.BooleanField(null=False, default=False, blank=False)
 
 	def __str__(self):  # __unicode__ for Python 2
 		return self.user.username

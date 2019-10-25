@@ -22,6 +22,7 @@ import sys
 from subprocess import check_output,CalledProcessError
 from django.utils.encoding import smart_text
 
+from django.utils import timezone
 
 from django.conf import settings
 
@@ -57,6 +58,7 @@ def signup_view(request):
 			user.refresh_from_db()  # load the profile instance created by the signal
 			user.profile.number = form.cleaned_data.get('number')
 			user.profile.gprd = form.cleaned_data.get('gprd')
+			user.profile.valid = False
 			user.save()
 			raw_password = form.cleaned_data.get('password1')
 			user = authenticate(username=user.username, password=raw_password)
@@ -94,25 +96,41 @@ def change_password_view(request):
 
 @login_required
 def contest_list_view(request):
+#	if not request.user.is_active:
+#		return redirect('not_active')
+
 	contests_qs = Contest.objects.filter(visible=True)
 	qs = TeamMember.objects.select_related('team').filter(user = request.user)
 	template_name = 'contest/list.html'
 	context = {'object_list': contests_qs,
 		'team_contests' : qs,
-		'title': 'Welcome to YAAG',
-		'description': 'YAAG is an Automatic Assement Tool.'}
+		'title': 'Welcome to PANDORA',
+		'description': 'PANDORA is an Automatic Assement Tool.'}
 	return render(request, template_name, context) 
 
+def notactive_view(request):
+	template_name = 'contest/error.html'
+	context = {'title': 'Welcome to PANDORA',
+		'description': 'Your account is not active. Please wait for the administrator to activate your account.'}
+	return render(request, template_name, context)
 
 @login_required
 def contest_detail_view(request, id):
 	obj = get_object_or_404(Contest, id=id)
+
+	present = timezone.now()
+	if present < obj.start_date:
+		# contest is not yet open. Don't let anyone see a dam thing.
+		template_name = 'contest/closed.html'
+	else:
+		template_name = 'contest/detail.html'
+
 	context = {"contest": obj}
-	template_name = 'contest/detail.html'	
-	return render(request, template_name, context)   
+	return render(request, template_name, context)
 
 
 def check_output(command, cwd):
+	print('cwd = ' + cwd)
 	process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cwd)
 	output = process.communicate()
 	retcode = process.poll()
@@ -184,13 +202,16 @@ def handle_uploaded_file(atempt, f, contest):
 	if ext == '.zip':
 		handle_zip_file(atempt, f, contest)
 
+	print('source path = ' + src_path)
 
 	submition_dir = os.path.dirname(src_path)
-	obj_file = src_name + '.user.o'
+	obj_file = submition_dir + '/' + src_name + '.user.o'
+
+	print('submition dir = ' + submition_dir)
 
 	atempt.compile_error = False
 #	my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	my_cmd = 'gcc ' + contest.compile_flags + ' -Include *.c src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
+	my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
 
 	print('compilation: ' + my_cmd)
 	output, ret = check_output(my_cmd, submition_dir)
@@ -263,7 +284,7 @@ def handle_uploaded_file(atempt, f, contest):
 		#lines[3] = cpu usage: 1.000 seconds
 		elapsed = lines[1].split(" ")
 		memory = lines[2].split(" ")
-		cpu = lines[3].split(" ")		
+		cpu = lines[3].split(" ")
 		record.memory_usage = int(memory[2])
 		record.cpu_time = float(cpu[2])
 		record.elapsed_time = int(elapsed[2])
@@ -284,6 +305,9 @@ def handle_uploaded_file(atempt, f, contest):
 
 		if record.passed:
 			pct += test.weight_pct
+			print('test passed pct = ' + str(test.weight_pct))
+			print('accumulated pct = ' + str(pct))
+
 
 			if test.use_for_time_benchmark:
 				atempt.time_benchmark = record.execution_time
@@ -299,7 +323,10 @@ def handle_uploaded_file(atempt, f, contest):
 
 		record.save()
 
-	atempt.grade = (pct/100*contest.max_classification, 0)[mandatory_failed]
+	print('obtained pct = ' + str(pct))
+	print('max_class = ' + str(contest.max_classification))
+
+	atempt.grade = (round(pct/100*contest.max_classification,0), 0)[mandatory_failed]
 	atempt.save()
 
 @login_required
@@ -326,6 +353,17 @@ def atempt_view(request, id):
 	n_general = n_tests - n_mandatory
 	n_passed = atempt_obj.classification_set.filter(passed = True).count()
 	mandatory_passed = atempt_obj.classification_set.filter(passed = True, test__mandatory = True).count()
+	general_passed = atempt_obj.classification_set.filter(passed = True, test__mandatory = False).count()
+
+
+
+	print('number of results ' + str(results.count()))
+	print('number of tests ' + str(n_tests))
+	print('number of mandatory tests ' + str(n_mandatory))
+	print('number of general tests ' + str(n_general))
+	print('number of general passed tests ' + str(general_passed))
+	print('number of mandatory passed tests ' + str(mandatory_passed))
+
 
 	for res in results:
 		res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False, errors='strict')
@@ -337,9 +375,11 @@ def atempt_view(request, id):
 	context.update({'atempt': atempt_obj})
 	context.update({'maxsize': 2147483647})
 	context.update({'n_passed': n_passed})
-	context.update({'n_total': n_general})
+	context.update({'n_total': n_tests})
 	context.update({'mandatory_passed': mandatory_passed})
 	context.update({'mandatory_total': n_mandatory})
+	context.update({'general_passed': general_passed})
+	context.update({'n_general': n_general})
 	context.update({'results': results})
 
 	return render(request, template_name, context) 
@@ -351,6 +391,13 @@ def atempt_create_view(request, id):
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 	can_submit = True
+
+	present = timezone.now()
+#	present = datetime.datetime.now()
+	if present < contest_obj.start_date or present > contest_obj.end_date:
+		# contest is not opened
+		return redirect(os.path.join(contest_obj.get_absolute_url()))
+
 
 	team_obj, members = get_user_team(request, contest_obj.id)
 	if not team_obj:
@@ -367,8 +414,8 @@ def atempt_create_view(request, id):
 		messages.error(request, "This contest is not active.")
 		can_submit = False
 
-	if not team_obj.active or not members.filter(user=request.user).first().approved:
-		messages.error(request, "You need to be an approved member of an active team to make submitions")
+	if not team_obj.active or not members.filter(user=request.user).first().approved or not request.user.profile.valid:
+		messages.error(request, "You need to be an Active member and approved member of an active team to make submitions")
 		can_submit = False
 
 	form = AtemptModelForm(request.POST or None, request.FILES or None)
@@ -402,7 +449,7 @@ def team_create_view(request, id):
 	form = TeamModelForm(request.POST or None)
 	if form.is_valid():
 		obj = form.save(commit=False)
-		obj.contest = contest_obj		
+		obj.contest = contest_obj
 		obj.save()
 		team_member_obj = TeamMember()
 		team_member_obj.user = request.user
@@ -432,7 +479,7 @@ def team_join_view(request, id):
 	for obj in teams:
 		obj.members = TeamMember.objects.filter(team = obj)
 		obj.room_left = obj.contest.max_team_members - obj.members.count()
-		
+
 	context.update({'teams': teams})
 
 	form = TeamMemberForm(request.POST or None)
@@ -486,7 +533,7 @@ def team_detail_view(request, id):
 		if team_member_obj.approved:
 			if "member_id" in request.POST:
 				team_member_obj2 = TeamMember.objects.get(id = form.cleaned_data.get("member_id"))
-				team_member_obj2.approved = True				
+				team_member_obj2.approved = True
 				team_member_obj2.save()
 
 		if members.count() > 1 and "member_id_remove" in request.POST:
@@ -515,7 +562,7 @@ def atempt_list_view(request, id):
 	context = {'contest': contest_obj}
 
 	team_obj, members = get_user_team(request, contest_obj.id)
-	if not team_obj or not members.filter(user=request.user).first().approved:
+	if not team_obj or not members.filter(user=request.user).first().approved or not request.user.profile.valid:
 		return redirect(os.path.join(contest_obj.get_absolute_url(),'team/join/'))
 
 	atempts = get_team_atempts(team_obj)
@@ -524,7 +571,7 @@ def atempt_list_view(request, id):
 		context.update({'number_of_submitions': atempts.count()})
 		context.update({'last_classification': atempts.first().grade})
 		context.update({'last_execution_time': atempts.first().time_benchmark})
-		context.update({'last_memory_usage': atempts.first().memory_benchmark})		
+		context.update({'last_memory_usage': atempts.first().memory_benchmark})
 	else:
 		context.update({'number_of_submitions': 0})
 		context.update({'last_classification': 0})
@@ -536,7 +583,7 @@ def atempt_list_view(request, id):
 	context.update({'atempts': atempts})
 	context.update({'maxsize': int(sys.maxsize)})
 
-	return render(request, template_name, context) 
+	return render(request, template_name, context)
 
 
 @login_required
@@ -546,11 +593,12 @@ def ranking_view(request, id):
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 
-	atempts = Atempt.objects.raw("""select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark
-		elapsed_time, cpu_time
-		from contest_atempt where contest_id = 1 group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc
-		""")
+	query = "SELECT ca.*, maxs.atempts, maxs.team_id FROM (select max(id) as id, count(id) as atempts, team_id from contest_atempt where contest_id = " + str(contest_obj.id) + " group by team_id) maxs inner join contest_atempt ca on ca.id = maxs.id order by grade desc, atempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc, cpu_time asc"
+#select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
+
+	atempts = Atempt.objects.raw(query)
 
 	context.update({'atempts': atempts})
 	context.update({'maxsize': int(sys.maxsize)})
-	return render(request, template_name, context) 
+	return render(request, template_name, context)
+
