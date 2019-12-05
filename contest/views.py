@@ -174,7 +174,9 @@ def exec_command(test, contest, submition_dir, obj_file, user_output, user_repor
 	exec_cmd += "--clock %d " % clock
 	exec_cmd += "--usage %s " % user_report
 	exec_cmd += "--exec "
-	exec_cmd += obj_file + ' < ' + test.input_file.path + ' > ' + user_output
+
+
+	exec_cmd += obj_file + ' ' + str(test.run_arguments) + ' < ' + test.input_file.path + ' > ' + user_output
 
 	return exec_cmd
 
@@ -295,7 +297,7 @@ def handle_uploaded_file(atempt, f, contest):
 			continue
 
 		# uses the diff tool
-		diff, ret = check_output('diff  ' + user_output + ' ' + test.output_file.path, submition_dir)
+		diff, ret = check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path, submition_dir)
 
 		record.passed = diff[0] == ''
 
