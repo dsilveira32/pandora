@@ -15,7 +15,7 @@ from .views import (
     ranking_view,
     change_password_view,
     profile_view,
-    notactive_view,
+    nonactive_view,
     extract_grades
 )
 
@@ -33,7 +33,7 @@ urlpatterns = [
     path('contests/<int:id>/grades-downloader/', extract_grades),
     path('admin-view/contest-creation/', admin_contest_creation),
     path('signup/', signup_view, name='signup'),
-    path('notactive/', notactive_view, name='not_active'),
+    path('nonactive/', nonactive_view, name='not_active'),
     path('profile/password/', change_password_view, name='password'),
     path('profile/', profile_view, name='profile')
 ]

@@ -4,9 +4,10 @@ import subprocess
 import datetime
 import sys
 import csv
+import zipfile
 
-from .forms import SignUpForm, AtemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
-    CreateContestModelForm
+from .forms import SignUpForm, AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
+    CreateContestModelForm, CreateTestModelForm
 from .models import Contest, Test, Classification, Team, TeamMember, Atempt, SafeExecError
 from django.conf import settings
 from django.contrib import messages
@@ -19,33 +20,13 @@ from django.db.models import Max
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.encoding import smart_text
 from django.utils import timezone
+from django.utils.encoding import smart_text
 from django.views.generic.edit import FormView
 from subprocess import check_output, CalledProcessError
 
 
-# get functions
-def get_user_team(request, contest_id):
-    qs = TeamMember.objects.filter(team__contest=contest_id, user=request.user).first()
-
-    if not qs:
-        return Team.objects.none(), TeamMember.objects.none()
-
-    team_obj = qs.team
-    members = team_obj.teammember_set.all()
-
-    return team_obj, members
-
-
-def get_team_attempts(team):
-    members_ids = team.teammember_set.values_list('user__id', flat=True).distinct()
-    if not members_ids:
-        return None
-
-    return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
-
-
+# - functions needed in the functions that are needed that are also needed
 # check output function
 def check_output(command, cwd):
     print('cwd = ' + cwd)
@@ -56,8 +37,9 @@ def check_output(command, cwd):
     return output, retcode
 
 
+# - functions needed in the functions that are needed
 # exec functions
-def exec_command(test, contest, submition_dir, obj_file, user_output, user_report):
+def exec_command(test, contest, submission_dir, obj_file, user_output, user_report):
     if test.override_exec_options:
         cpu = test.cpu
         mem = test.mem
@@ -100,18 +82,150 @@ def exec_command(test, contest, submition_dir, obj_file, user_output, user_repor
 
 
 # handle functions
-def handle_zip_file(atempt, f, contest):
+def handle_zip_file(attempt, f, contest):
     src_path = os.path.abspath(f.path)
     src_base = os.path.basename(src_path)
-    submition_dir = os.path.dirname(src_path)
+    submission_dir = os.path.dirname(src_path)
 
     my_cmd = 'unzip ' + src_path
     print('extraction: ' + my_cmd)
-    output, ret = check_output(my_cmd, submition_dir)
+    output, ret = check_output(my_cmd, submission_dir)
 
     return
 
 
+# check in test files
+def check_is_in_file(files):
+    for file in files:
+        file_parts = file.split()
+        if not 'in' == file_parts[len(file_parts) - 1]:
+            print("The file: " + file + " is not an in file!")
+            return False
+
+    return True
+
+
+# check if the test files are for the contest
+def check_is_for_this_contest_file(files, contest):
+    for file in files:
+        file_parts = file.split()
+        if not contest.short_name == file_parts[len(file_parts) - 1]:
+            print("The file: " + file + " is not for this contest")
+            return False
+
+    return True
+
+
+# check out test files
+def check_is_out_file(files, files_max_length):
+    if files_max_length < len(files):
+        print("There are more out files than in files!")
+        return False
+    else:
+        for file in files:
+            file_parts = file.split()
+            if not 'out' == file_parts[len(file_parts) - 1]:
+                print("The file: " + file + " is not an out file!")
+                return False
+
+        return True
+
+
+# unzip zip file
+def unzip_zip_file(f, zip_path):
+    with zipfile.ZipFile(zip_path, 'r') as in_files:
+        in_files.extractall(os.path.dirname(zip_path))
+
+    return
+
+
+# - functions needed
+# check in files
+def check_in_files(f, contest):
+    # set the zip path
+    zip_path = os.path.abspath(f.path)
+
+    # unzip zip file
+    unzip_zip_file(f, zip_path)
+
+    # check last branch
+    count = 0
+    for c in os.walk(zip_path):
+        count += 1
+
+    # for the last branch
+    file_tree_branch = 0
+    for files in os.walk(zip_path):
+        file_tree_branch += 1
+        if file_tree_branch == count:
+            # check if the files are for this contest
+            if check_is_for_this_contest_file(files, contest):
+                # check if they are in files
+                if check_is_in_file(files):
+                    # if the files are correct return them
+                    return files
+
+    # if the files have some problem, return an empty list
+    return []
+
+
+# check out files
+def check_out_files(f, contest, files_max_length):
+    # set the zip path
+    zip_path = os.path.abspath(f.path)
+
+    # unzip zip file
+    unzip_zip_file(f, zip_path)
+
+    # check last branch
+    count = 0
+    for c in os.walk(zip_path):
+        count += 1
+
+    # for the last branch
+    file_tree_branch = 0
+    for files in os.walk(zip_path):
+        file_tree_branch += 1
+        if file_tree_branch == count:
+            # check if the files are for this contest
+            if check_is_for_this_contest_file(files, contest):
+                # check if they are out files
+                if check_is_out_file(files):
+                    # if the files are correct return them
+                    return files
+
+    # if the files have some problem, return an empty list
+    return []
+
+
+def create_test(request, in_files, out_files, contest):
+    weight = int(len(in_files))
+    benchmark = False
+
+    form = CreateTestModelForm(request.POST or None)
+    print("Form of the test is: " + str(form.is_valid()))
+    if form.is_valid():
+        for i in range(len(in_files) - 1):
+            obj = form.save(commit=False)
+            obj.contest = contest
+            obj.weight_pct = weight
+            obj.input_file = in_files[i]
+            obj.output_file = out_files[i]
+            if not benchmark:
+                obj.use_for_time_benchmark = False
+                obj.use_for_memory_benchmark = False
+                obj.mandatory = False
+            else:
+                obj.use_for_time_benchmark = True
+                obj.use_for_memory_benchmark = True
+                obj.mandatory = True
+                benchmark = False
+
+            obj.save()
+    return
+
+
+# handle uploaded file
 def handle_uploaded_file(atempt, f, contest):
     safeexec_errors = SafeExecError.objects.all()
     safeexec_ok = SafeExecError.objects.get(description='OK')
@@ -250,19 +364,44 @@ def handle_uploaded_file(atempt, f, contest):
     atempt.save()
 
 
-# @login_required functions
+# get functions
+def get_user_team(request, contest_id):
+    qs = TeamMember.objects.filter(team__contest=contest_id, user=request.user).first()
+
+    if not qs:
+        return Team.objects.none(), TeamMember.objects.none()
+
+    team_obj = qs.team
+    members = team_obj.teammember_set.all()
+
+    return team_obj, members
+
+
+def get_team_attempts(team):
+    members_ids = team.teammember_set.values_list('user__id', flat=True).distinct()
+    if not members_ids:
+        return None
+
+    return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
+
+
+# - @login_required functions
 # admin
 @login_required
 def admin_contest_creation(request):
     template_name = 'contest/contest_creation.html'
 
-    form = CreateContestModelForm(request.POST or None, request.FILES or None)  # , request.FILES or None)
+    form = CreateContestModelForm(request.POST or None, request.FILES or None)
     print(form.is_valid())
     if form.is_valid():
         obj = form.save(commit=False)
         obj.save()
-        # print(form.in_files.path)
-        # form = CreateContestModelForm()
+        short_name = obj.short_name
+        contest_obj = get_object_or_404(Contest, short_name=short_name)
+        print(contest_obj)
+        in_files = check_in_files(obj.in_files, contest_obj)
+        out_files = check_out_files(obj.out_files, contest_obj, len(in_files))
+        create_test(request, in_files, out_files, contest_obj)
         # handle_uploaded_file(obj, obj.file, contest_obj) # to check the ins and outs files
     context = ({'form': form})
 
@@ -290,11 +429,11 @@ def admin_view(request, id):
             "		select max(id) as id, count(id) as atempts, team_id" \
             "			from contest_atempt" \
             "				where contest_id = " + str(contest_obj.id) + " " \
-                                                                          "					group by team_id" \
-                                                                          "	) maxs" \
-                                                                          "		inner join contest_atempt ca on ca.id = maxs.id " \
-                                                                          "		join contest_team c on ca.team_id = c.id" \
-                                                                          "		join auth_user au on ca.user_id = au.id"
+            "					group by team_id" \
+            "	) maxs" \
+            "		inner join contest_atempt ca on ca.id = maxs.id " \
+            "		join contest_team c on ca.team_id = c.id" \
+            "		join auth_user au on ca.user_id = au.id"
 
     grades = Atempt.objects.raw(query)
 
@@ -454,7 +593,7 @@ def attempt_create_view(request, id):
                        "You need to be an Active member and approved member of an active team to make submitions")
         can_submit = False
 
-    form = AtemptModelForm(request.POST or None, request.FILES or None)
+    form = AttemptModelForm(request.POST or None, request.FILES or None)
     if can_submit and form.is_valid():
         obj = form.save(commit=False)
         obj.user = request.user
@@ -734,12 +873,15 @@ def team_join_view(request, id):
     return render(request, template_name, context)
 
 
+# - The rest
+# page logout
 def pagelogout(request):
     if request.method == "POST":
         logout(request)
         return redirect('home')
 
 
+# signup view
 def signup_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -762,8 +904,12 @@ def signup_view(request):
     return render(request, 'form.html', context)
 
 
-def notactive_view(request):
+# non active view
+def nonactive_view(request):
     template_name = 'contest/error.html'
     context = {'title': 'Welcome to PANDORA',
                'description': 'Your account is not active. Please wait for the administrator to activate your account.'}
     return render(request, template_name, context)
+
+
+# in progress
