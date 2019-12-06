@@ -343,6 +343,8 @@ def attempt_list_view(request, id):
     context = {'contest': contest_obj}
 
     team_obj, members = get_user_team(request, contest_obj.id)
+    if not team_obj or not members.filter(user=request.user).first().approved or not request.user.profile.valid:
+        return redirect(os.path.join(contest_obj.get_absolute_url(), 'team/join/'))
 
     atempts = get_team_attempts(team_obj)
 
