@@ -5,7 +5,8 @@ import datetime
 import sys
 import csv
 
-from .forms import SignUpForm, AtemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, CreateContestModelForm
+from .forms import SignUpForm, AtemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
+    CreateContestModelForm
 from .models import Contest, Test, Classification, Team, TeamMember, Atempt, SafeExecError
 from django.conf import settings
 from django.contrib import messages
@@ -93,7 +94,7 @@ def exec_command(test, contest, submition_dir, obj_file, user_output, user_repor
     exec_cmd += "--clock %d " % clock
     exec_cmd += "--usage %s " % user_report
     exec_cmd += "--exec "
-    exec_cmd += obj_file + ' < ' + test.input_file.path + ' > ' + user_output
+    exec_cmd += obj_file + ' ' + str(test.run_arguments) + ' < ' + test.input_file.path + ' > ' + user_output
 
     return exec_cmd
 
@@ -130,7 +131,7 @@ def handle_uploaded_file(atempt, f, contest):
     print('submition dir = ' + submition_dir)
 
     atempt.compile_error = False
-    #	my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
+    # my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
     my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
 
     print('compilation: ' + my_cmd)
@@ -214,7 +215,8 @@ def handle_uploaded_file(atempt, f, contest):
             continue
 
         # uses the diff tool
-        diff, ret = check_output('diff  ' + user_output + ' ' + test.output_file.path, submition_dir)
+        diff, ret = check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path,
+                                 submition_dir)
 
         record.passed = diff[0] == ''
 
@@ -288,11 +290,11 @@ def admin_view(request, id):
             "		select max(id) as id, count(id) as atempts, team_id" \
             "			from contest_atempt" \
             "				where contest_id = " + str(contest_obj.id) + " " \
-            "					group by team_id" \
-            "	) maxs" \
-            "		inner join contest_atempt ca on ca.id = maxs.id " \
-            "		join contest_team c on ca.team_id = c.id" \
-            "		join auth_user au on ca.user_id = au.id"
+                                                                          "					group by team_id" \
+                                                                          "	) maxs" \
+                                                                          "		inner join contest_atempt ca on ca.id = maxs.id " \
+                                                                          "		join contest_team c on ca.team_id = c.id" \
+                                                                          "		join auth_user au on ca.user_id = au.id"
 
     grades = Atempt.objects.raw(query)
 
@@ -304,19 +306,19 @@ def admin_view(request, id):
             "		select max(id) as id, count(id) as team_atempts, team_id" \
             "			from contest_atempt" \
             "				where contest_id = " + str(contest_obj.id) + " " \
-            "					group by team_id" \
-            "	) maxs" \
-            "		inner join contest_atempt ca on ca.id = maxs.id" \
-            "		join contest_teammember ct on ct.team_id = ca.team_id" \
-            "		join contest_team c on ca.team_id = c.id" \
-            "		join auth_user au on au.id = ct.user_id" \
-            "		join (" \
-            "			select max(id) as id, count(id) as atempts, user_id" \
-            "				from contest_atempt" \
-            "					where contest_id = 1" \
-            "						group by user_id" \
-            "		) umax on umax.user_id = ct.user_id" \
-            "			order by atempts asc"
+                                                                          "					group by team_id" \
+                                                                          "	) maxs" \
+                                                                          "		inner join contest_atempt ca on ca.id = maxs.id" \
+                                                                          "		join contest_teammember ct on ct.team_id = ca.team_id" \
+                                                                          "		join contest_team c on ca.team_id = c.id" \
+                                                                          "		join auth_user au on au.id = ct.user_id" \
+                                                                          "		join (" \
+                                                                          "			select max(id) as id, count(id) as atempts, user_id" \
+                                                                          "				from contest_atempt" \
+                                                                          "					where contest_id = 1" \
+                                                                          "						group by user_id" \
+                                                                          "		) umax on umax.user_id = ct.user_id" \
+                                                                          "			order by atempts asc"
 
     atempts = Atempt.objects.raw(query)
 
