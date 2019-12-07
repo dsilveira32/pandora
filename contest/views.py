@@ -494,11 +494,17 @@ def set_test_in_order(tests):
     for i in range(len(tests)):
         for test in tests:
             file_name = test.split('.')[0]
+            # print_variable_debug(["File name: ", file_name])
             file_name_parts = file_name.split('_')
+            # print_variable_debug(["File name parts: ", file_name_parts])
             for part in file_name_parts:
                 if 'test' in part:
+                    # print_variable_debug("Found the test number")
                     test_number = part.split('test')[1]
-                    if last_number + 1 == test_number:
+                    # print_variables_debug([last_number + 1, int(test_number), last_number + 1 == int(test_number),
+                    #                       last_number + 1 == test_number])
+                    if last_number + 1 == int(test_number):
+                        last_number += 1
                         tests_in_order.append(test)
 
     return tests_in_order
@@ -538,36 +544,44 @@ def admin_test_creation(request):
             out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
             print_variable_debug(out_files)
 
-            weight = 100 / n_tests
-            benchmark = False
-            test_number = 0
+            a_ok = True
 
-            for i in range(n_tests):
-                test_number += 1
-                form = CreateTestModelForm(request.POST or None, request.FILES or None)
-                test = form.save(commit=False)
-                test.contest = contest
-                test.weight_pct = weight
-                test.input_file = in_files[i]
-                test.output_file = out_files[i]
-                if not benchmark:
-                    test.use_for_time_benchmark = False
-                    test.use_for_memory_benchmark = False
-                    test.mandatory = False
-                else:
-                    test.use_for_time_benchmark = True
-                    test.use_for_memory_benchmark = True
-                    test.mandatory = True
-                    benchmark = False
+            for i in range(len(in_files)):
+                if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
+                    a_ok = False
 
-                test.save()
-                print_variable_debug("Test " + str(test_number) + " made!")
-                print_variable_debug(i)
+            if a_ok:
+                print_variable_debug("There is an out for each in!")
+                weight = 100 / n_tests
+                benchmark = False
+                test_number = 0
 
-            # create_test(request, in_files, out_files, contest)
-            # handle_uploaded_file(obj, obj.file, contest_obj) # to check the ins and outs files
-            # obj.save()
+                for i in range(n_tests):
+                    test_number += 1
+                    form = CreateTestModelForm(request.POST or None, request.FILES or None)
+                    test = form.save(commit=False)
+                    test.contest = contest
+                    test.weight_pct = weight
+                    test.input_file = in_files[i]
+                    test.output_file = out_files[i]
+                    if benchmark:
+                        test.use_for_time_benchmark = False
+                        test.use_for_memory_benchmark = False
+                        test.mandatory = False
+                    else:
+                        test.use_for_time_benchmark = True
+                        test.use_for_memory_benchmark = True
+                        test.mandatory = True
+                        benchmark = True
+                    print_variables_debug(["Test " + str(test_number) + " has:", test.contest, test.weight_pct,
+                                           test.mandatory, test.use_for_memory_benchmark, test.use_for_time_benchmark])
+
+                    test.save()
+                    print_variable_debug("Test " + str(test_number) + " made!")
+                    print_variable_debug(i)
             print(obj)
+
+        return redirect(contest.get_absolute_url())
         # obj.save()
     context = ({'form': test_form})
 

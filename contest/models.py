@@ -65,9 +65,9 @@ class Contest(models.Model):
     description = models.TextField(null=True, blank=True)
     sow = models.FileField(upload_to=get_contest_detail_path, blank=True, null=True, max_length=512)
 
-    in_files = models.FileField(upload_to=get_contest_ins_files_path, blank=True, null=True)
+    # in_files = models.FileField(upload_to=get_contest_ins_files_path, blank=True, null=True)
     reference_code = models.FileField(upload_to=get_contest_code_path, blank=True, null=True)
-    out_files = models.FileField(upload_to=get_contest_outs_files_path, blank=True, null=True)
+    # out_files = models.FileField(upload_to=get_contest_outs_files_path, blank=True, null=True)
 
     start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
