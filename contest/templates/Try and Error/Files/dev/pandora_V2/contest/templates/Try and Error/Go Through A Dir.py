@@ -6,7 +6,7 @@ print("\nFile path: " + path)
 
 count = 0
 
-for c in os.walk(os.path.dirname(path)):
+for file in os.walk(os.path.dirname(path)):
     count += 1
 
 pos = 0
@@ -17,7 +17,5 @@ for file in os.walk(os.path.dirname(path)):
     pos += 1
     if pos == count:
         print(str(file[len(file) - 1]) + "\n\n")
-        for f in file[len(file) - 1]:
+        for f in file[0]:
             print(f)
-            f_parts = f.split('.')
-            print(f_parts[len(f_parts) - 1])

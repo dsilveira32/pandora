@@ -54,7 +54,7 @@ def print_variables_debug(variables):
         if variable_debug == '':
             variable_debug = str(part)
         else:
-            variable_debug = '\n' + str(part)
+            variable_debug += '\n' + str(part)
     print_variable_debug(variable_debug)
 
     return
@@ -130,23 +130,35 @@ def handle_zip_file(attempt, f, contest):
 
 # check in test files
 def check_is_in_file(files):
+    print_variable_debug("Checking in files")
+    variable_debug = []
     for file in files:
-        file_parts = file.split()
+        file_parts = file.split('.')
+        variable_debug.append(file_parts[0])
+        variable_debug.append(file_parts[1])
         if not 'in' == file_parts[len(file_parts) - 1]:
+            print_variables_debug(variable_debug)
             print("The file: " + file + " is not an in file!")
+            print("Is an " + file_parts[len(file_parts) - 1] + " file type!")
             return False
-
+    print_variables_debug(variable_debug)
     return True
 
 
 # check if the test files are for the contest
 def check_is_for_this_contest_file(files, contest):
+    print_variable_debug("Checking if the files are for the selected contest")
+    variable_debug = []
     for file in files:
         file_parts = file.split('.')
-        print_variables_debug(file_parts)
+        variable_debug.append(file_parts[0])
+        variable_debug.append(file_parts[1])
         if contest.short_name not in file_parts[0]:
+            print_variables_debug(variable_debug)
             print("The file: " + file + " is not for this contest")
+            print("This contest short name is: " + str(contest.short_name))
             return False
+    print_variables_debug(variable_debug)
     return True
 
 
@@ -154,21 +166,34 @@ def check_is_for_this_contest_file(files, contest):
 def check_is_out_file(files, files_max_length):
     if files_max_length < len(files):
         print("There are more out files than in files!")
+        print("There are " + str(len(files)) + " out files and only " + str(files_max_length) + " in files!")
         return False
     else:
+        print_variable_debug("Checking out files")
+        variable_debug = []
         for file in files:
-            file_parts = file.split()
+            file_parts = file.split('.')
+            variable_debug.append(file_parts[0])
+            variable_debug.append(file_parts[1])
             if not 'out' == file_parts[len(file_parts) - 1]:
-                print("The file: " + file + " is not an out file!")
+                variable_debug.append("\nThe file: " + file + " is not an out file!")
+                variable_debug.append("\nIs an " + file_parts[len(file_parts) - 1] + " file type!")
+                print_variables_debug(variable_debug)
                 return False
-
+        print_variables_debug(variable_debug)
         return True
 
 
 # unzip zip file
-def unzip_zip_file(zip_path):
-    with zipfile.ZipFile(zip_path, 'r') as in_files:
-        in_files.extractall(os.path.dirname(zip_path))
+def unzip_zip_file(zip_path, f, in_out):
+    extract_dir = os.path.dirname(zip_path) + '/temp' + str(in_out)
+    file_name = str(os.path.basename(zip_path))
+
+    print_variable_debug("Unzipping file " + str(file_name))
+    with zipfile.ZipFile(f, 'r') as in_files:
+        print_variable_debug("Extracting file " + str(file_name) + " to " + str(extract_dir))
+        in_files.extractall(extract_dir)
+    print_variable_debug("File " + str(file_name) + " unzipped")
 
     return
 
@@ -178,26 +203,32 @@ def unzip_zip_file(zip_path):
 def check_in_files(f, contest):
     # set the zip path
     zip_path = os.path.abspath(f.path)
+    zip_dir = os.path.dirname(zip_path)
 
     # unzip zip file
-    unzip_zip_file(zip_path)
+    unzip_zip_file(zip_path, f, '/in')
 
     # find the last branch level
     count = 0
-    for c in os.walk(zip_path):
+    for c in os.walk(str(zip_dir) + '/in'):
         count += 1
 
     # for the last branch level
     file_tree_branch = 0
-    for files in os.walk(zip_path):
+    for files in os.walk(str(zip_dir) + '/in'):
         file_tree_branch += 1
         if file_tree_branch == count:
+            print_variable_debug("Branch founded!")
             # check if the files are for this contest
             if check_is_for_this_contest_file(files[len(files) - 1], contest):
+                print_variable_debug("Is for this contest!")
                 # check if they are in files
                 if check_is_in_file(files[len(files) - 1]):
+                    print_variable_debug("Are in files!")
                     # if the files are correct return them
-                    return files
+                    return files[2]
+
+    print_variable_debug("Leaving!")
 
     # if the files have some problem, return an empty list
     return []
@@ -207,27 +238,35 @@ def check_in_files(f, contest):
 def check_out_files(f, contest, files_max_length):
     # set the zip path
     zip_path = os.path.abspath(f.path)
+    zip_dir = os.path.dirname(zip_path)
 
     # unzip zip file
-    unzip_zip_file(zip_path)
+    unzip_zip_file(zip_path, f, '/out')
 
     # check last branch
     count = 0
-    for c in os.walk(zip_path):
+    x = []
+    for c in os.walk(str(zip_dir) + '/out'):
+        x.append(c)
         count += 1
+    print_variables_debug(x)
 
     # for the last branch
     file_tree_branch = 0
-    for files in os.walk(zip_path):
+    for files in os.walk(str(zip_dir) + '/out'):
         file_tree_branch += 1
         if file_tree_branch == count:
+            # print_variable_debug("Branch founded!")
             # check if the files are for this contest
-            if check_is_for_this_contest_file(files, contest):
+            if check_is_for_this_contest_file(files[len(files) - 1], contest):
+                print_variable_debug("Is for this contest!")
                 # check if they are out files
-                if check_is_out_file(files):
+                if check_is_out_file(files[len(files) - 1], files_max_length):
+                    print_variable_debug("Are out files!")
                     # if the files are correct return them
-                    return files
+                    return files[2]
 
+    print_variable_debug("Leaving!")
     # if the files have some problem, return an empty list
     return []
 
@@ -448,6 +487,23 @@ def admin_contest_creation(request):
     return render(request, template_name, context)
 
 
+def set_test_in_order(tests):
+    tests_in_order = []
+    last_number = 0
+
+    for i in range(len(tests)):
+        for test in tests:
+            file_name = test.split('.')[0]
+            file_name_parts = file_name.split('_')
+            for part in file_name_parts:
+                if 'test' in part:
+                    test_number = part.split('test')[1]
+                    if last_number + 1 == test_number:
+                        tests_in_order.append(test)
+
+    return tests_in_order
+
+
 @login_required
 def admin_test_creation(request):
     template_name = 'contest/test_creation.html'
@@ -461,22 +517,58 @@ def admin_test_creation(request):
     #       "-----------------------------------")
     if test_form.is_valid():
         obj = test_form.save(commit=False)
-        print(obj.contest.short_name)
         contest = obj.contest
-        print(contest)
         zip_in = obj.input_file
         zip_out = obj.output_file
+        # start debug
+        print_variable_debug(obj.contest.short_name)
+        print_variable_debug(contest)
+        # end debug
         if '.zip' in str(zip_in) and '.zip' in str(zip_out):
-            print("-------------------------------------------------------------------------------------------------\n"
-                  + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
-                  "\n-------------------------------------------------------------------------------------------------")
+            print_variable_debug("The files: \n" + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
+                                 "\nare zip files!")
+            in_files = set_test_in_order(check_in_files(zip_in, contest))
+            print_variable_debug(in_files)
 
-        # in_files = check_in_files(obj.in_files, contest_obj)
-        # out_files = check_out_files(obj.out_files, contest_obj, len(in_files))
-        # create_test(request, in_files, out_files, contest_obj)
-        # handle_uploaded_file(obj, obj.file, contest_obj) # to check the ins and outs files
-        obj.save()
-        print(obj)
+            print_variable_debug(zip_in)
+            n_tests = len(in_files)
+            print_variable_debug(n_tests)
+
+            print_variable_debug(zip_out)
+            out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
+            print_variable_debug(out_files)
+
+            weight = 100 / n_tests
+            benchmark = False
+            test_number = 0
+
+            for i in range(n_tests):
+                test_number += 1
+                form = CreateTestModelForm(request.POST or None, request.FILES or None)
+                test = form.save(commit=False)
+                test.contest = contest
+                test.weight_pct = weight
+                test.input_file = in_files[i]
+                test.output_file = out_files[i]
+                if not benchmark:
+                    test.use_for_time_benchmark = False
+                    test.use_for_memory_benchmark = False
+                    test.mandatory = False
+                else:
+                    test.use_for_time_benchmark = True
+                    test.use_for_memory_benchmark = True
+                    test.mandatory = True
+                    benchmark = False
+
+                test.save()
+                print_variable_debug("Test " + str(test_number) + " made!")
+                print_variable_debug(i)
+
+            # create_test(request, in_files, out_files, contest)
+            # handle_uploaded_file(obj, obj.file, contest_obj) # to check the ins and outs files
+            # obj.save()
+            print(obj)
+        # obj.save()
     context = ({'form': test_form})
 
     return render(request, template_name, context)
