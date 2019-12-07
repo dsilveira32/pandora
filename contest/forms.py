@@ -28,7 +28,7 @@ class CreateTestModelForm(forms.ModelForm):
 
     class Meta:
         model = Test
-        fields = ()
+        fields = "__all__"
 
 
 class SignUpForm(UserCreationForm):

@@ -26,7 +26,41 @@ from django.views.generic.edit import FormView
 from subprocess import check_output, CalledProcessError
 
 
-# - functions needed in the functions that are needed that are also needed
+# ------------------------------------------------------- debug -------------------------------------------------------
+# forms
+def print_form_info_debug(form):
+    if not form.is_valid():
+        print("-----------------------------------\nThe form is built with:\n" + str(form) +
+              "\n-----------------------------------")
+    print("-----------------------------------\nThe form is valid: " + str(form.is_valid()) +
+          "\n-----------------------------------")
+
+    return
+
+
+# variable
+def print_variable_debug(variable):
+    print("-----------------------------------------------------------------\n"
+          + str(variable) +
+          "\n-----------------------------------------------------------------")
+
+    return
+
+
+# variables
+def print_variables_debug(variables):
+    variable_debug = ''
+    for part in variables:
+        if variable_debug == '':
+            variable_debug = str(part)
+        else:
+            variable_debug = '\n' + str(part)
+    print_variable_debug(variable_debug)
+
+    return
+
+
+# ----------------------- functions needed in the functions that are needed that are also needed -----------------------
 # check output function
 def check_output(command, cwd):
     print('cwd = ' + cwd)
@@ -37,7 +71,7 @@ def check_output(command, cwd):
     return output, retcode
 
 
-# - functions needed in the functions that are needed
+# ---------------------------------- functions needed in the functions that are needed ---------------------------------
 # exec functions
 def exec_command(test, contest, submission_dir, obj_file, user_output, user_report):
     if test.override_exec_options:
@@ -108,11 +142,11 @@ def check_is_in_file(files):
 # check if the test files are for the contest
 def check_is_for_this_contest_file(files, contest):
     for file in files:
-        file_parts = file.split()
-        if not contest.short_name == file_parts[len(file_parts) - 1]:
+        file_parts = file.split('.')
+        print_variables_debug(file_parts)
+        if contest.short_name not in file_parts[0]:
             print("The file: " + file + " is not for this contest")
             return False
-
     return True
 
 
@@ -132,36 +166,36 @@ def check_is_out_file(files, files_max_length):
 
 
 # unzip zip file
-def unzip_zip_file(f, zip_path):
+def unzip_zip_file(zip_path):
     with zipfile.ZipFile(zip_path, 'r') as in_files:
         in_files.extractall(os.path.dirname(zip_path))
 
     return
 
 
-# - functions needed
+# -------------------------------------------------- functions needed --------------------------------------------------
 # check in files
 def check_in_files(f, contest):
     # set the zip path
     zip_path = os.path.abspath(f.path)
 
     # unzip zip file
-    unzip_zip_file(f, zip_path)
+    unzip_zip_file(zip_path)
 
-    # check last branch
+    # find the last branch level
     count = 0
     for c in os.walk(zip_path):
         count += 1
 
-    # for the last branch
+    # for the last branch level
     file_tree_branch = 0
     for files in os.walk(zip_path):
         file_tree_branch += 1
         if file_tree_branch == count:
             # check if the files are for this contest
-            if check_is_for_this_contest_file(files, contest):
+            if check_is_for_this_contest_file(files[len(files) - 1], contest):
                 # check if they are in files
-                if check_is_in_file(files):
+                if check_is_in_file(files[len(files) - 1]):
                     # if the files are correct return them
                     return files
 
@@ -175,7 +209,7 @@ def check_out_files(f, contest, files_max_length):
     zip_path = os.path.abspath(f.path)
 
     # unzip zip file
-    unzip_zip_file(f, zip_path)
+    unzip_zip_file(zip_path)
 
     # check last branch
     count = 0
@@ -226,7 +260,7 @@ def create_test(request, in_files, out_files, contest):
 
 
 # handle uploaded file
-def handle_uploaded_file(atempt, f, contest):
+def handle_uploaded_file(attempt, f, contest):
     safeexec_errors = SafeExecError.objects.all()
     safeexec_ok = SafeExecError.objects.get(description='OK')
     src_path = os.path.abspath(f.path)
@@ -235,7 +269,7 @@ def handle_uploaded_file(atempt, f, contest):
 
     print('ext: ' + ext)
     if ext == '.zip':
-        handle_zip_file(atempt, f, contest)
+        handle_zip_file(attempt, f, contest)
 
     print('source path = ' + src_path)
 
@@ -244,7 +278,7 @@ def handle_uploaded_file(atempt, f, contest):
 
     print('submition dir = ' + submition_dir)
 
-    atempt.compile_error = False
+    attempt.compile_error = False
     # my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
     my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
 
@@ -252,24 +286,24 @@ def handle_uploaded_file(atempt, f, contest):
     output, ret = check_output(my_cmd, submition_dir)
 
     if output[0] != '':
-        atempt.compile_error = True
-        atempt.error_description = output[0]
+        attempt.compile_error = True
+        attempt.error_description = output[0]
         print('compile error... terminating...')
-        atempt.save()
+        attempt.save()
         return  # if compilation errors or warnings dont bother with running the tests
 
     test_set = contest.test_set.all()
     n_tests = test_set.count()
     mandatory_failed = False
     pct = 0
-    atempt.time_benchmark = 2147483647
-    atempt.memory_benchmark = 2147483647
-    atempt.cpu_time = 99999.999
-    atempt.elapsed_time = 2147483647
+    attempt.time_benchmark = 2147483647
+    attempt.memory_benchmark = 2147483647
+    attempt.cpu_time = 99999.999
+    attempt.elapsed_time = 2147483647
 
     for test in test_set:
         record = Classification()
-        record.attempt = atempt
+        record.attempt = attempt
         record.test = test
         record.passed = True
 
@@ -344,12 +378,12 @@ def handle_uploaded_file(atempt, f, contest):
             print('accumulated pct = ' + str(pct))
 
             if test.use_for_time_benchmark:
-                atempt.time_benchmark = record.execution_time
-                atempt.cpu_time = record.cpu_time
-                atempt.elapsed_time = record.elapsed_time
+                attempt.time_benchmark = record.execution_time
+                attempt.cpu_time = record.cpu_time
+                attempt.elapsed_time = record.elapsed_time
 
             if test.use_for_memory_benchmark:
-                atempt.memory_benchmark = record.memory_usage
+                attempt.memory_benchmark = record.memory_usage
         else:
             record.error_description = 'Wrong Answer'
             if test.mandatory:
@@ -360,8 +394,8 @@ def handle_uploaded_file(atempt, f, contest):
     print('obtained pct = ' + str(pct))
     print('max_class = ' + str(contest.max_classification))
 
-    atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
-    atempt.save()
+    attempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
+    attempt.save()
 
 
 # get functions
@@ -385,29 +419,70 @@ def get_team_attempts(team):
     return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
 
 
-# - @login_required functions
-# admin
+# ---------------------------------------------- @login_required functions ---------------------------------------------
+# admin creations
 @login_required
 def admin_contest_creation(request):
     template_name = 'contest/contest_creation.html'
 
-    form = CreateContestModelForm(request.POST or None, request.FILES or None)
-    print(form.is_valid())
-    if form.is_valid():
-        obj = form.save(commit=False)
+    contest_form = CreateContestModelForm(request.POST or None, request.FILES or None)
+    print_form_info_debug(contest_form)
+    # test_form = CreateTestModelForm(request.POST or None)
+    # print("-----------------------------------The form for the test is: " + str(test_form) +
+    #       "-----------------------------------")
+    # print("-----------------------------------The form for the test is valid: " + str(test_form.is_valid()) +
+    #       "-----------------------------------")
+    if contest_form.is_valid():
+        obj = contest_form.save(commit=False)
         obj.save()
-        short_name = obj.short_name
-        contest_obj = get_object_or_404(Contest, short_name=short_name)
-        print(contest_obj)
-        in_files = check_in_files(obj.in_files, contest_obj)
-        out_files = check_out_files(obj.out_files, contest_obj, len(in_files))
-        create_test(request, in_files, out_files, contest_obj)
+        print(obj)
+        # short_name = obj.short_name
+        # contest_obj = get_object_or_404(Contest, short_name=short_name)
+        # print(contest_obj)
+        # in_files = check_in_files(obj.in_files, contest_obj)
+        # out_files = check_out_files(obj.out_files, contest_obj, len(in_files))
+        # create_test(request, in_files, out_files, contest_obj)
         # handle_uploaded_file(obj, obj.file, contest_obj) # to check the ins and outs files
-    context = ({'form': form})
+    context = ({'form': contest_form})
 
     return render(request, template_name, context)
 
 
+@login_required
+def admin_test_creation(request):
+    template_name = 'contest/test_creation.html'
+
+    test_form = CreateTestModelForm(request.POST or None, request.FILES or None)
+    print_form_info_debug(test_form)
+    # test_form = CreateTestModelForm(request.POST or None)
+    # print("-----------------------------------The form for the test is: " + str(test_form) +
+    #       "-----------------------------------")
+    # print("-----------------------------------The form for the test is valid: " + str(test_form.is_valid()) +
+    #       "-----------------------------------")
+    if test_form.is_valid():
+        obj = test_form.save(commit=False)
+        print(obj.contest.short_name)
+        contest = obj.contest
+        print(contest)
+        zip_in = obj.input_file
+        zip_out = obj.output_file
+        if '.zip' in str(zip_in) and '.zip' in str(zip_out):
+            print("-------------------------------------------------------------------------------------------------\n"
+                  + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
+                  "\n-------------------------------------------------------------------------------------------------")
+
+        # in_files = check_in_files(obj.in_files, contest_obj)
+        # out_files = check_out_files(obj.out_files, contest_obj, len(in_files))
+        # create_test(request, in_files, out_files, contest_obj)
+        # handle_uploaded_file(obj, obj.file, contest_obj) # to check the ins and outs files
+        obj.save()
+        print(obj)
+    context = ({'form': test_form})
+
+    return render(request, template_name, context)
+
+
+# admin view
 @login_required
 def admin_view(request, id):
     template_name = 'contest/admin_view.html'
@@ -429,11 +504,11 @@ def admin_view(request, id):
             "		select max(id) as id, count(id) as atempts, team_id" \
             "			from contest_atempt" \
             "				where contest_id = " + str(contest_obj.id) + " " \
-            "					group by team_id" \
-            "	) maxs" \
-            "		inner join contest_atempt ca on ca.id = maxs.id " \
-            "		join contest_team c on ca.team_id = c.id" \
-            "		join auth_user au on ca.user_id = au.id"
+                                                                          "					group by team_id" \
+                                                                          "	) maxs" \
+                                                                          "		inner join contest_atempt ca on ca.id = maxs.id " \
+                                                                          "		join contest_team c on ca.team_id = c.id" \
+                                                                          "		join auth_user au on ca.user_id = au.id"
 
     grades = Atempt.objects.raw(query)
 
@@ -873,7 +948,7 @@ def team_join_view(request, id):
     return render(request, template_name, context)
 
 
-# - The rest
+# ------------------------------------------------------ The rest ------------------------------------------------------
 # page logout
 def pagelogout(request):
     if request.method == "POST":
@@ -910,6 +985,5 @@ def nonactive_view(request):
     context = {'title': 'Welcome to PANDORA',
                'description': 'Your account is not active. Please wait for the administrator to activate your account.'}
     return render(request, template_name, context)
-
 
 # in progress

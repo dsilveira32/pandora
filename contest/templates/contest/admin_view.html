@@ -3,94 +3,94 @@
 {% block content %}
 
 
-<form method='POST' action='.' enctype='multipart/form-data'> {% csrf_token %}
-					{% if messages %}
-						{% for message in messages %}
-							<div class="alert alert-danger" role="alert">{{ message|safe }}</div>
-						{% endfor %}
-					{% endif %}
+    <form method='POST' action='.' enctype='multipart/form-data'> {% csrf_token %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger" role="alert">{{ message|safe }}</div>
+            {% endfor %}
+        {% endif %}
 
-{% for team in teams %}
-<div class="row justify-content-center align-items-center">
-	<div class="col-md-6">
-		<div class="card border rounded shadow-sm mb-4 mt-4">
-			<div class="card-body text-center">
-                <div class = "row">
-                    <div class = "col-md-8">
+        {% for team in teams %}
+            <div class="row justify-content-center align-items-center">
+                <div class="col-md-6">
+                    <div class="card border rounded shadow-sm mb-4 mt-4">
+                        <div class="card-body text-center">
+                            <div class = "row">
+                                <div class = "col-md-8">
 
-                        <h5 class="car-title mb-2 text-primary" style = "float: left">
-                            {{ contest.short_name }} / {{ team.name }} ({% if team.active %} Active {% else %} Waiting for Admin Activation {% endif %})
-                        </h5>
+                                    <h5 class="car-title mb-2 text-primary" style = "float: left">
+                                        {{ contest.short_name }} / {{ team.name }} ({% if team.active %} Active {% else %} Waiting for Admin Activation {% endif %})
+                                    </h5>
 
-                    </div>
-                    <div class = "col-md-4">
+                                </div>
+                                <div class = "col-md-4">
 
-                        <h5 class="car-title mb-2 text-primary" style = "float: right">
+                                    <h5 class="car-title mb-2 text-primary" style = "float: right">
 
-                            {% for g in grades %}
+                                        {% for g in grades %}
 
-                                {% if g.team_name == team.name %}
+                                            {% if g.team_name == team.name %}
 
-                                    {{ g.grade }}
+                                                {{ g.grade }}
 
-                                {% endif %}
+                                            {% endif %}
 
-                            {% endfor %}
-                        </h5>
+                                        {% endfor %}
+                                    </h5>
 
+                                </div>
+                            </div>
+
+                            <p class="card-text mb-auto">
+
+
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Member</th>
+                                            <th scope="col">Number</th>
+                                            <th scope="col">Submissions</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for object in team.members %}
+                                        <tr>
+                                            <td>
+
+                                                {{ object.user.first_name }} {{ object.user.last_name }}
+
+                                            </td>
+                                            <td>{{ object.user.profile.number }}</td>
+                                            {% for a in atempts %}
+
+                                                {% if team.name == a.team.name %}
+
+                                                    {% if object.user.username == a.username %}
+
+                                                        <td>
+                                                            {{ a.user_atempts }}
+                                                            /
+                                                            {{ a.team_atempts }}
+                                                        </td>
+
+                                                    {% endif %}
+
+                                                {% endif %}
+
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </p>
+
+                            <button class="btn btn-secondary" name="team_id" type='submit' value="{{ team.id }}">Team status</button>
+
+                        </div>
                     </div>
                 </div>
-
-            <p class="card-text mb-auto">
-
-
-					<table class="table">
-						<thead>
-							<tr>
-								<th scope="col">Member</th>
-								<th scope="col">Number</th>
-								<th scope="col">Submissions</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							{% for object in team.members %}
-							<tr>
-								<td>
-
-                                    {{ object.user.first_name }} {{ object.user.last_name }}
-
-                                </td>
-								<td>{{ object.user.profile.number }}</td>
-                                {% for a in atempts %}
-
-                                    {% if team.name == a.team.name %}
-
-                                        {% if object.user.username == a.username %}
-
-                                            <td>
-                                                {{ a.user_atempts }}
-                                                /
-                                                {{ a.team_atempts }}
-                                            </td>
-
-                                        {% endif %}
-
-                                    {% endif %}
-
-                                {% endfor %}
-							</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-				</p>
-
-			{% if team.room_left > 0 or has_team %}
-				<button class="btn btn-secondary" name="team_id" type='submit' value="{{ team.id }}">Team status</button>
-			{% endif %}
-			</div>
-		</div>
-	</div>
-</div>
-{% endfor %}
+            </div>
+        {% endfor %}
+    </form>
 {% endblock %}
