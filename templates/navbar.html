@@ -8,7 +8,7 @@
 		<span class="navbar-toggler-icon"></span>
 	</button>
 
-	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+	<div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
 		<ul class="navbar-nav mr-auto">
 			{% if contest %}
 			 <li class="nav-item dropdown">
@@ -20,12 +20,43 @@
 			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}atempt/"><span class="oi oi-data-transfer-upload"></span> Submit</a>
 			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}ranking/"><span class="oi oi-sort-ascending"></span> Ranking</a>
 			 		<a class="dropdown-item" href="{{ contest.get_absolute_url }}myteam/"><span class="oi oi-people"></span> Team</a>
+                    {% if user.is_superuser %}
+
+			 		    <a class="dropdown-item" href="{{ contest.get_absolute_url }}admin-view/"><span class="oi oi-people"></span> Admin</a>
+
+                    {% endif %}
 
 			 	</div>
 			 </li>
+			{% else %}
+
+                {% if user.is_superuser %}
+
+                    <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="oi oi-project"></span> Admin
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="admin-view/contest-creation"><span class="oi oi-graph"></span> Contest creation</a>
+
+                    </div>
+                 </li>
+
+                {% endif %}
+
 			{% endif %}
 
 		</ul>
+
+        {% if user.is_superuser %}
+
+            {% if contest %}
+
+                <input type="button" onclick="location.href='{{ contest.get_absolute_url }}grades-downloader/';" value="Extract grades"/>
+
+            {% endif %}
+
+        {% endif %}
 
 		<ul class="navbar-nav navbar-right">
 			{% if user.is_authenticated %}
