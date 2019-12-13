@@ -23,6 +23,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import smart_text
 from django.views.generic.edit import FormView
+from shutil import copyfile
 from subprocess import check_output, CalledProcessError
 
 
@@ -73,7 +74,7 @@ def check_output(command, cwd):
 
 # ---------------------------------- functions needed in the functions that are needed ---------------------------------
 # exec functions
-def exec_command(test, contest, obj_file, user_output, user_report, submission_dir):
+def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1):
 	if test.override_exec_options:
 		cpu = test.cpu
 		mem = test.mem
@@ -110,7 +111,11 @@ def exec_command(test, contest, obj_file, user_output, user_report, submission_d
 	exec_cmd += "--clock %d " % clock
 	exec_cmd += "--usage %s " % user_report
 	exec_cmd += "--exec "
-	exec_cmd += obj_file + ' ' + str(test.run_arguments) + ' < ' + test.input_file.path + ' > ' + user_output
+	
+	run_args = str(test.run_arguments)
+	run_args2 = run_args.replace('%f1%', opt_user_file1)
+	
+	exec_cmd += obj_file + ' ' + run_args2 + ' < ' + test.input_file.path + ' > ' + user_output
 	
 	return exec_cmd
 
@@ -312,17 +317,18 @@ def handle_uploaded_file(attempt, f, contest):
 	
 	print('source path = ' + src_path)
 	
-	submition_dir = os.path.dirname(src_path)
-	obj_file = submition_dir + '/' + src_name + '.user.o'
+	submission_dir = os.path.dirname(src_path)
+	obj_file = submission_dir + '/' + src_name + '.user.o'
 	
-	print('submition dir = ' + submition_dir)
+	print('submission dir = ' + submission_dir)
 	
 	attempt.compile_error = False
 	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
+	my_cmd = 'gcc ' + contest.compile_flags + ' ' + submission_dir + '/*.c ' + ' -I ' + submission_dir + '/src/*.c ' +\
+			 ' -o ' + obj_file + ' ' + contest.linkage_flags
 	
 	print('compilation: ' + my_cmd)
-	output, ret = check_output(my_cmd, submition_dir)
+	output, ret = check_output(my_cmd, submission_dir)
 	
 	if output[0] != '':
 		attempt.compile_error = True
@@ -348,16 +354,20 @@ def handle_uploaded_file(attempt, f, contest):
 		
 		testout_base = os.path.basename(test.output_file.path)
 		(testout_name, ext) = os.path.splitext(testout_base)
-		user_output = os.path.join(submition_dir, testout_base + '.user')
-		user_report = os.path.join(submition_dir, testout_name + '.report')
+		user_output = os.path.join(submission_dir, testout_base + '.user')
+		user_report = os.path.join(submission_dir, testout_name + '.report')
 		
-		exec_cmd = exec_command(test, contest, obj_file, user_output, user_report, submition_dir)
+		opt_file_base = os.path.basename(test.opt_file1.path)
+		opt_user_file1 = os.path.join(submission_dir, opt_file_base)
+		copyfile(test.opt_file1.path, opt_user_file1)
+		
+		exec_cmd = exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1)
 		
 		print('exec cmd is:\n')
 		print(exec_cmd)
 		
 		time_started = datetime.datetime.now()  # Save start time.
-		check_output(exec_cmd, submition_dir)
+		check_output(exec_cmd, submission_dir)
 		record.execution_time = (datetime.datetime.now() - time_started).microseconds  # Get execution time.
 		
 		# save files
@@ -403,7 +413,7 @@ def handle_uploaded_file(attempt, f, contest):
 		
 		# uses the diff tool
 		diff, ret = check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path,
-								 submition_dir)
+								 submission_dir)
 		
 		record.passed = diff[0] == ''
 		
@@ -726,7 +736,7 @@ def attempt_list_view(request, id):
 	context = {'contest': contest_obj}
 	
 	team_obj, members = get_user_team(request, contest_obj.id)
-	if not team_obj or not members.filter(user=request.user).first().approved or not request.user.profile.valid:
+	if not team_obj:
 		return redirect(os.path.join(contest_obj.get_absolute_url(), 'team/join/'))
 	
 	atempts = get_team_attempts(team_obj)
