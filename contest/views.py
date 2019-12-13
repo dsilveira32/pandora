@@ -647,6 +647,7 @@ def admin_view(request, id):
     form = TeamMemberForm(request.POST or None)
 
     if form.is_valid():
+        # verificar codigo team join e team status
         return redirect(os.path.join(contest_obj.get_absolute_url(), 'status/'))
 
     context.update({'form': form})
@@ -808,6 +809,7 @@ def change_password_view(request):
 
 # extract grades
 def extract_grades(request, id):
+    print_variables_debug([request, id])
     # get the contest
     contest_obj = get_object_or_404(Contest, id=id)
 
@@ -834,7 +836,7 @@ def extract_grades(request, id):
             "       join (" \
             "           select max(id) as id, count(id) as atempts, user_id" \
             "               from contest_atempt" \
-            "                   where contest_id = 1" \
+            "                   where contest_id = " + str(contest_obj.id) + \
             "                       group by user_id" \
             "       ) umax on umax.user_id = ct.user_id" \
             "       join contest_profile cp on au.id = cp.user_id order by number asc"
@@ -913,9 +915,11 @@ def ranking_view(request, id):
             "count(id) as atempts," \
             "team_id from " \
             "contest_atempt" \
-            " where contest_id = " + str(contest_obj.id) + " group by team_id)" \
-                                                           "maxs inner join contest_atempt ca on ca.id = maxs.id" \
-                                                           " order by grade desc, atempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc, cpu_time asc"
+            " where contest_id = " + str(contest_obj.id) + \
+            "   group by team_id)" \
+            "       maxs inner join contest_atempt ca on ca.id = maxs.id" \
+            "           order by grade desc, atempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
+            "                       cpu_time asc"
     # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
 
     atempts = Atempt.objects.raw(query)
