@@ -4,6 +4,7 @@ from .views import (
     admin_view,
     admin_contest_creation,
     admin_test_creation,
+    admin_view_teams_status,
     contest_list_view,
     signup_view,
     contest_detail_view,
@@ -31,6 +32,8 @@ urlpatterns = [
     path('contests/<int:id>/status/', attempt_list_view),
     path('contests/<int:id>/ranking/', ranking_view),
     path('contests/<int:id>/admin-view/', admin_view),
+    path('contests/<int:c_id>/admin-view/team/<int:t_id>/status/', admin_view_teams_status),
+
     path('contests/<int:id>/grades-downloader/', extract_grades),
     path('admin-view/contest-creation/', admin_contest_creation),
     path('admin-view/test-creation/', admin_test_creation),

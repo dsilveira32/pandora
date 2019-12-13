@@ -438,8 +438,25 @@ def handle_uploaded_file(attempt, f, contest):
 
 
 # get functions
+def get_team_members(request, contest_id, team_id):
+    qs = TeamMember.objects.filter(team__contest=contest_id).filter(user__teammember__team_id=team_id).first()
+
+    print_variables_debug(['qs:', qs])
+
+    if not qs:
+        return Team.objects.none(), TeamMember.objects.none()
+
+    team_obj = qs.team
+    members = team_obj.teammember_set.all()
+
+    return team_obj, members
+
+
+# get functions
 def get_user_team(request, contest_id):
     qs = TeamMember.objects.filter(team__contest=contest_id, user=request.user).first()
+
+    # print_variables_debug(['qs:', qs])
 
     if not qs:
         return Team.objects.none(), TeamMember.objects.none()
@@ -598,10 +615,6 @@ def admin_view(request, id):
 
     teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
 
-    for obj in teams:
-        obj.members = TeamMember.objects.filter(team=obj)
-        obj.room_left = obj.contest.max_team_members - obj.members.count()
-
     context.update({'teams': teams})
 
     # TODO Make it better
@@ -647,10 +660,42 @@ def admin_view(request, id):
     form = TeamMemberForm(request.POST or None)
 
     if form.is_valid():
+        t_id = form.cleaned_data.get("team_id")
         # verificar codigo team join e team status
-        return redirect(os.path.join(contest_obj.get_absolute_url(), 'status/'))
+        return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/team/' + str(t_id) + '/status/'))
 
     context.update({'form': form})
+
+    return render(request, template_name, context)
+
+
+# attempt
+@login_required
+def admin_view_teams_status(request, c_id, t_id):
+    template_name = 'contest/atempt_list.html'
+
+    contest_obj = get_object_or_404(Contest, id=c_id)
+    context = {'contest': contest_obj}
+
+    team_obj, members = get_team_members(request, contest_obj.id, t_id)
+
+    atempts = get_team_attempts(team_obj)
+
+    if atempts:
+        context.update({'number_of_submitions': atempts.count()})
+        context.update({'last_classification': atempts.first().grade})
+        context.update({'last_execution_time': atempts.first().time_benchmark})
+        context.update({'last_memory_usage': atempts.first().memory_benchmark})
+    else:
+        context.update({'number_of_submitions': 0})
+        context.update({'last_classification': 0})
+        context.update({'last_execution_time': int(sys.maxsize)})
+        context.update({'last_memory_usage': int(sys.maxsize)})
+
+    team_obj.members = members
+    context.update({'team': team_obj})
+    context.update({'atempts': atempts})
+    context.update({'maxsize': int(sys.maxsize)})
 
     return render(request, template_name, context)
 
