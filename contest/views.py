@@ -5,6 +5,7 @@ import datetime
 import sys
 import csv
 import zipfile
+from shutil import copyfile
 
 from .forms import SignUpForm, AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
 	CreateContestModelForm, CreateTestModelForm
@@ -967,7 +968,7 @@ def contest_detail_view(request, id):
 
 # profile
 @login_required
-def profile_view(request):
+def profile_view(request):e the 
 	template_name = 'contest/profile.html'
 	context = {'user': request.user}
 	return render(request, template_name, context)
