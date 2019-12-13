@@ -615,6 +615,9 @@ def admin_view(request, id):
 
     teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
 
+    for t in teams:
+        t.members = TeamMember.objects.filter(team=t)
+
     context.update({'teams': teams})
 
     # TODO Make it better
@@ -665,6 +668,19 @@ def admin_view(request, id):
         return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/team/' + str(t_id) + '/status/'))
 
     context.update({'form': form})
+    #
+    # bug = ["INFO IN THE HTML:", "***************TEAMS***********"]
+    #
+    # for t in teams:
+    #     es = ""
+    #     for e in TeamMember.objects.filter(team=t):
+    #         if es == "":
+    #             es = str(e.user.first_name) + " " + str(e.user.last_name)
+    #         else:
+    #             es += "; " + str(e.user.first_name) + " " + str(e.user.last_name)
+    #     bug.append(str(t) + " - " + str(es))
+    #
+    # print_variables_debug(bug)
 
     return render(request, template_name, context)
 
