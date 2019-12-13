@@ -59,16 +59,11 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 
 
 class Contest(models.Model):
-    print(str(get_contest_code_path) + '/temp')
     title = models.CharField(max_length=128)
     short_name = models.CharField(max_length=16, blank=False, unique=True)
     description = models.TextField(null=True, blank=True)
     sow = models.FileField(upload_to=get_contest_detail_path, blank=True, null=True, max_length=512)
-
-    in_files = models.FileField(upload_to=get_contest_ins_files_path, blank=True, null=True)
     reference_code = models.FileField(upload_to=get_contest_code_path, blank=True, null=True)
-    out_files = models.FileField(upload_to=get_contest_outs_files_path, blank=True, null=True)
-
     start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     min_team_members = models.PositiveSmallIntegerField(default=1)
@@ -110,6 +105,10 @@ class Test(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
     output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
+
+    opt_file1 = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)
+    opt_file2 = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)
+
     mandatory = models.BooleanField(null=False, default=False)
     weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
     run_arguments = models.CharField(max_length=512, null=True, blank=True)
