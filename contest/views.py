@@ -4,6 +4,7 @@ import subprocess
 import datetime
 import sys
 import csv
+from shutil import copyfile
 
 from .forms import SignUpForm, AtemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
     CreateContestModelForm
@@ -57,7 +58,7 @@ def check_output(command, cwd):
 
 
 # exec functions
-def exec_command(test, contest, submition_dir, obj_file, user_output, user_report):
+def exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1):
     if test.override_exec_options:
         cpu = test.cpu
         mem = test.mem
@@ -94,7 +95,11 @@ def exec_command(test, contest, submition_dir, obj_file, user_output, user_repor
     exec_cmd += "--clock %d " % clock
     exec_cmd += "--usage %s " % user_report
     exec_cmd += "--exec "
-    exec_cmd += obj_file + ' ' + str(test.run_arguments) + ' < ' + test.input_file.path + ' > ' + user_output
+
+    run_args = str(test.run_arguments)
+    run_args2 = run_args.replace('%f1%', opt_user_file1)
+
+    exec_cmd += obj_file + ' ' + run_args2 + ' < ' + test.input_file.path + ' > ' + user_output
 
     return exec_cmd
 
@@ -164,7 +169,11 @@ def handle_uploaded_file(atempt, f, contest):
         user_output = os.path.join(submition_dir, testout_base + '.user')
         user_report = os.path.join(submition_dir, testout_name + '.report')
 
-        exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report)
+        opt_file_base = os.path.basename(test.opt_file1.path)
+        opt_user_file1 = os.path.join(submition_dir, opt_file_base)
+        copyfile(test.opt_file1.path, opt_user_file1)
+
+        exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1)
 
         print('exec cmd is:\n')
         print(exec_cmd)
@@ -343,6 +352,8 @@ def attempt_list_view(request, id):
     context = {'contest': contest_obj}
 
     team_obj, members = get_user_team(request, contest_obj.id)
+    if not team_obj:
+        return redirect(os.path.join(contest_obj.get_absolute_url(), 'team/join/'))
 
     atempts = get_team_attempts(team_obj)
 
