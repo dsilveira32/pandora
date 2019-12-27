@@ -968,7 +968,7 @@ def contest_detail_view(request, id):
 
 # profile
 @login_required
-def profile_view(request):e the 
+def profile_view(request):
 	template_name = 'contest/profile.html'
 	context = {'user': request.user}
 	return render(request, template_name, context)
