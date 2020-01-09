@@ -73,3 +73,7 @@ class TeamModelForm(forms.ModelForm):
 	class Meta:
 		model = Team
 		fields = ['name']
+
+
+class TestForm(forms.Form):
+	test_id = forms.CharField(required=True)

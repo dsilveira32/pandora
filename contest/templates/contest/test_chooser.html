@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+	<form method='POST' action='.' enctype='multipart/form-data'> {% csrf_token %}
+		<div class='row'>
+			<div class="col-md-12">
+				<div class="card border rounded shadow-sm mb-4 mt-4">
+					<div class="card-body text-center">
+						<h5 class="car-title mb-2 text-primary">Contest: {{ contest.short_name|upper }}</h5>
+						<p class="card-text mb-auto">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Test ID</th>
+										<th>Mandatory</th>
+										<th>Weight</th>
+										<th>Time benchmark</th>
+										<th>Memory benchmark</th>
+										<th>Type of feedback</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for t in tests %}
+									<tr>
+										<td>{{ t.id }}</td>
+										<td>{{ t.mandatory }}</td>
+										<td>{{ t.weight_pct }}</td>
+										<td>{{ t.use_for_time_benchmark }}</td>
+										<td>{{ t.use_for_memory_benchmark }}</td>
+										<td>{{ t.type_of_feedback }}</td>
+										<td>
+											<button class="btn btn-secondary" name="test_id" type='submit' value="1">
+												Edit
+											</button>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+					<button class="btn btn-secondary" name="team_id" type='submit' value="{{ team.id }}">
+										Team status
+									</button>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+{% endblock %}

@@ -8,7 +8,7 @@ import zipfile
 from shutil import copyfile
 
 from .forms import SignUpForm, AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
-	CreateContestModelForm, CreateTestModelForm
+	CreateContestModelForm, CreateTestModelForm, TestForm
 from .models import Contest, Classification, Team, TeamMember, Atempt, SafeExecError, Test
 from django.conf import settings
 from django.contrib import messages
@@ -478,6 +478,7 @@ def get_user_team(request, contest_id):
 	return team_obj, members
 
 
+# get the team attempts
 def get_team_attempts(team):
 	members_ids = team.teammember_set.values_list('user__id', flat=True).distinct()
 	if not members_ids:
@@ -486,7 +487,56 @@ def get_team_attempts(team):
 	return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
 
 
+# set tests in order
+def set_test_in_order(tests):
+	tests_in_order = []
+	last_number = 0
+
+	for i in range(len(tests)):
+		for test in tests:
+			file_name = test.split('.')[0]
+			# print_variable_debug(["File name: ", file_name])
+			file_name_parts = file_name.split('_')
+			# print_variable_debug(["File name parts: ", file_name_parts])
+			for part in file_name_parts:
+				if 'test' in part:
+					# print_variable_debug("Found the test number")
+					test_number = part.split('test')[1]
+					# print_variables_debug([last_number + 1, int(test_number), last_number + 1 == int(test_number),
+					#                       last_number + 1 == test_number])
+					if last_number + 1 == int(test_number):
+						last_number += 1
+						tests_in_order.append(test)
+
+	return tests_in_order
+
+
 # ---------------------------------------------- @login_required functions ---------------------------------------------
+# admin choose the test to edit
+@login_required
+def admin_choose_test(request, id):
+	template_name = 'contest/test_chooser.html'
+
+	contest_obj = get_object_or_404(Contest, id=id)
+	context = {'contest': contest_obj}
+	contest_tests = Test.objects.filter(contest_id=id)
+	print_variables_debug(["Test:", contest_tests])
+	context.update({'tests': contest_tests})
+
+	form = TestForm(request.POST or None)
+
+	print_form_info_debug(form)
+
+	if form.is_valid():
+		t_id = form.cleaned_data.get("test_id")
+		# verificar codigo team join e team status
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/test/' + str(t_id) + '/editor/'))
+
+	context.update({'form': form})
+
+	return render(request, template_name, context)
+
+
 # admin creations
 @login_required
 def admin_contest_creation(request):
@@ -513,29 +563,6 @@ def admin_contest_creation(request):
 	context = ({'form': contest_form})
 	
 	return render(request, template_name, context)
-
-
-def set_test_in_order(tests):
-	tests_in_order = []
-	last_number = 0
-	
-	for i in range(len(tests)):
-		for test in tests:
-			file_name = test.split('.')[0]
-			# print_variable_debug(["File name: ", file_name])
-			file_name_parts = file_name.split('_')
-			# print_variable_debug(["File name parts: ", file_name_parts])
-			for part in file_name_parts:
-				if 'test' in part:
-					# print_variable_debug("Found the test number")
-					test_number = part.split('test')[1]
-					# print_variables_debug([last_number + 1, int(test_number), last_number + 1 == int(test_number),
-					#                       last_number + 1 == test_number])
-					if last_number + 1 == int(test_number):
-						last_number += 1
-						tests_in_order.append(test)
-	
-	return tests_in_order
 
 
 @login_required
@@ -616,6 +643,87 @@ def admin_test_creation(request):
 	return render(request, template_name, context)
 
 
+# admin test editor
+@login_required
+def admin_test_editor(request, id, t_id):
+	template_name = 'contest/test_edition.html'
+
+	contest_obj = get_object_or_404(Contest, id=id)
+	context = {'contest': contest_obj}
+
+	teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
+
+	for t in teams:
+		t.members = TeamMember.objects.filter(team=t)
+
+	context.update({'teams': teams})
+
+	# TODO Make it better
+	query = "Select ca.id, c.name as team_name, ca.grade as team_grade, maxs.atempts as team_atempts" \
+			"	from (" \
+			"		select max(id) as id, count(id) as atempts, team_id" \
+			"			from contest_atempt" \
+			"				where contest_id = " + str(contest_obj.id) + \
+			"					group by team_id" \
+			"	) maxs" \
+			"		inner join contest_atempt ca on ca.id = maxs.id " \
+			"		join contest_team c on ca.team_id = c.id" \
+			"		join auth_user au on ca.user_id = au.id"
+
+	grades = Atempt.objects.raw(query)
+
+	context.update({'grades': grades})
+
+	# TODO Make it better
+	query = "SELECT ca.id, maxs.team_atempts, maxs.team_id, au.username as username, au.first_name, au.last_name," \
+			"umax.atempts as user_atempts" \
+			"	FROM (" \
+			"		select max(id) as id, count(id) as team_atempts, team_id" \
+			"			from contest_atempt" \
+			"				where contest_id = " + str(contest_obj.id) + \
+			"					group by team_id" \
+			"	) maxs" \
+			"		inner join contest_atempt ca on ca.id = maxs.id" \
+			"		join contest_teammember ct on ct.team_id = ca.team_id" \
+			"		join contest_team c on ca.team_id = c.id" \
+			"		join auth_user au on au.id = ct.user_id" \
+			"		join (" \
+			"			select max(id) as id, count(id) as atempts, user_id" \
+			"				from contest_atempt" \
+			"					where contest_id = 1" \
+			"						group by user_id" \
+			"		) umax on umax.user_id = ct.user_id" \
+			"			order by atempts asc"
+
+	atempts = Atempt.objects.raw(query)
+
+	context.update({'atempts': atempts})
+
+	form = TeamMemberForm(request.POST or None)
+
+	if form.is_valid():
+		t_id = form.cleaned_data.get("team_id")
+		# verificar codigo team join e team status
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/team/' + str(t_id) + '/status/'))
+
+	context.update({'form': form})
+	#
+	# bug = ["INFO IN THE HTML:", "***************TEAMS***********"]
+	#
+	# for t in teams:
+	#     es = ""
+	#     for e in TeamMember.objects.filter(team=t):
+	#         if es == "":
+	#             es = str(e.user.first_name) + " " + str(e.user.last_name)
+	#         else:
+	#             es += "; " + str(e.user.first_name) + " " + str(e.user.last_name)
+	#     bug.append(str(t) + " - " + str(es))
+	#
+	# print_variables_debug(bug)
+
+	return render(request, template_name, context)
+
+
 # admin view
 @login_required
 def admin_view(request, id):
@@ -673,6 +781,8 @@ def admin_view(request, id):
 	context.update({'atempts': atempts})
 	
 	form = TeamMemberForm(request.POST or None)
+
+	print_form_info_debug(form)
 	
 	if form.is_valid():
 		t_id = form.cleaned_data.get("team_id")
@@ -697,7 +807,6 @@ def admin_view(request, id):
 	return render(request, template_name, context)
 
 
-# attempt
 @login_required
 def admin_view_teams_status(request, c_id, t_id):
 	template_name = 'contest/atempt_list.html'
@@ -881,6 +990,7 @@ def change_password_view(request):
 
 
 # extract grades
+@login_required
 def extract_grades(request, id):
 	print_variables_debug([request, id])
 	# get the contest

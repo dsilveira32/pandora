@@ -23,6 +23,7 @@
                     {% if user.is_superuser %}
 
 			 		    <a class="dropdown-item" href="{{ contest.get_absolute_url }}admin-view/"><span class="oi oi-people"></span> Admin</a>
+                        <a class="dropdown-item" href="{{ contest.get_absolute_url }}admin-view/test/chooser/"><span class="oi oi-people"></span> Edit contest tests</a>
 
                     {% endif %}
 
