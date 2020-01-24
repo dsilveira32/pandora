@@ -910,16 +910,10 @@ def attempt_view(request, id):
 
 	atempt_obj = get_object_or_404(Atempt, id=id)
 	contest_obj = atempt_obj.contest
+	team = atempt_obj.team
 
-	qs = TeamMember.objects.filter(team__contest=contest_obj.id, user=atempt_obj.user).first()
-	if not qs:
-		raise Http404
-
-	team = qs.team
-	team_members = team.teammember_set.all()
-
-	# check if request.user is a member of atempt team
-	if not team.teammember_set.get(user=request.user, approved=True):
+	# check if request.user is a member of atempt team OR admin
+	if not team.teammember_set.filter(user=request.user, approved = True) and not request.user.is_superuser:
 		raise Http404
 
 	results = atempt_obj.classification_set.all()
@@ -944,7 +938,7 @@ def attempt_view(request, id):
 
 	context = {'contest': contest_obj}
 	context.update({'team': team})
-	context.update({'team_members': team_members})
+	context.update({'team_members': team.teammember_set.all()})
 	context.update({'atempt': atempt_obj})
 	context.update({'maxsize': 2147483647})
 	context.update({'n_passed': n_passed})
