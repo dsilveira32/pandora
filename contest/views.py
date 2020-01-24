@@ -26,6 +26,17 @@ from django.utils.encoding import smart_text
 from django.views.generic.edit import FormView
 from shutil import copyfile
 from subprocess import check_output, CalledProcessError
+from django.core.exceptions import PermissionDenied
+
+
+def superuser_only(function):
+	"""Limit view to superusers only."""
+	def _inner(request, *args, **kwargs):
+		if not request.user.is_superuser:
+			raise PermissionDenied
+		return function(request, *args, **kwargs)
+	return _inner
+
 
 
 # ------------------------------------------------------- debug -------------------------------------------------------
@@ -1024,8 +1035,9 @@ def change_password_view(request):
 	return render(request, 'form.html', {'title': 'Change Password', 'form': form, 'button': 'submit'})
 
 
+
 # extract grades
-@login_required
+@superuser_only
 def extract_grades(request, id):
 	print_variables_debug([request, id])
 	# get the contest
@@ -1040,38 +1052,35 @@ def extract_grades(request, id):
 	# get the values needed to be inserted in the csv
 	# TODO: making this SQL sector
 
-	query = "SELECT ca.id, cp.number as student_number, au.first_name as student_first_name, au.last_name as student_last_name, c.name as team_name, ca.grade, maxs.team_atempts, umax.atempts as userAtempts " \
-			"   FROM (" \
-			"       select max(id) as id, count(id) as team_atempts, team_id" \
-			"           from contest_atempt" \
-			"               where contest_id = 1" \
-			"                   group by team_id" \
-			"   ) maxs" \
-			"       inner join contest_atempt ca on ca.id = maxs.id" \
-			"       join contest_teammember ct on ct.team_id = ca.team_id" \
-			"       join contest_team c on ca.team_id = c.id" \
-			"       join auth_user au on au.id = ct.user_id" \
-			"       join (" \
-			"           select max(id) as id, count(id) as atempts, user_id" \
-			"               from contest_atempt" \
-			"                   where contest_id = " + str(contest_obj.id) + \
-			"                       group by user_id" \
-			"       ) umax on umax.user_id = ct.user_id" \
-			"       join contest_profile cp on au.id = cp.user_id order by number asc"
+	query = "select ut.id, ut.number as student_number, ut.name team_name, ut.first_name, ut.last_name, gg.grade, gg.atempts as n_atempts from "\
+		"	(select t.id, t.name, u.first_name, u.last_name, p.number from contest_teammember tm "\
+		"		inner join contest_team t on tm.team_id = t.id "\
+		"		inner join auth_user u on u.id = tm.user_id "\
+		"		inner join contest_profile p on p.user_id = u.id "\
+		"		WHERE t.contest_id = "+ str(contest_obj.id) +") as ut "\
+		"LEFT JOIN "\
+		"	(SELECT ca.grade, maxs.atempts, maxs.team_id "\
+		"	FROM (select max(id) as id, count(id) as atempts, team_id from contest_atempt where contest_id = "+ str(contest_obj.id) +" group by team_id) maxs "\
+		"	INNER JOIN contest_atempt ca on ca.id = maxs.id) gg "\
+		"on gg.team_id = ut.id "\
+		"order by team_name desc"
+
 
 	grades = Atempt.objects.raw(query)
 
-	writer = csv.writer(response)
+	writer = csv.writer(response, delimiter=";", dialect="excel")
 
-	writer.writerow(['Student Number', 'Student Name', 'team', 'Grade', 'Student Atempts', 'Team Atempts'])
+	writer.writerow(['student_number', 'team_name', 'team_id', 'first_name', 'last_name', 'grade', 'n_atempts'])
 
 	for g in grades:
 		writer.writerow([g.student_number,
-						 g.student_first_name + ' ' + g.student_first_name,
-						 g.team_name,
-						 g.grade,
-						 g.userAtempts,
-						 g.team_atempts])
+			g.team_name,
+			g.team_id,
+			g.first_name,
+			g.last_name,
+			g.grade,
+			g.n_atempts])
+
 	# make a row splited by comas
 	# writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
 	# writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
