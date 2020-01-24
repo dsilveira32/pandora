@@ -23,6 +23,7 @@
                     {% if user.is_superuser %}
 
 			 		    <a class="dropdown-item" href="{{ contest.get_absolute_url }}admin-view/"><span class="oi oi-people"></span> Admin</a>
+                        <a class="dropdown-item" href="{{ contest.get_absolute_url }}admin-view/test/chooser/"><span class="oi oi-people"></span> Edit contest tests</a>
 
                     {% endif %}
 
@@ -37,7 +38,8 @@
                         <span class="oi oi-project"></span> Admin
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="admin-view/contest-creation"><span class="oi oi-graph"></span> Contest creation</a>
+                        <a class="dropdown-item" href="/admin-view/contest-creation"><span class="oi oi-graph"></span> Contest creation</a>
+                        <a class="dropdown-item" href="/admin-view/test-creation"><span class="oi oi-graph"></span> Test creation</a>
 
                     </div>
                  </li>
