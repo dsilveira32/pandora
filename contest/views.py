@@ -204,6 +204,7 @@ def unzip_zip_file(zip_path, f, in_out):
 	return
 
 
+
 # -------------------------------------------------- functions needed --------------------------------------------------
 # check in files
 def check_in_files(f, contest):
@@ -304,72 +305,79 @@ def create_test(request, in_files, out_files, contest):
 	return
 
 
-# handle uploaded file
-def handle_uploaded_file(attempt, f, contest):
+
+def handle_uploaded_file(atempt, f, contest):
 	safeexec_errors = SafeExecError.objects.all()
 	safeexec_ok = SafeExecError.objects.get(description='OK')
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
 	(src_name, ext) = os.path.splitext(src_base)
 
-	print('ext: ' + ext)
+	#print('ext: ' + ext)
 	if ext == '.zip':
-		handle_zip_file(attempt, f, contest)
+		handle_zip_file(atempt, f, contest)
 
 	print('source path = ' + src_path)
 
-	submission_dir = os.path.dirname(src_path)
-	obj_file = submission_dir + '/' + src_name + '.user.o'
+	submition_dir = os.path.dirname(src_path)
+	obj_file = submition_dir + '/' + src_name + '.user.o'
 
-	print('submission dir = ' + submission_dir)
+	#print('submition dir = ' + submition_dir)
 
-	attempt.compile_error = False
+	atempt.compile_error = False
 	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	my_cmd = 'gcc ' + contest.compile_flags + ' ' + submission_dir + '/*.c ' + ' -I ' + submission_dir + '/src/*.c ' + \
-			 ' -o ' + obj_file + ' ' + contest.linkage_flags
+	my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
 
 	print('compilation: ' + my_cmd)
-	output, ret = check_output(my_cmd, submission_dir)
+	output, ret = check_output(my_cmd, submition_dir)
 
 	if output[0] != '':
-		attempt.compile_error = True
-		attempt.error_description = output[0]
+		atempt.compile_error = True
+		atempt.error_description = output[0]
 		print('compile error... terminating...')
-		attempt.save()
+		atempt.save()
 		return  # if compilation errors or warnings dont bother with running the tests
 
+	chmod_cmd = "chmod a+w " + submition_dir
+	output, ret = check_output(chmod_cmd, submition_dir)
+
+
 	test_set = contest.test_set.all()
+
 	n_tests = test_set.count()
 	mandatory_failed = False
 	pct = 0
-	attempt.time_benchmark = 2147483647
-	attempt.memory_benchmark = 2147483647
-	attempt.cpu_time = 99999.999
-	attempt.elapsed_time = 2147483647
+	atempt.time_benchmark = 0
+	atempt.memory_benchmark = 0
+	atempt.cpu_time = 0
+	atempt.elapsed_time = 0
 
 	for test in test_set:
 		record = Classification()
-		record.attempt = attempt
+		record.attempt = atempt
 		record.test = test
 		record.passed = True
 
 		testout_base = os.path.basename(test.output_file.path)
 		(testout_name, ext) = os.path.splitext(testout_base)
-		user_output = os.path.join(submission_dir, testout_base + '.user')
-		user_report = os.path.join(submission_dir, testout_name + '.report')
+		user_output = os.path.join(submition_dir, testout_base + '.user')
+		user_report = os.path.join(submition_dir, testout_name + '.report')
 
-		opt_file_base = os.path.basename(test.opt_file1.path)
-		opt_user_file1 = os.path.join(submission_dir, opt_file_base)
-		copyfile(test.opt_file1.path, opt_user_file1)
+		if test.opt_file1:
+			opt_file_base = os.path.basename(test.opt_file1.path)
+			opt_user_file1 = os.path.join(submition_dir, opt_file_base)
+			copyfile(test.opt_file1.path, opt_user_file1)
+		else:
+			opt_user_file1 = ""
 
-		exec_cmd = exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1)
+		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1)
 
 		print('exec cmd is:\n')
 		print(exec_cmd)
 
-		time_started = datetime.datetime.now()  # Save start time.
-		check_output(exec_cmd, submission_dir)
-		record.execution_time = (datetime.datetime.now() - time_started).microseconds  # Get execution time.
+		timeStarted = datetime.datetime.now()  # Save start time.
+		check_output(exec_cmd, submition_dir)
+		record.execution_time = (datetime.datetime.now() - timeStarted).microseconds  # Get execution time.
 
 		# save files
 		f = open(user_report, "r")
@@ -413,8 +421,7 @@ def handle_uploaded_file(attempt, f, contest):
 			continue
 
 		# uses the diff tool
-		diff, ret = check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path,
-								 submission_dir)
+		diff, ret = check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path, submition_dir)
 
 		record.passed = diff[0] == ''
 
@@ -424,28 +431,28 @@ def handle_uploaded_file(attempt, f, contest):
 
 		if record.passed:
 			pct += test.weight_pct
+			atempt.memory_benchmark += record.memory_usage
+			atempt.time_benchmark += record.execution_time
+			atempt.cpu_time += record.cpu_time
+			atempt.elapsed_time += record.elapsed_time
+
 			print('test passed pct = ' + str(test.weight_pct))
 			print('accumulated pct = ' + str(pct))
 
-			if test.use_for_time_benchmark:
-				attempt.time_benchmark = record.execution_time
-				attempt.cpu_time = record.cpu_time
-				attempt.elapsed_time = record.elapsed_time
-
 			if test.use_for_memory_benchmark:
-				attempt.memory_benchmark = record.memory_usage
+				atempt.memory_benchmark = record.memory_usage
 		else:
 			record.error_description = 'Wrong Answer'
+
 			if test.mandatory:
 				mandatory_failed = True
 
 		record.save()
 
-	print('obtained pct = ' + str(pct))
-	print('max_class = ' + str(contest.max_classification))
-
-	attempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
-	attempt.save()
+	#print('obtained pct = ' + str(pct))
+	#print('max_class = ' + str(contest.max_classification))
+	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
+	atempt.save()
 
 
 # get functions
