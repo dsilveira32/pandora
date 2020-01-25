@@ -53,9 +53,8 @@
         {% if user.is_superuser %}
 
             {% if contest %}
-
-                <input type="button" onclick="location.href='{{ contest.get_absolute_url }}grades-downloader/';" value="Extract grades"/>
-
+                <input type="button" class="btn btn-primary" onclick="location.href='{{ contest.get_absolute_url }}grades-downloader/';" value="Extract grades"/>
+                <input type="button" class="btn btn-primary" onclick="location.href='{{ contest.get_absolute_url }}zip-downloader/';" value="Extract Files"/>
             {% endif %}
 
         {% endif %}

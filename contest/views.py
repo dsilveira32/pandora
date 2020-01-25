@@ -6,6 +6,9 @@ import sys
 import csv
 import zipfile
 from shutil import copyfile
+from io import StringIO
+import io
+
 
 from .forms import SignUpForm, AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
 	CreateContestModelForm, CreateTestModelForm, TestForm
@@ -1075,17 +1078,39 @@ def extract_grades(request, id):
 	for g in grades:
 		writer.writerow([g.student_number,
 			g.team_name,
-			g.team_id,
+			g.id,
 			g.first_name,
 			g.last_name,
 			g.grade,
 			g.n_atempts])
 
-	# make a row splited by comas
-	# writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
-	# writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
-
 	return response
+
+# extract grades
+@superuser_only
+def extract_zip(request, id):
+	# get the contest
+	contest_obj = get_object_or_404(Contest, id=id)
+	qs = Atempt.objects.filter(contest=contest_obj).values('team_id').annotate(id = Max('id'))
+	qs2 = Atempt.objects.filter(id__in=qs.values('id'))
+
+	zip_buffer = io.BytesIO()
+
+	with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+		for a in qs2:
+			in_file = open(os.path.abspath(a.file.path), "rb") # opening for [r]eading as [b]inary
+			data = in_file.read() # if you only wanted to read 512 bytes, do .read(512)
+			in_file.close()
+
+			fdir, fname = os.path.split(a.file.path)
+			zip_path = os.path.join(a.team.name, fname)
+			zip_file.writestr(zip_path, data)
+
+	zip_buffer.seek(0)
+
+	resp = HttpResponse(zip_buffer, content_type='application/zip')
+	resp['Content-Disposition'] = 'attachment; filename = %s' % 'bla.zip'
+	return resp
 
 
 # contest
