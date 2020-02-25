@@ -139,7 +139,8 @@ class Team(models.Model):
 	def _get_active(self):
 		"Returns True if the team is active"
 		n_members = self.teammember_set.filter(approved=True).count()
-		return n_members >= self.contest.min_team_members and n_members <= self.contest.max_team_members
+		n_members_not_approved = self.teammember_set.filter(approved=False).count()
+		return n_members_not_approved == 0 and n_members >= self.contest.min_team_members and n_members <= self.contest.max_team_members
 
 	active = property(_get_active)
 

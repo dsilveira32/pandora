@@ -60,8 +60,8 @@
 							<tr>
 								<td>{{ forloop.counter }}</td>
 								<td>{{ r.test.weight_pct|floatformat }} &#37;</td>
-								<td>{% if r.execution_time == maxsize %}Inf{% else %}{{ r.execution_time }} (&mu;s){% endif %}</td>
-								<td>{{ r.memory_usage }} (kbytes)</td>					
+								<td>{{ r.execution_time }} (ms)</td>
+								<td>{{ r.memory_usage }} (kiB)</td>					
 								<td>{% if r.test.mandatory %}Mandatory{% else %}General{% endif %}</td>
 								<td>{% if r.passed %}<span class="oi oi-check text-success"></span>{% else %}<span class="oi oi-x text-danger"></span>{% endif %}</td>
 								<td>

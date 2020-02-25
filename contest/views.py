@@ -127,10 +127,17 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 	exec_cmd += "--usage %s " % user_report
 	exec_cmd += "--exec "
 
-	run_args = str(test.run_arguments)
-	run_args2 = run_args.replace('%f1%', opt_user_file1)
+	if test.run_arguments:
+		run_args = str(test.run_arguments)
+	else:
+		run_args = ''
 
-	exec_cmd += obj_file + ' ' + run_args2 + ' < ' + test.input_file.path + ' > ' + user_output
+	if opt_user_file1:
+		run_args = run_args.replace('%f1%', opt_user_file1)
+	
+	ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
+#	exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + ' > ' + user_output
+	exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + '| ' + ascii_path + ' > ' + user_output
 
 	return exec_cmd
 
@@ -318,7 +325,8 @@ def create_test(request, in_files, out_files, contest):
 			obj.save()
 	return
 
-
+def remove_non_ascii_1(text):
+    return ''.join([i if ord(i) < 128 else '@' for i in text])
 
 def handle_uploaded_file(atempt, f, contest):
 	safeexec_errors = SafeExecError.objects.all()
@@ -334,13 +342,15 @@ def handle_uploaded_file(atempt, f, contest):
 	print('source path = ' + src_path)
 
 	submition_dir = os.path.dirname(src_path)
-	obj_file = submition_dir + '/' + src_name + '.user.o'
+	#obj_file = submition_dir + '/' + src_name + '.user.o'
+	obj_file = src_name + '.user.o'
 
 	#print('submition dir = ' + submition_dir)
 
 	atempt.compile_error = False
 	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
+	my_cmd = 'gcc ' + contest.compile_flags + ' ' + '*.c ' + ' -I '  + './src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
+	#my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
 
 	print('compilation: ' + my_cmd)
 	output, ret = check_output(my_cmd, submition_dir)
@@ -376,7 +386,11 @@ def handle_uploaded_file(atempt, f, contest):
 		(testout_name, ext) = os.path.splitext(testout_base)
 		user_output = os.path.join(submition_dir, testout_base + '.user')
 		user_report = os.path.join(submition_dir, testout_name + '.report')
+#		user_output = testout_base + '.user'
+#		user_report = testout_name + '.report'
 
+
+		# copy option file to the same path
 		if test.opt_file1:
 			opt_file_base = os.path.basename(test.opt_file1.path)
 			opt_user_file1 = os.path.join(submition_dir, opt_file_base)
@@ -391,7 +405,7 @@ def handle_uploaded_file(atempt, f, contest):
 
 		timeStarted = datetime.datetime.now()  # Save start time.
 		check_output(exec_cmd, submition_dir)
-		record.execution_time = (datetime.datetime.now() - timeStarted).microseconds  # Get execution time.
+		record.execution_time = round((datetime.datetime.now() - timeStarted).microseconds / 1000,0) # Get execution time.
 
 		# save files
 		f = open(user_report, "r")
@@ -402,6 +416,7 @@ def handle_uploaded_file(atempt, f, contest):
 		record.report_file.save(user_report, File(f))
 		f.close()
 
+		# problematic save
 		f = open(user_output)
 		record.output.save(user_output, File(f))
 		f.close()

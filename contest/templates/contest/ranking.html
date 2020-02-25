@@ -23,8 +23,8 @@
 								<td>{{ forloop.counter }}</td>
 								<td>{{ a.team.name }}</td>
 								<td>{{ a.grade }}</td>
-								<td>{% if a.time_benchmark == maxsize %}Inf{% else %}{{ a.time_benchmark }} (&mu;s){% endif %}</td>
-								<td>{% if a.memory_benchmark == maxsize %}Inf{% else %}{{ a.memory_benchmark }} (kbytes){% endif %}</td>
+								<td>{{ a.time_benchmark }} (ms)</td>
+								<td>{{ a.memory_benchmark }} (kiB)</td>
 								<td>{{ a.atempts }}</td>
 							</tr>
 							{% endfor %}
