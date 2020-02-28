@@ -16,7 +16,6 @@ from .views import (
     attempt_view,
     attempt_list_view,
     ranking_view,
-    change_password_view,
     profile_view,
     nonactive_view,
     extract_grades,
@@ -48,6 +47,5 @@ urlpatterns = [
 
 	path('completeprofile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
-    path('profile/password/', change_password_view, name='password'),
     path('profile/', profile_view, name='profile')
 ]

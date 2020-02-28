@@ -8,7 +8,7 @@ import zipfile
 from shutil import copyfile
 from io import StringIO
 import io
-
+import time
 
 from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
 	CreateContestModelForm, CreateTestModelForm, TestForm, ProfileEditForm, UserEditForm
@@ -17,7 +17,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, update_session_auth_hash, logout  # last 2 imported
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm, UserChangeForm
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.files import File
 from django.db.models import Max
@@ -79,7 +78,6 @@ def print_variables_debug(variables):
 # ----------------------- functions needed in the functions that are needed that are also needed -----------------------
 # check output function
 def check_output(command, cwd):
-	print('cwd = ' + cwd)
 	process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
 							   universal_newlines=True, cwd=cwd)
 	output = process.communicate()
@@ -400,21 +398,20 @@ def handle_uploaded_file(atempt, f, contest):
 
 		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1)
 
-		print('exec cmd is:\n')
+
+		print('exec cmd is:')
 		print(exec_cmd)
 
 		timeStarted = datetime.datetime.now()  # Save start time.
 		check_output(exec_cmd, submition_dir)
 		record.execution_time = round((datetime.datetime.now() - timeStarted).microseconds / 1000,0) # Get execution time.
 
+
 		# save files
 		f = open(user_report, "r")
 		lines = f.readlines()
 		f.close()
-
-		f = open(user_report)
-		record.report_file.save(user_report, File(f))
-		f.close()
+		os.remove(user_report)
 
 		# problematic save
 		f = open(user_output)
@@ -465,9 +462,6 @@ def handle_uploaded_file(atempt, f, contest):
 			atempt.cpu_time += record.cpu_time
 			atempt.elapsed_time += record.elapsed_time
 
-			print('test passed pct = ' + str(test.weight_pct))
-			print('accumulated pct = ' + str(pct))
-
 			if test.use_for_memory_benchmark:
 				atempt.memory_benchmark = record.memory_usage
 		else:
@@ -475,14 +469,14 @@ def handle_uploaded_file(atempt, f, contest):
 
 			if test.mandatory:
 				mandatory_failed = True
-
 		record.save()
+		os.remove(user_output)
 
-	#print('obtained pct = ' + str(pct))
-	#print('max_class = ' + str(contest.max_classification))
+		
+
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
-
+	os.remove(os.path.join(submition_dir, obj_file))
 
 # get functions
 def get_team_members(request, contest_id, team_id):
@@ -549,7 +543,7 @@ def set_test_in_order(tests):
 
 # ---------------------------------------------- @login_required functions ---------------------------------------------
 # admin choose the test to edit
-@login_required
+@superuser_only
 def admin_choose_test(request, id):
 	template_name = 'contest/test_chooser.html'
 
@@ -622,7 +616,7 @@ def admin_choose_test(request, id):
 
 
 # admin creations
-@login_required
+@superuser_only
 def admin_contest_creation(request):
 	template_name = 'contest/contest_creation.html'
 
@@ -649,7 +643,7 @@ def admin_contest_creation(request):
 	return render(request, template_name, context)
 
 
-@login_required
+@superuser_only
 def admin_test_creation(request):
 	template_name = 'contest/test_creation.html'
 
@@ -728,7 +722,7 @@ def admin_test_creation(request):
 
 
 # admin test editor
-@login_required
+@superuser_only
 def admin_test_editor(request, id, t_id):
 	template_name = 'contest/test_edition.html'
 
@@ -795,7 +789,7 @@ def admin_test_editor(request, id, t_id):
 
 
 # admin view
-@login_required
+@superuser_only
 def admin_view(request, id):
 	template_name = 'contest/admin_view.html'
 
@@ -875,7 +869,7 @@ def admin_view(request, id):
 	return render(request, template_name, context)
 
 
-@login_required
+@superuser_only
 def admin_view_teams_status(request, c_id, t_id):
 	template_name = 'contest/atempt_list.html'
 
@@ -908,6 +902,11 @@ def admin_view_teams_status(request, c_id, t_id):
 # attempt
 @login_required
 def attempt_list_view(request, id):
+	if not request.user.profile.number:
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
 	template_name = 'contest/atempt_list.html'
 
 	contest_obj = get_object_or_404(Contest, id=id)
@@ -940,6 +939,11 @@ def attempt_list_view(request, id):
 
 @login_required
 def attempt_view(request, id):
+	if not request.user.profile.number:
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
 	template_name = 'contest/atempt_detail.html'
 
 	atempt_obj = get_object_or_404(Atempt, id=id)
@@ -958,12 +962,12 @@ def attempt_view(request, id):
 	mandatory_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=True).count()
 	general_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=False).count()
 
-	print('number of results ' + str(results.count()))
-	print('number of tests ' + str(n_tests))
-	print('number of mandatory tests ' + str(n_mandatory))
-	print('number of general tests ' + str(n_general))
-	print('number of general passed tests ' + str(general_passed))
-	print('number of mandatory passed tests ' + str(mandatory_passed))
+#	print('number of results ' + str(results.count()))
+#	print('number of tests ' + str(n_tests))
+#	print('number of mandatory tests ' + str(n_mandatory))
+#	print('number of general tests ' + str(n_general))
+#	print('number of general passed tests ' + str(general_passed))
+#	print('number of mandatory passed tests ' + str(mandatory_passed))
 
 	for res in results:
 		res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
@@ -988,6 +992,11 @@ def attempt_view(request, id):
 
 @login_required
 def attempt_create_view(request, id):
+	if not request.user.profile.number:
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
 	template_name = 'contest/contest_form.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
@@ -1031,26 +1040,6 @@ def attempt_create_view(request, id):
 
 	context.update({'form': form, 'title': "Submit"})
 	return render(request, template_name, context)
-
-
-# change password
-@login_required
-def change_password_view(request):
-	if request.method == 'POST':
-		form = PasswordChangeForm(request.user, request.POST)
-		if form.is_valid():
-			user = form.save()
-			update_session_auth_hash(request, user)  # Important!
-			messages.success(request, 'Your password was successfully updated!')
-			return redirect('change_password')
-		else:
-			messages.error(request, 'Please correct the error below.')
-	else:
-		form = PasswordChangeForm(request.user)
-
-	return render(request, 'form.html', {'title': 'Change Password', 'form': form, 'button': 'submit'})
-
-
 
 # extract grades
 @superuser_only
@@ -1129,12 +1118,13 @@ def extract_zip(request, id):
 # contest
 @login_required
 def contest_list_view(request):
-	#	if not request.user.is_active:
-	#		return redirect('not_active')
-	template_name = 'contest/list.html'
-
 	if not request.user.profile.number:
 		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
+	template_name = 'contest/list.html'
+
 
 	contests_qs = Contest.objects.filter(visible=True)
 	qs = TeamMember.objects.select_related('team').filter(user=request.user)
@@ -1148,10 +1138,12 @@ def contest_list_view(request):
 
 @login_required
 def contest_detail_view(request, id):
-	obj = get_object_or_404(Contest, id=id)
-
 	if not request.user.profile.number:
-		return redirect('completeprofile/')
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
+	obj = get_object_or_404(Contest, id=id)
 
 	present = timezone.now()
 	if present < obj.start_date:
@@ -1175,10 +1167,13 @@ def profile_view(request):
 # ranking
 @login_required
 def ranking_view(request, id):
+	if not request.user.profile.number:
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
 	template_name = 'contest/ranking.html'
 
-	if not request.user.profile.number:
-		return redirect('completeprofile/')
 
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
@@ -1206,12 +1201,14 @@ def ranking_view(request, id):
 # team
 @login_required
 def team_create_view(request, id):
+	if not request.user.profile.number:
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
+
 	template_name = 'contest/contest_form.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
-
-	if not request.user.profile.number:
-		return redirect('completeprofile/')
 
 	user_team = TeamMember.objects.select_related('team').filter(team__contest=contest_obj.id,
 																 user=request.user).first()
@@ -1240,7 +1237,9 @@ def team_create_view(request, id):
 @login_required
 def team_detail_view(request, id):
 	if not request.user.profile.number:
-		return redirect('completeprofile/')
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
 
 
 	template_name = 'contest/team_detail.html'
@@ -1293,7 +1292,9 @@ def team_detail_view(request, id):
 @login_required
 def team_join_view(request, id):
 	if not request.user.profile.number:
-		return redirect('completeprofile/')
+		return redirect('complete_profile')
+	if not request.user.profile.valid:
+		return redirect('not_active')
 
 	template_name = 'contest/team_join.html'
 	contest_obj = get_object_or_404(Contest, id=id)
@@ -1352,7 +1353,7 @@ def pagelogout(request):
 # non active view
 def nonactive_view(request):
 	template_name = 'contest/error.html'
-	context = {'title': 'Welcome to PANDORA',
+	context = {'title': 'Not active',
 			   'description': 'Your account is not active. Please wait for the administrator to activate your account.'}
 	return render(request, template_name, context)
 

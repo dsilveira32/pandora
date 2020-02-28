@@ -183,7 +183,7 @@ class Classification(models.Model):
 	test = models.ForeignKey(Test, default=1, null=False, on_delete=models.CASCADE)
 	passed = models.BooleanField(null=False, default=False)
 	output = models.FileField(blank=True, null=True, max_length=512)
-	report_file = models.FileField(blank=True, null=True, max_length=512)
+	#report_file = models.FileField(blank=True, null=True, max_length=512)
 	execution_time = models.IntegerField(blank=True, null=True)
 	error_description = models.TextField(null=True, blank=True)
 	error = models.ForeignKey(SafeExecError, blank=True, null=True, on_delete=models.SET_NULL)
