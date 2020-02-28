@@ -933,7 +933,7 @@ def attempt_list_view(request, id):
 	team_obj.members = members
 	context.update({'team': team_obj})
 	context.update({'atempts': atempts})
-	context.update({'maxsize': int(sys.maxsize)})
+	context.update({'title': "Status"})
 
 	return render(request, template_name, context)
 
@@ -982,7 +982,7 @@ def attempt_view(request, id):
 	context.update({'general_passed': general_passed})
 	context.update({'n_general': n_general})
 	context.update({'results': results})
-
+	context.update({'title': "Atempt Detail"})
 	return render(request, template_name, context)
 
 
@@ -1029,7 +1029,7 @@ def attempt_create_view(request, id):
 		handle_uploaded_file(obj, obj.file, contest_obj)
 		return redirect(obj.get_absolute_url())
 
-	context.update({'form': form})
+	context.update({'form': form, 'title': "Submit"})
 	return render(request, template_name, context)
 
 
@@ -1141,7 +1141,7 @@ def contest_list_view(request):
 
 	context = {'object_list': contests_qs,
 			   'team_contests': qs,
-			   'title': 'Welcome to PANDORA',
+			   'title': 'Contests',
 			   'description': 'PANDORA is an Automatic Assement Tool.'}
 	return render(request, template_name, context)
 
@@ -1168,7 +1168,7 @@ def contest_detail_view(request, id):
 @login_required
 def profile_view(request):
 	template_name = 'contest/profile.html'
-	context = {'user': request.user}
+	context = {'user': request.user, 'title': "My Information"}
 	return render(request, template_name, context)
 
 
@@ -1199,7 +1199,7 @@ def ranking_view(request, id):
 	atempts = Atempt.objects.raw(query)
 
 	context.update({'atempts': atempts})
-	context.update({'maxsize': int(sys.maxsize)})
+	context.update({'title': "Ranking"})
 	return render(request, template_name, context)
 
 
@@ -1374,3 +1374,10 @@ def complete_profile_view(request):
 				'form2': profile_form,
 				'title': 'Complete Information'}
 	return render(request, 'form.html', context)
+
+
+@login_required
+def home_view(request):
+	template_name = 'contest/dashboard.html'
+	context = {'title': "Dashboard"}
+	return render(request, template_name, context)

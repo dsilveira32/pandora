@@ -21,11 +21,13 @@ from .views import (
     nonactive_view,
     extract_grades,
     extract_zip,
-	complete_profile_view
+	complete_profile_view,
+	home_view
 )
 
 urlpatterns = [
-    path('', contest_list_view, name='home'),
+    path('', home_view, name='home'),
+	path('contests/', contest_list_view, name='contest_list'),
     path('contests/<int:id>/', contest_detail_view),
     path('contests/<int:id>/atempt/', attempt_create_view),
     path('contests/<int:id>/team/', team_create_view),
