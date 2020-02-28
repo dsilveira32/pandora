@@ -1134,7 +1134,7 @@ def contest_list_view(request):
 	template_name = 'contest/list.html'
 
 	if not request.user.profile.number:
-		return redirect('completeprofile/')
+		return redirect('complete_profile')
 
 	contests_qs = Contest.objects.filter(visible=True)
 	qs = TeamMember.objects.select_related('team').filter(user=request.user)

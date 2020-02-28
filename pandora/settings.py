@@ -1,9 +1,16 @@
 import os
 
+from .DB_SetUp import *
+
 try:
     from .local_settings import *
 except ImportError:
     pass
+
+DB_USER = db_user()
+DB_PASSWORD = db_password()
+SECRET_KEY = secret_key()
+
 
 """
 Django settings for pandora project.
@@ -31,6 +38,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ALLOWED_HOSTS = hosts()
 
 # Application definition
 INSTALLED_APPS = [
@@ -98,14 +106,14 @@ LOGIN_REDIRECT_URL = 'home'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'pandora',
-#         'USER' : DB_USER,
-#         'PASSWORD' : DB_PASSWORD,
-#         'HOST' : 'localhost',
-#         'PORT' : '3306'
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+         'ENGINE': 'django.db.backends.mysql',
+         'NAME': 'pandora',
+         'USER' : DB_USER,
+         'PASSWORD' : DB_PASSWORD,
+         'HOST' : 'localhost',
+         'PORT' : '3306'
     }
 }
 
