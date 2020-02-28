@@ -10,8 +10,8 @@ from io import StringIO
 import io
 
 
-from .forms import SignUpForm, AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
-	CreateContestModelForm, CreateTestModelForm, TestForm
+from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
+	CreateContestModelForm, CreateTestModelForm, TestForm, ProfileEditForm, UserEditForm
 from .models import Contest, Classification, Team, TeamMember, Atempt, SafeExecError, Test
 from django.conf import settings
 from django.contrib import messages
@@ -852,8 +852,6 @@ def admin_view(request, id):
 
 	form = TeamMemberForm(request.POST or None)
 
-	print_form_info_debug(form)
-
 	if form.is_valid():
 		t_id = form.cleaned_data.get("team_id")
 		# verificar codigo team join e team status
@@ -896,8 +894,8 @@ def admin_view_teams_status(request, c_id, t_id):
 	else:
 		context.update({'number_of_submitions': 0})
 		context.update({'last_classification': 0})
-		context.update({'last_execution_time': int(sys.maxsize)})
-		context.update({'last_memory_usage': int(sys.maxsize)})
+		context.update({'last_execution_time': 0})
+		context.update({'last_memory_usage': 0})
 
 	team_obj.members = members
 	context.update({'team': team_obj})
@@ -1135,6 +1133,9 @@ def contest_list_view(request):
 	#		return redirect('not_active')
 	template_name = 'contest/list.html'
 
+	if not request.user.profile.number:
+		return redirect('completeprofile/')
+
 	contests_qs = Contest.objects.filter(visible=True)
 	qs = TeamMember.objects.select_related('team').filter(user=request.user)
 
@@ -1148,6 +1149,9 @@ def contest_list_view(request):
 @login_required
 def contest_detail_view(request, id):
 	obj = get_object_or_404(Contest, id=id)
+
+	if not request.user.profile.number:
+		return redirect('completeprofile/')
 
 	present = timezone.now()
 	if present < obj.start_date:
@@ -1172,6 +1176,9 @@ def profile_view(request):
 @login_required
 def ranking_view(request, id):
 	template_name = 'contest/ranking.html'
+
+	if not request.user.profile.number:
+		return redirect('completeprofile/')
 
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
@@ -1203,7 +1210,9 @@ def team_create_view(request, id):
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 
-	teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
+	if not request.user.profile.number:
+		return redirect('completeprofile/')
+
 	user_team = TeamMember.objects.select_related('team').filter(team__contest=contest_obj.id,
 																 user=request.user).first()
 
@@ -1230,6 +1239,10 @@ def team_create_view(request, id):
 
 @login_required
 def team_detail_view(request, id):
+	if not request.user.profile.number:
+		return redirect('completeprofile/')
+
+
 	template_name = 'contest/team_detail.html'
 
 	contest_obj = get_object_or_404(Contest, id=id)
@@ -1279,6 +1292,9 @@ def team_detail_view(request, id):
 
 @login_required
 def team_join_view(request, id):
+	if not request.user.profile.number:
+		return redirect('completeprofile/')
+
 	template_name = 'contest/team_join.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
@@ -1333,29 +1349,6 @@ def pagelogout(request):
 		return redirect('home')
 
 
-# signup view
-def signup_view(request):
-	if request.method == 'POST':
-		form = SignUpForm(request.POST)
-		if form.is_valid():
-			user = form.save()
-			user.refresh_from_db()  # load the profile instance created by the signal
-			user.profile.number = form.cleaned_data.get('number')
-			user.profile.gprd = form.cleaned_data.get('gprd')
-			user.profile.valid = False
-			user.save()
-			raw_password = form.cleaned_data.get('password1')
-			user = authenticate(username=user.username, password=raw_password)
-			login(request, user)
-			return redirect('home')
-	else:
-		form = SignUpForm()
-
-	context = {'form': form,
-			   'title': 'Register'}
-	return render(request, 'form.html', context)
-
-
 # non active view
 def nonactive_view(request):
 	template_name = 'contest/error.html'
@@ -1363,4 +1356,21 @@ def nonactive_view(request):
 			   'description': 'Your account is not active. Please wait for the administrator to activate your account.'}
 	return render(request, template_name, context)
 
-# in progress
+
+@login_required
+def complete_profile_view(request):
+	profile_form = ProfileEditForm(request.POST or None, instance = request.user.profile)
+	user_form = UserEditForm(request.POST or None, instance = request.user)
+	
+	if all((profile_form.is_valid(), user_form.is_valid())):
+		profile_form.save()
+		user_form.save()
+		return redirect('home')
+	else:
+		user_form = UserEditForm(request.POST or None, instance = request.user)
+		profile_form = ProfileEditForm(request.POST or None, instance = request.user.profile)
+
+	context = {'form': user_form,
+				'form2': profile_form,
+				'title': 'Complete Information'}
+	return render(request, 'form.html', context)

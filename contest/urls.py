@@ -8,7 +8,6 @@ from .views import (
     admin_view,
     admin_view_teams_status,
     contest_list_view,
-    signup_view,
     contest_detail_view,
     attempt_create_view,
     team_create_view,
@@ -21,7 +20,8 @@ from .views import (
     profile_view,
     nonactive_view,
     extract_grades,
-    extract_zip
+    extract_zip,
+	complete_profile_view
 )
 
 urlpatterns = [
@@ -44,7 +44,7 @@ urlpatterns = [
     path('admin-view/contest-creation/', admin_contest_creation),
     path('admin-view/test-creation/', admin_test_creation),
 
-    path('signup/', signup_view, name='signup'),
+	path('completeprofile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
     path('profile/password/', change_password_view, name='password'),
     path('profile/', profile_view, name='profile')
