@@ -1125,8 +1125,11 @@ def contest_list_view(request):
 
 	template_name = 'contest/list.html'
 
-
-	contests_qs = Contest.objects.filter(visible=True)
+	if request.user.is_superuser:
+		contests_qs = Contest.objects.all()
+	else:
+		contests_qs = Contest.objects.filter(visible=True)
+		
 	qs = TeamMember.objects.select_related('team').filter(user=request.user)
 
 	context = {'object_list': contests_qs,
