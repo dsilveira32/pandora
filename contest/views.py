@@ -30,6 +30,7 @@ from shutil import copyfile
 from subprocess import check_output, CalledProcessError
 from django.core.exceptions import PermissionDenied
 
+from .utils import *
 
 def superuser_only(function):
 	"""Limit view to superusers only."""
@@ -39,40 +40,6 @@ def superuser_only(function):
 		return function(request, *args, **kwargs)
 	return _inner
 
-
-
-# ------------------------------------------------------- debug -------------------------------------------------------
-# forms
-def print_form_info_debug(form):
-	if not form.is_valid():
-		print("-----------------------------------\nThe form is built with:\n" + str(form) +
-			  "\n-----------------------------------")
-	print("-----------------------------------\nThe form is valid: " + str(form.is_valid()) +
-		  "\n-----------------------------------")
-
-	return
-
-
-# variable
-def print_variable_debug(variable):
-	print("-----------------------------------------------------------------\n"
-		  + str(variable) +
-		  "\n-----------------------------------------------------------------")
-
-	return
-
-
-# variables
-def print_variables_debug(variables):
-	variable_debug = ''
-	for part in variables:
-		if variable_debug == '':
-			variable_debug = str(part)
-		else:
-			variable_debug += '\n' + str(part)
-	print_variable_debug(variable_debug)
-
-	return
 
 
 # ----------------------- functions needed in the functions that are needed that are also needed -----------------------
@@ -323,8 +290,6 @@ def create_test(request, in_files, out_files, contest):
 			obj.save()
 	return
 
-def remove_non_ascii_1(text):
-    return ''.join([i if ord(i) < 128 else '@' for i in text])
 
 def handle_uploaded_file(atempt, f, contest):
 	safeexec_errors = SafeExecError.objects.all()
@@ -1010,7 +975,14 @@ def attempt_create_view(request, id):
 
 	team_obj, members = get_user_team(request, contest_obj.id)
 	if not team_obj:
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'team/join/'))
+		if contest_obj.max_team_members == 1:
+			team_obj = Team(name=request.user.username, contest=contest_obj)
+			team_obj.save()
+			tm = TeamMember(team = team_obj, user=request.user, approved=True)
+			tm.save()
+			members = team_obj.teammember_set.all()
+		else:
+			return redirect(os.path.join(contest_obj.get_absolute_url(), 'team/join/'))
 
 	atempts = get_team_attempts(team_obj)
 
@@ -1129,13 +1101,13 @@ def contest_list_view(request):
 		contests_qs = Contest.objects.all()
 	else:
 		contests_qs = Contest.objects.filter(visible=True)
-		
+
 	qs = TeamMember.objects.select_related('team').filter(user=request.user)
 
 	context = {'object_list': contests_qs,
 			   'team_contests': qs,
 			   'title': 'Contests',
-			   'description': 'PANDORA is an Automatic Assement Tool.'}
+			   'description': 'PANDORA is an Automated Assement Tool.'}
 	return render(request, template_name, context)
 
 
@@ -1217,7 +1189,15 @@ def team_create_view(request, id):
 																 user=request.user).first()
 
 	if user_team:
-		print('this user already has a team...')
+		# this user already has a team
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+
+	# in case individual submition - Create a team with the username with only one member
+	if contest_obj.max_team_members == 1:
+		t = Team(name=request.user.username, contest=contest_obj)
+		t.save()
+		tm = TeamMember(team = t, user=request.user, approved=True)
+		tm.save()
 		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
 
 	form = TeamModelForm(request.POST or None)
@@ -1308,6 +1288,14 @@ def team_join_view(request, id):
 	# TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
 
 	if user_team:
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+
+	# in case individual submition - Create a team with the username with only one member
+	if contest_obj.max_team_members == 1:
+		t = Team(name=request.user.username, contest=contest_obj)
+		t.save()
+		tm = TeamMember(team = t, user=request.user, approved=True)
+		tm.save()
 		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
 
 	# get all teams active in this contenst
