@@ -22,6 +22,25 @@ class ProfileInline(admin.StackedInline):
 
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline, )
+    list_display = ('number', 'username', 'first_name', 'last_name', 'valid', 'is_staff')
+
+    def valid(self, obj):
+        return obj.profile.valid == True
+
+    def number(self, obj):
+        return obj.profile.number
+
+    valid.boolean = True
+
+
+    def is_very_benevolent(self, obj):
+        return obj.benevolence_factor > 75
+
+    is_very_benevolent.boolean = True
+    def is_very_benevolent(self, obj):
+        return obj.benevolence_factor > 75
+
+    is_very_benevolent.boolean = True
 
     def get_inline_instances(self, request, obj=None):
         if not obj:
