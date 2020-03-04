@@ -131,7 +131,7 @@ class Test(models.Model):
 
 
 class Team(models.Model):
-	name = models.CharField(max_length=16, blank=True)
+	name = models.CharField(max_length=150, blank=True)
 	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
 
 	# image  = models.ImageField(upload_to='images/', blank=True, null=True)
