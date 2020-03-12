@@ -31,6 +31,7 @@ from shutil import copyfile
 from subprocess import check_output, CalledProcessError
 from django.core.exceptions import PermissionDenied
 
+from .utils import *
 
 # check output function
 def check_output(command, cwd):
