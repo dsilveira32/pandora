@@ -22,7 +22,7 @@ class ProfileInline(admin.StackedInline):
 
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline, )
-    list_display = ('number', 'username', 'first_name', 'last_name', 'valid', 'is_staff')
+    list_display = ('number', 'username', 'first_name', 'last_name', 'valid', 'is_staff', 'id')
 
     def valid(self, obj):
         return obj.profile.valid == True
@@ -31,7 +31,6 @@ class CustomUserAdmin(UserAdmin):
         return obj.profile.number
 
     valid.boolean = True
-
 
     def is_very_benevolent(self, obj):
         return obj.benevolence_factor > 75
