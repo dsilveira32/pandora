@@ -1,4 +1,4 @@
-
+import shutil
 import os
 import uuid
 import subprocess
@@ -515,41 +515,13 @@ def cleanup_past_atempts(team_obj, atempt_obj):
 			if res.output and os.path.isfile(res.output.path):
 				os.remove(res.output.path)
 			res.output = None
+
 	
 		if at.file and os.path.isfile(at.file.path):
-			os.remove(at.file.path)
-			at.file = None
+			dir = os.path.dirname(at.file.path)
+			shutil.rmtree(dir)
+		at.file = None
 
 
-
-def cleanup():
-	from contest.models import Contest, Classification, Team, TeamMember, Atempt, SafeExecError, Test
-	from django.contrib.auth.models import User
-	import os
-	users = User.objects.all()
-
-	for user in users:
-		print("-->" + user.username)
-		atempts_qs = Atempt.objects.filter(user = user).order_by('-date')
-		print("-->> ok")
-		i = -1
-		for at in atempts_qs:
-			i = i+1
-			print(at.date)
-			if i == 0:
-				continue
-
-			print("lets remove trash")
-			results = at.classification_set.all()
-			for res in results:
-				if res.output and os.path.isfile(res.output.path):
-					os.remove(res.output.path)
-				res.output = None
-	
-			if at.file and os.path.isfile(at.file.path):
-				os.remove(at.file.path)
-				at.file = None	
-
-		
 
 
