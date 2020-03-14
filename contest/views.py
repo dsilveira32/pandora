@@ -623,10 +623,9 @@ def extract_zip(request, id):
 				fdir, fname = os.path.split(a.file.path)
 				zip_path = os.path.join(a.team.name, fname)
 				zip_file.writestr(zip_path, data)
-				moss_str = moss_str + zip_path + "/*.c "
+				moss_str = moss_str + a.team.name + "/*.c "
 
-			zip_file.writestr("moss.txt", moss_str)
-
+	zip_file.writestr("moss.txt", moss_str)
 	zip_buffer.seek(0)
 
 	resp = HttpResponse(zip_buffer, content_type='application/zip')
