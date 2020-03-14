@@ -611,6 +611,8 @@ def extract_zip(request, id):
 
 	zip_buffer = io.BytesIO()
 
+	moss_str = "moss -l c -d "
+
 	with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
 		for a in qs2:
 			if a.file and os.path.isfile(a.file.path):
@@ -621,6 +623,9 @@ def extract_zip(request, id):
 				fdir, fname = os.path.split(a.file.path)
 				zip_path = os.path.join(a.team.name, fname)
 				zip_file.writestr(zip_path, data)
+				moss_str = moss_str + zip_path + "/*.c "
+
+			zip_file.writestr("moss.txt", moss_str)
 
 	zip_buffer.seek(0)
 
