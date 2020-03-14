@@ -613,13 +613,14 @@ def extract_zip(request, id):
 
 	with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
 		for a in qs2:
-			in_file = open(os.path.abspath(a.file.path), "rb") # opening for [r]eading as [b]inary
-			data = in_file.read() # if you only wanted to read 512 bytes, do .read(512)
-			in_file.close()
+			if a.file and os.path.isfile(a.file.path):
+				in_file = open(os.path.abspath(a.file.path), "rb") # opening for [r]eading as [b]inary
+				data = in_file.read() # if you only wanted to read 512 bytes, do .read(512)
+				in_file.close()
 
-			fdir, fname = os.path.split(a.file.path)
-			zip_path = os.path.join(a.team.name, fname)
-			zip_file.writestr(zip_path, data)
+				fdir, fname = os.path.split(a.file.path)
+				zip_path = os.path.join(a.team.name, fname)
+				zip_file.writestr(zip_path, data)
 
 	zip_buffer.seek(0)
 
