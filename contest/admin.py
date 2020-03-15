@@ -10,7 +10,8 @@ from .models import (
 	Classification,
 	Team,
 	TeamMember,
-	SafeExecError
+	SafeExecError,
+	UserContestDateException
 	)
 
 
@@ -56,4 +57,4 @@ admin.site.register(Classification)
 admin.site.register(Team)
 admin.site.register(TeamMember)
 admin.site.register(SafeExecError)
-
+admin.site.register(UserContestDateException)

@@ -204,3 +204,10 @@ class TeamMember(models.Model):
 
 #	def number_of_elements(self, user, team):
 #		Full_team_obj = TeamMember.objects.all().select_related('team').filter(team__contest = contest_obj.id).first()
+
+class UserContestDateException(models.Model):
+	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
+	user = models.ForeignKey(User, default=1, null=False, on_delete=models.CASCADE)
+	start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+	end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+	unique_together = ('contest', 'user')

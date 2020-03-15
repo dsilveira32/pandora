@@ -12,7 +12,7 @@ import time
 
 from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
 	CreateContestModelForm, CreateTestModelForm, TestForm, ProfileEditForm, UserEditForm
-from .models import Contest, Classification, Team, TeamMember, Atempt, SafeExecError, Test
+from .models import Contest, Classification, Team, TeamMember, Atempt, SafeExecError, Test, UserContestDateException
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, update_session_auth_hash, logout  # last 2 imported
@@ -508,11 +508,26 @@ def attempt_create_view(request, id):
 	context = {'contest': contest_obj}
 	can_submit = True
 
+	start_date = contest_obj.start_date
+	end_date = contest_obj.end_date
+
+	# this is to allow speficic users to submit outside the scheduled dates
+	# example is a user that was sick
+	try:
+		user_excep = UserContestDateException.objects.get(user = request.user, contest = contest_obj)
+	except UserContestDateException.DoesNotExist:
+		user_excep = None
+	if user_excep:
+		start_date = user_excep.start_date
+		end_date = user_excep.end_date
+
 	present = timezone.now()
 	# present = datetime.datetime.now()
-	if present < contest_obj.start_date or present > contest_obj.end_date:
-		# contest is not opened
-		return redirect(os.path.join(contest_obj.get_absolute_url()))
+	if not request.user.is_superuser:
+		if present < start_date or present > end_date:
+			# contest is not opened
+			return redirect(os.path.join(contest_obj.get_absolute_url()))
+
 
 	team_obj, members = get_user_team(request, contest_obj.id)
 	if not team_obj:
@@ -649,6 +664,7 @@ def contest_list_view(request):
 		contests_qs = Contest.objects.filter(visible=True)
 
 	qs = TeamMember.objects.select_related('team').filter(user=request.user)
+
 
 	context = {'object_list': contests_qs,
 			   'team_contests': qs,
