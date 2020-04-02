@@ -94,7 +94,7 @@ AUTHENTICATION_BACKENDS = (
 )
 #LOGIN_REDIRECT_URL = '/manage/'
 LOGOUT_REDIRECT_URL = '/'
-SOCIAL_AUTH_URL_NAMESPACE = 'social'
+#SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 LOGIN_URL = 'login'
 #LOGOUT_URL = 'logout'
@@ -106,14 +106,14 @@ LOGIN_REDIRECT_URL = 'home'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 DATABASES = {
     'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-         'ENGINE': 'django.db.backends.mysql',
-         'NAME': 'pandora',
-         'USER' : DB_USER,
-         'PASSWORD' : DB_PASSWORD,
-         'HOST' : 'localhost',
-         'PORT' : '3306'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         'ENGINE': 'django.db.backends.mysql',
+ #        'NAME': 'pandora',
+  #       'USER' : DB_USER,
+ #        'PASSWORD' : DB_PASSWORD,
+ #        'HOST' : 'localhost',
+ #        'PORT' : '3306'
     }
 }
 
@@ -174,3 +174,4 @@ URL_PREFIX = 'pandora/'
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
+SOCIAL_AUTH_REVOKE_TOKENS_ON_DISCONNECT = False
