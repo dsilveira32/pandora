@@ -1,12 +1,17 @@
-from django.urls import path, re_path
+from django.urls import path
 
-from .views import (
+from .admin_views import (
     admin_choose_test,
     admin_contest_creation,
     admin_test_creation,
     admin_test_editor,
     admin_view,
     admin_view_teams_status,
+    extract_grades,
+    extract_zip,
+
+)
+from .views import (
     contest_list_view,
     contest_detail_view,
     attempt_create_view,
@@ -18,21 +23,19 @@ from .views import (
     ranking_view,
     profile_view,
     nonactive_view,
-    extract_grades,
-    extract_zip,
-	complete_profile_view,
-	home_view
+    complete_profile_view,
+    home_view
 )
 
 urlpatterns = [
     path('', home_view, name='home'),
-	path('contests/', contest_list_view, name='contest_list'),
+    path('contests/', contest_list_view, name='contest_list'),
     path('contests/<int:id>/', contest_detail_view),
-    path('contests/<int:id>/atempt/', attempt_create_view),
+    path('contests/<int:id>/attempt/', attempt_create_view),
     path('contests/<int:id>/team/', team_create_view),
     path('contests/<int:id>/team/join/', team_join_view),
-    path('contests/<int:id>/myteam/', team_detail_view),
-    path('contests/atempt/<int:id>/', attempt_view),
+    path('contests/<int:id>/my_team/', team_detail_view),
+    path('contests/attempt/<int:id>/', attempt_view),
     path('contests/<int:id>/status/', attempt_list_view),
     path('contests/<int:id>/ranking/', ranking_view),
     path('contests/<int:id>/admin-view/', admin_view),
@@ -45,7 +48,7 @@ urlpatterns = [
     path('admin-view/contest-creation/', admin_contest_creation),
     path('admin-view/test-creation/', admin_test_creation),
 
-	path('completeprofile/', complete_profile_view, name='complete_profile'),
+    path('complete_profile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
     path('profile/', profile_view, name='profile')
 ]

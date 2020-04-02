@@ -1,82 +1,76 @@
-import shutil
-import os
-import uuid
-import subprocess
 import datetime
-import sys
-import csv
+import os
+import shutil
+import subprocess
 import zipfile
 from shutil import copyfile
-from io import StringIO
-import io
-import time
+from subprocess import check_output
 
-from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
-	CreateContestModelForm, CreateTestModelForm, TestForm, ProfileEditForm, UserEditForm
-from .models import Contest, Classification, Team, TeamMember, Atempt, SafeExecError, Test
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth import login, authenticate, update_session_auth_hash, logout  # last 2 imported
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.core.files import File
-from django.db.models import Max
-from django.http import Http404
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
-from django.utils.encoding import smart_text
-from django.views.generic.edit import FormView
-from shutil import copyfile
-from subprocess import check_output, CalledProcessError
-from django.core.exceptions import PermissionDenied
 
+from .forms import CreateTestModelForm
+from .models import Classification, Team, TeamMember, Atempt, SafeExecError
 from .utils import *
+
 
 # check output function
 def check_output(command, cwd):
-	process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-							   universal_newlines=True, cwd=cwd)
+	process = subprocess.Popen(
+		command,
+		shell=True,
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT,
+		universal_newlines=True,
+		cwd=cwd
+	)
 	output = process.communicate()
-	retcode = process.poll()
-	return output, retcode
+	ret_code = process.poll()
+	return output, ret_code
+
+
+def get_test_contest_details(t_c):
+	return t_c.cpu, t_c.mem, t_c.space, t_c.minuid, t_c.maxuid, t_c.core, t_c.nproc, t_c.fsize, t_c.stack, t_c.clock
 
 
 # ---------------------------------- functions needed in the functions that are needed ---------------------------------
 # exec functions
 def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1):
+	print_variable_debug("Submission dir: " + str(submission_dir))
 	if test.override_exec_options:
-		cpu = test.cpu
-		mem = test.mem
-		space = test.space
-		minuid = test.minuid
-		maxuid = test.maxuid
-		core = test.core
-		nproc = test.nproc
-		fsize = test.fsize
-		stack = test.stack
-		clock = test.clock
+		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
+		# cpu = test.cpu
+		# mem = test.mem
+		# space = test.space
+		# minuid = test.minuid
+		# maxuid = test.maxuid
+		# core = test.core
+		# nproc = test.nproc
+		# fsize = test.fsize
+		# stack = test.stack
+		# clock = test.clock
 	else:
-		cpu = contest.cpu
-		mem = contest.mem
-		space = contest.space
-		minuid = contest.minuid
-		maxuid = contest.maxuid
-		core = contest.core
-		nproc = contest.nproc
-		fsize = contest.fsize
-		stack = contest.stack
-		clock = contest.clock
+		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(contest)
+		# cpu = contest.cpu
+		# mem = contest.mem
+		# space = contest.space
+		# minuid = contest.minuid
+		# maxuid = contest.maxuid
+		# core = contest.core
+		# nproc = contest.nproc
+		# fsize = contest.fsize
+		# stack = contest.stack
+		# clock = contest.clock
 
 	exec_cmd = os.path.join(settings.MEDIA_ROOT, "safeexec")
 	exec_cmd += " --cpu %d " % cpu
 	exec_cmd += "--mem %d " % mem
 	exec_cmd += "--space %d " % space
-	exec_cmd += "--minuid %d " % minuid
-	exec_cmd += "--maxuid %d " % maxuid
+	exec_cmd += "--minuid %d " % min_uid
+	exec_cmd += "--maxuid %d " % max_uid
 	exec_cmd += "--core %d " % core
-	exec_cmd += "--nproc %d " % nproc
-	exec_cmd += "--fsize %d " % fsize
+	exec_cmd += "--nproc %d " % n_proc
+	exec_cmd += "--fsize %d " % f_size
 	exec_cmd += "--stack %d " % stack
 	exec_cmd += "--clock %d " % clock
 	exec_cmd += "--usage %s " % user_report
@@ -89,14 +83,12 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 
 	if opt_user_file1:
 		run_args = run_args.replace('%f1%', opt_user_file1)
-	
+
 	ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
-#	exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + ' > ' + user_output
+	# exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + ' > ' + user_output
 	exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + '| ' + ascii_path + ' > ' + user_output
 
 	return exec_cmd
-
-
 
 
 # handle functions
@@ -108,6 +100,13 @@ def handle_zip_file(attempt, f, contest):
 	my_cmd = 'unzip ' + src_path
 	print('extraction: ' + my_cmd)
 	output, ret = check_output(my_cmd, submission_dir)
+	print_variables_debug([
+		"Attempt: " + str(attempt),
+		"Contest: " + str(contest),
+		"Src_base: " + str(src_base),
+		"Output: " + str(output),
+		"ret: " + str(ret)
+	])
 
 	return
 
@@ -120,27 +119,14 @@ def check_is_in_file(files):
 		file_parts = file.split('.')
 		variable_debug.append(file_parts[0])
 		variable_debug.append(file_parts[1])
-		if not 'in' == file_parts[len(file_parts) - 1]:
+		file_type = file_parts[len(file_parts) - 1]
+		if (not 'in' == file_type)\
+			or (not 'inh' == file_type)\
+			or (not 'inm' == file_type)\
+			or (not 'inmh' == file_type):
 			print_variables_debug(variable_debug)
 			print("The file: " + file + " is not an in file!")
 			print("Is an " + file_parts[len(file_parts) - 1] + " file type!")
-			return False
-	print_variables_debug(variable_debug)
-	return True
-
-
-# check if the test files are for the contest
-def check_is_for_this_contest_file(files, contest):
-	print_variable_debug("Checking if the files are for the selected contest")
-	variable_debug = []
-	for file in files:
-		file_parts = file.split('.')
-		variable_debug.append(file_parts[0])
-		variable_debug.append(file_parts[1])
-		if contest.short_name not in file_parts[0]:
-			print_variables_debug(variable_debug)
-			print("The file: " + file + " is not for this contest")
-			print("This contest short name is: " + str(contest.short_name))
 			return False
 	print_variables_debug(variable_debug)
 	return True
@@ -159,13 +145,34 @@ def check_is_out_file(files, files_max_length):
 			file_parts = file.split('.')
 			variable_debug.append(file_parts[0])
 			variable_debug.append(file_parts[1])
-			if not 'out' == file_parts[len(file_parts) - 1]:
+			file_type = file_parts[len(file_parts) - 1]
+			if (not 'out' == file_type)\
+				or (not 'outh' == file_type)\
+				or (not 'outm' == file_type)\
+				or (not 'outmh' == file_type):
 				variable_debug.append("\nThe file: " + file + " is not an out file!")
 				variable_debug.append("\nIs an " + file_parts[len(file_parts) - 1] + " file type!")
 				print_variables_debug(variable_debug)
 				return False
 		print_variables_debug(variable_debug)
 		return True
+
+
+# check if the test files are for the contest
+def check_is_for_this_contest_file(files, contest):
+	print_variable_debug("Checking if the files are for the selected contest")
+	variable_debug = []
+	for file in files:
+		file_parts = file.split('.')
+		variable_debug.append(file_parts[0])
+		variable_debug.append(file_parts[1])
+		if contest.short_name not in file_parts[0]:
+			print_variables_debug(variable_debug)
+			print("The file: " + file + " is not for this contest")
+			print("This contest short name is: " + str(contest.short_name))
+			return False
+	# print_variables_debug(variable_debug)
+	return True
 
 
 # unzip zip file
@@ -182,7 +189,6 @@ def unzip_zip_file(zip_path, f, in_out):
 	return
 
 
-
 # -------------------------------------------------- functions needed --------------------------------------------------
 # check in files
 def check_in_files(f, contest):
@@ -196,6 +202,7 @@ def check_in_files(f, contest):
 	# find the last branch level
 	count = 0
 	for c in os.walk(str(zip_dir) + '/in'):
+		print_variable_debug("searching " + str(c))
 		count += 1
 
 	# for the last branch level
@@ -291,22 +298,24 @@ def handle_uploaded_file(atempt, f, contest):
 	(src_name, ext) = os.path.splitext(src_base)
 	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
 
-	#print('ext: ' + ext)
+	# print('ext: ' + ext)
 	if ext == '.zip':
 		handle_zip_file(atempt, f, contest)
 
 	print('source path = ' + src_path)
 
 	submition_dir = os.path.dirname(src_path)
-	#obj_file = submition_dir + '/' + src_name + '.user.o'
+	# obj_file = submition_dir + '/' + src_name + '.user.o'
 	obj_file = src_name + '.user.o'
 
-	#print('submition dir = ' + submition_dir)
+	# print('submition dir = ' + submition_dir)
 
 	atempt.compile_error = False
 	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	my_cmd = 'gcc ' + contest.compile_flags + ' ' + '*.c ' + ' -I '  + './src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	#my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' + ' -o ' + obj_file + ' ' + contest.linkage_flags
+	my_cmd = 'gcc ' + contest.compile_flags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + obj_file + ' ' +\
+		contest.linkage_flags
+	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' +
+	# ' -o ' + obj_file + ' ' + contest.linkage_flags
 
 	print('compilation: ' + my_cmd)
 	output, ret = check_output(my_cmd, submition_dir)
@@ -320,7 +329,7 @@ def handle_uploaded_file(atempt, f, contest):
 
 	chmod_cmd = "chmod a+w " + submition_dir
 	output, ret = check_output(chmod_cmd, submition_dir)
-
+	print_variables_debug([output, ret])
 
 	test_set = contest.test_set.all()
 
@@ -338,13 +347,12 @@ def handle_uploaded_file(atempt, f, contest):
 		record.test = test
 		record.passed = True
 
-		testout_base = os.path.basename(test.output_file.path)
-		(testout_name, ext) = os.path.splitext(testout_base)
-		user_output = os.path.join(submition_dir, testout_base + '.user')
-		user_report = os.path.join(submition_dir, testout_name + '.report')
-#		user_output = testout_base + '.user'
-#		user_report = testout_name + '.report'
-
+		test_out_base = os.path.basename(test.output_file.path)
+		(test_out_name, ext) = os.path.splitext(test_out_base)
+		user_output = os.path.join(submition_dir, test_out_base + '.user')
+		user_report = os.path.join(submition_dir, test_out_name + '.report')
+# 				user_output = test_out_base + '.user'
+# 				user_report = test_out_name + '.report'
 
 		# copy option file to the same path
 		if test.opt_file1:
@@ -356,14 +364,12 @@ def handle_uploaded_file(atempt, f, contest):
 
 		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1)
 
-
 		print('exec cmd is:')
 		print(exec_cmd)
 
-		timeStarted = datetime.datetime.now()  # Save start time.
+		time_started = datetime.datetime.now()  # Save start time.
 		check_output(exec_cmd, submition_dir)
-		record.execution_time = round((datetime.datetime.now() - timeStarted).microseconds / 1000,0) # Get execution time.
-
+		record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000, 0)  # Get execution time.
 
 		# save files
 		f = open(user_report, "r")
@@ -375,7 +381,7 @@ def handle_uploaded_file(atempt, f, contest):
 		f = open(user_output)
 		record.output.save(user_output, File(f))
 		f.close()
-		
+
 		# verify safeexec report
 		safeexec_error_description = lines[0][:-1]
 
@@ -402,17 +408,18 @@ def handle_uploaded_file(atempt, f, contest):
 		# if there was a timeout, chances are the files generated are huge
 		# for safety reasons it is better to delete them
 		if record.error == safeexec_timeout:
-			#delete all files
+			# delete all files
 			os.remove(record.output.path)
 			record.output = None
-			
+
 		if record.error != safeexec_ok:
 			record.passed = False
 			record.save()
 			continue
 
 		# uses the diff tool
-		diff, ret = check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path, submition_dir)
+		diff, ret =\
+			check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path, submition_dir)
 
 		record.passed = diff[0] == ''
 
@@ -437,15 +444,15 @@ def handle_uploaded_file(atempt, f, contest):
 		record.save()
 		os.remove(user_output)
 
-		
-
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
 	os.remove(os.path.join(submition_dir, obj_file))
-	cleanup_past_atempts(atempt.team, atempt)
+	cleanup_past_attempts(atempt.team, atempt)
+
 
 # get functions
 def get_team_members(request, contest_id, team_id):
+	print_variable_debug("Request: " + str(request))
 	qs = TeamMember.objects.filter(team__contest=contest_id).filter(user__teammember__team_id=team_id).first()
 
 	print_variables_debug(['qs:', qs])
@@ -507,21 +514,16 @@ def set_test_in_order(tests):
 	return tests_in_order
 
 
-def cleanup_past_atempts(team_obj, atempt_obj):
-	atempts_qs = Atempt.objects.filter(team = team_obj).exclude(id=atempt_obj.id).order_by('-date')
-	for at in atempts_qs:
+def cleanup_past_attempts(team_obj, atempt_obj):
+	attempts_qs = Atempt.objects.filter(team=team_obj).exclude(id=atempt_obj.id).order_by('-date')
+	for at in attempts_qs:
 		results = at.classification_set.all()
 		for res in results:
 			if res.output and os.path.isfile(res.output.path):
 				os.remove(res.output.path)
 			res.output = None
 
-	
 		if at.file and os.path.isfile(at.file.path):
-			dir = os.path.dirname(at.file.path)
-			shutil.rmtree(dir)
+			directory = os.path.dirname(at.file.path)
+			shutil.rmtree(directory)
 		at.file = None
-
-
-
-
