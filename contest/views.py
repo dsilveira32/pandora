@@ -124,7 +124,7 @@ def attempt_create_view(request, id):
 	start_date = contest_obj.start_date
 	end_date = contest_obj.end_date
 
-	# this is to allow speficic users to submit outside the scheduled dates
+	# this is to allow specific users to submit outside the scheduled dates
 	# example is a user that was sick
 	try:
 		user_excep = UserContestDateException.objects.get(user = request.user, contest = contest_obj)
@@ -141,13 +141,12 @@ def attempt_create_view(request, id):
 			# contest is not opened
 			return redirect(os.path.join(contest_obj.get_absolute_url()))
 
-
 	team_obj, members = get_user_team(request, contest_obj.id)
 	if not team_obj:
 		if contest_obj.max_team_members == 1:
 			team_obj = Team(name=request.user.username, contest=contest_obj)
 			team_obj.save()
-			tm = TeamMember(team = team_obj, user=request.user, approved=True)
+			tm = TeamMember(team=team_obj, user=request.user, approved=True)
 			tm.save()
 			members = team_obj.teammember_set.all()
 		else:
@@ -157,7 +156,7 @@ def attempt_create_view(request, id):
 
 	if contest_obj.max_submitions > 0:
 		if atempts and atempts.count() >= contest_obj.max_submitions:
-			messages.error(request, "You have reached the maximum number of submitions for this contest.")
+			messages.error(request, "You have reached the maximum number of submissions for this contest.")
 			can_submit = False
 
 	if not contest_obj.is_open:
@@ -176,6 +175,12 @@ def attempt_create_view(request, id):
 		obj.contest = contest_obj
 		obj.team = team_obj
 		obj.save()
+		print_variables_debug([
+			"Object: " + str(obj),
+			"Object file: " + str(obj.file),
+			"Object file path: " + str(obj.file.path),
+			"Contest object: " + str(contest_obj)
+		])
 		handle_uploaded_file(obj, obj.file, contest_obj)
 		return redirect(obj.get_absolute_url())
 
@@ -287,7 +292,7 @@ def team_create_view(request, id):
 
 	if user_team:
 		# this user already has a team
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'my_team/'))
 
 	# in case individual submition - Create a team with the username with only one member
 	if contest_obj.max_team_members == 1:
@@ -295,7 +300,7 @@ def team_create_view(request, id):
 		t.save()
 		tm = TeamMember(team = t, user=request.user, approved=True)
 		tm.save()
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'my_team/'))
 
 	form = TeamModelForm(request.POST or None)
 	if form.is_valid():
@@ -307,7 +312,7 @@ def team_create_view(request, id):
 		team_member_obj.approved = True
 		team_member_obj.team = obj
 		team_member_obj.save()
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'my_team/'))
 
 	context.update({'form': form})
 	context.update({"title": 'Create New Team'})
@@ -385,7 +390,7 @@ def team_join_view(request, id):
 	# TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
 
 	if user_team:
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'my_team/'))
 
 	# in case individual submition - Create a team with the username with only one member
 	if contest_obj.max_team_members == 1:
@@ -393,7 +398,7 @@ def team_join_view(request, id):
 		t.save()
 		tm = TeamMember(team = t, user=request.user, approved=True)
 		tm.save()
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+		return redirect(os.path.join(contest_obj.get_absolute_url(), 'my_team/'))
 
 	# get all teams active in this contenst
 	teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
@@ -423,7 +428,7 @@ def team_join_view(request, id):
 			team_member.user = request.user
 			team_member.approved = False
 			team_member.save()
-			return redirect(os.path.join(contest_obj.get_absolute_url(), 'myteam/'))
+			return redirect(os.path.join(contest_obj.get_absolute_url(), 'my_team/'))
 		form = TeamMemberForm()
 
 	# context.update({'form': form})

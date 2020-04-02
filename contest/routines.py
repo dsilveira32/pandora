@@ -93,8 +93,11 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 
 # handle functions
 def handle_zip_file(attempt, f, contest):
+	print_variable_debug("Handling zip file...")
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
+	print_variable_debug(src_base)
+	# if '.zip' in src_base:
 	submission_dir = os.path.dirname(src_path)
 
 	my_cmd = 'unzip ' + src_path
@@ -109,6 +112,8 @@ def handle_zip_file(attempt, f, contest):
 	])
 
 	return
+	# return True
+	# return False
 
 
 # check in test files
@@ -121,10 +126,10 @@ def check_is_in_file(files):
 		variable_debug.append(file_parts[1])
 		file_type = file_parts[len(file_parts) - 1]
 		if (not 'in' == file_type)\
-			or (not 'inh' == file_type)\
-			or (not 'inm' == file_type)\
-			or (not 'inmh' == file_type):
-			print_variables_debug(variable_debug)
+			and (not 'inh' == file_type)\
+			and (not 'inm' == file_type)\
+			and (not 'inmh' == file_type):
+			# print_variables_debug(variable_debug)
 			print("The file: " + file + " is not an in file!")
 			print("Is an " + file_parts[len(file_parts) - 1] + " file type!")
 			return False
@@ -133,10 +138,14 @@ def check_is_in_file(files):
 
 
 # check out test files
-def check_is_out_file(files, files_max_length):
-	if files_max_length < len(files):
+def check_is_out_file(files, n_files):
+	if n_files < len(files):
 		print("There are more out files than in files!")
-		print("There are " + str(len(files)) + " out files and only " + str(files_max_length) + " in files!")
+		print("There are " + str(len(files)) + " out files and only " + str(n_files) + " in files!")
+		return False
+	elif n_files > len(files):
+		print("There are more in files than out files!")
+		print("There are " + str(n_files) + " out files and only " + str(len(files)) + " in files!")
 		return False
 	else:
 		print_variable_debug("Checking out files")
@@ -147,9 +156,9 @@ def check_is_out_file(files, files_max_length):
 			variable_debug.append(file_parts[1])
 			file_type = file_parts[len(file_parts) - 1]
 			if (not 'out' == file_type)\
-				or (not 'outh' == file_type)\
-				or (not 'outm' == file_type)\
-				or (not 'outmh' == file_type):
+				and (not 'outh' == file_type)\
+				and (not 'outm' == file_type)\
+				and (not 'outmh' == file_type):
 				variable_debug.append("\nThe file: " + file + " is not an out file!")
 				variable_debug.append("\nIs an " + file_parts[len(file_parts) - 1] + " file type!")
 				print_variables_debug(variable_debug)
@@ -175,14 +184,39 @@ def check_is_for_this_contest_file(files, contest):
 	return True
 
 
+def deleting_previous_unzips(extract_dir):
+	right_dir = False
+	path_to_dir_to_remove = ""
+	for c in os.walk(str(extract_dir)):
+		print_variable_debug("searching " + str(c))
+		for file in c[2]:
+			file_path = str(c[0]) + "/" + str(file)
+			if os.path.exists(file_path):
+				os.remove(file_path)
+		if right_dir:
+			path_to_dir_to_remove = c[0]
+		elif c[1] is not []:
+			right_dir = True
+
+	if os.path.exists(path_to_dir_to_remove):
+		os.rmdir(path_to_dir_to_remove)
+
+
 # unzip zip file
 def unzip_zip_file(zip_path, f, in_out):
 	extract_dir = os.path.dirname(zip_path) + '/temp' + str(in_out)
 	file_name = str(os.path.basename(zip_path))
 
+	print_variable_debug("Checking for previous unzips")
+	deleting_previous_unzips(extract_dir)
+
+	print_variable_debug("Double checking for previous unzips")
+	deleting_previous_unzips(extract_dir)
+
 	print_variable_debug("Unzipping file " + str(file_name))
 	with zipfile.ZipFile(f, 'r') as in_files:
 		print_variable_debug("Extracting file " + str(file_name) + " to " + str(extract_dir))
+		count = 0
 		in_files.extractall(extract_dir)
 	print_variable_debug("File " + str(file_name) + " unzipped")
 
@@ -201,16 +235,16 @@ def check_in_files(f, contest):
 
 	# find the last branch level
 	count = 0
-	for c in os.walk(str(zip_dir) + '/in'):
+	for c in os.walk(str(zip_dir) + '/temp/in'):
 		print_variable_debug("searching " + str(c))
 		count += 1
 
 	# for the last branch level
 	file_tree_branch = 0
-	for files in os.walk(str(zip_dir) + '/in'):
+	for files in os.walk(str(zip_dir) + '/temp/in'):
 		file_tree_branch += 1
 		if file_tree_branch == count:
-			print_variable_debug("Branch founded!")
+			# print_variable_debug("Branch founded!")
 			# check if the files are for this contest
 			if check_is_for_this_contest_file(files[len(files) - 1], contest):
 				print_variable_debug("Is for this contest!")
@@ -237,15 +271,13 @@ def check_out_files(f, contest, files_max_length):
 
 	# check last branch
 	count = 0
-	x = []
-	for c in os.walk(str(zip_dir) + '/out'):
-		x.append(c)
+	for c in os.walk(str(zip_dir) + '/temp/out'):
+		print_variable_debug("searching " + str(c))
 		count += 1
-	print_variables_debug(x)
 
 	# for the last branch
 	file_tree_branch = 0
-	for files in os.walk(str(zip_dir) + '/out'):
+	for files in os.walk(str(zip_dir) + '/temp/out'):
 		file_tree_branch += 1
 		if file_tree_branch == count:
 			# print_variable_debug("Branch founded!")
@@ -291,10 +323,18 @@ def create_test(request, in_files, out_files, contest):
 
 
 def handle_uploaded_file(atempt, f, contest):
+	print_variable_debug("Handling zip file...")
+	print_variable_debug("\"SafeExecError.objects.all()\"")
 	safeexec_errors = SafeExecError.objects.all()
+	print_variable_debug(safeexec_errors)
+
+	print_variable_debug("\"SafeExecError.objects.get(description='OK')\"")
 	safeexec_ok = SafeExecError.objects.get(description='OK')
+	print_variable_debug(safeexec_ok)
+
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
+	print_variable_debug(src_base)
 	(src_name, ext) = os.path.splitext(src_base)
 	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
 
@@ -492,8 +532,9 @@ def get_team_attempts(team):
 
 # set tests in order
 def set_test_in_order(tests):
+	print_variable_debug("Start putting tests in order!")
 	tests_in_order = []
-	last_number = 0
+	last_number = -1
 
 	for i in range(len(tests)):
 		for test in tests:
@@ -504,9 +545,18 @@ def set_test_in_order(tests):
 			for part in file_name_parts:
 				if 'test' in part:
 					# print_variable_debug("Found the test number")
-					test_number = part.split('test')[1]
-					# print_variables_debug([last_number + 1, int(test_number), last_number + 1 == int(test_number),
-					#                       last_number + 1 == test_number])
+					test_number_aux = part.split('test')
+					test_number = test_number_aux[1]
+					if 'e' in test_number:
+						test_number = test_number.split('e')[1]
+					# print_variable_debug(test_number)
+
+					# print_variables_debug([
+					# 	last_number + 1,
+					# 	int(test_number),
+					# 	last_number + 1 == int(test_number),
+					# 	last_number + 1 == test_number
+					# ])
 					if last_number + 1 == int(test_number):
 						last_number += 1
 						tests_in_order.append(test)

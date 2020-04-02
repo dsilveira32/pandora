@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import TeamMemberForm, CreateContestModelForm, TestForm
-from .models import Contest, Test
+from .models import Contest, Test, get_tests_path
 from .routines import *
 
 
@@ -140,6 +140,7 @@ def admin_test_creation(request):
 		# start debug
 		print_variable_debug(obj.contest.short_name)
 		print_variable_debug(contest)
+		a_ok = True
 		# end debug
 		if '.zip' in str(zip_in) and '.zip' in str(zip_out):
 			print_variable_debug("The files: \n" + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
@@ -155,11 +156,21 @@ def admin_test_creation(request):
 			out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
 			print_variable_debug(out_files)
 
-			a_ok = True
+			print_variable_debug("In files: ")
+			print_variables_debug(in_files)
+			print_variable_debug("Out files: ")
+			print_variables_debug(out_files)
 
-			for i in range(len(in_files)):
-				if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
-					a_ok = False
+			if len(in_files) > 0 and len(out_files) > 0:
+
+				for i in range(len(in_files)):
+					if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
+						a_ok = False
+					# print_variables_debug([in_files[i].split('.')[0], out_files[i].split('.')[0], a_ok])
+
+			else:
+
+				a_ok = False
 
 			if a_ok:
 				print_variable_debug("There is an out for each in!")
@@ -170,11 +181,22 @@ def admin_test_creation(request):
 				for i in range(n_tests):
 					test_number += 1
 					form = CreateTestModelForm(request.POST or None, request.FILES or None)
-					test = form.save(commit=False)
+					# test = form.save(commit=False)
+					test = Test()
 					test.contest = contest
 					test.weight_pct = weight
-					test.input_file = in_files[i]
-					test.output_file = out_files[i]
+					# f = open(in_files[i])
+					path = str("/home/bruno/dev/data/temp/in/" + str(in_files[i]))
+					f = open(path)
+					test.input_file.save(in_files[i], File(f))
+					# f.close()
+					# print_variable_debug(test.input_file)
+					# print_variable_debug(test.input_file.path)
+					# f = open(out_files[i])
+					path = str("/home/bruno/dev/data/temp/out/" + str(out_files[i]))
+					f = open(path)
+					test.output_file.save(out_files[i], File(f))
+					# f.close()
 					if in_files[i].split('.')[1] == "in":
 						test.use_for_time_benchmark = False
 						test.use_for_memory_benchmark = False
@@ -185,7 +207,7 @@ def admin_test_creation(request):
 						test.use_for_memory_benchmark = False
 						test.mandatory = False
 						test.type_of_feedback = 2
-					if in_files[i].split('.')[1] == "inm":
+					elif in_files[i].split('.')[1] == "inm":
 
 						if not benchmark:
 							test.use_for_time_benchmark = False
@@ -198,8 +220,7 @@ def admin_test_creation(request):
 							benchmark = False
 
 						test.type_of_feedback = 1
-
-					if in_files[i].split('.')[1] == "inmh":
+					elif in_files[i].split('.')[1] == "inmh":
 
 						if not benchmark:
 							test.use_for_time_benchmark = False
@@ -213,17 +234,29 @@ def admin_test_creation(request):
 
 						test.type_of_feedback = 2
 
-					print_variables_debug(["Test " + str(test_number) + " has:", test.contest, test.weight_pct,
-										   test.mandatory, test.use_for_memory_benchmark, test.use_for_time_benchmark])
+					# print_variables_debug([
+					# 	"Test " + str(test_number) + " has:",
+					# 	test.contest,
+					# 	test.weight_pct,
+					# 	test.mandatory,
+					# 	test.use_for_memory_benchmark,
+					# 	test.use_for_time_benchmark
+					# ])
 
 					test.save()
-					print_variable_debug("Test " + str(test_number) + " made!")
-					print_variable_debug(i)
-			print(obj)
-
-		return redirect(contest.get_absolute_url())
+					# print_variable_debug("Test " + str(test_number) + " made!")
+					# print_variable_debug(i)
+			# print_variable_debug(obj)
+			# print_variable_debug(a_ok)
+		if a_ok:
+			# print_variable_debug("Returning \"contest.get_absolute_url()\"")
+			# print_variable_debug("Contest: " + str(contest))
+			# print_variable_debug("URL: " + str(contest.get_absolute_url()))
+			return redirect(contest.get_absolute_url())
 	# obj.save()
 	context = ({'form': test_form})
+	# print_variable_debug("Contest: " + str(context))
+	# print_variable_debug("Rendering")
 
 	return render(request, template_name, context)
 
@@ -245,15 +278,17 @@ def admin_test_editor(request, id, t_id):
 
 	if form.is_valid():
 
-		print_variables_debug(['\n\noverride value:\n\n', request.POST.getlist('override'),
-							   '\n\ncpu value:\n\n', request.POST.getlist('cpu'),
-							   '\n\nmem value:\n\n', request.POST.getlist('mem'),
-							   '\n\nspace value:\n\n', request.POST.getlist('space'),
-							   '\n\ncore value:\n\n', request.POST.getlist('core'),
-							   '\n\nnproc value:\n\n', request.POST.getlist('nproc'),
-							   '\n\nfsize value:\n\n', request.POST.getlist('fsize'),
-							   '\n\nstack value:\n\n', request.POST.getlist('stack'),
-							   '\n\nclock value:\n\n', request.POST.getlist('clock')])
+		print_variables_debug([
+			'\n\noverride value:\n\n', request.POST.getlist('override'),
+			'\n\ncpu value:\n\n', request.POST.getlist('cpu'),
+			'\n\nmem value:\n\n', request.POST.getlist('mem'),
+			'\n\nspace value:\n\n', request.POST.getlist('space'),
+			'\n\ncore value:\n\n', request.POST.getlist('core'),
+			'\n\nnproc value:\n\n', request.POST.getlist('nproc'),
+			'\n\nfsize value:\n\n', request.POST.getlist('fsize'),
+			'\n\nstack value:\n\n', request.POST.getlist('stack'),
+			'\n\nclock value:\n\n', request.POST.getlist('clock')
+		])
 
 		if 'on' in request.POST.getlist('override'):
 			test_override = True

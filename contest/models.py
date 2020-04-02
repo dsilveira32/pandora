@@ -171,7 +171,7 @@ class Atempt(models.Model):
 	cpu_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
 
 	def get_absolute_url(self):
-		return "/contests/atempt/%i/" % self.id
+		return "/contests/attempt/%i/" % self.id
 
 
 class SafeExecError(models.Model):
