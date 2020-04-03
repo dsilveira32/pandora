@@ -549,6 +549,8 @@ def set_test_in_order(tests):
 					test_number = test_number_aux[1]
 					if 'e' in test_number:
 						test_number = test_number.split('e')[1]
+					if '_' in test_number:
+						test_number = test_number.split('_')[1]
 					# print_variable_debug(test_number)
 
 					# print_variables_debug([
