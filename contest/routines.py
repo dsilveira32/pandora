@@ -540,36 +540,43 @@ def get_test_number(file_parts):
 		file_name_parts_length = len(file_name_parts)
 
 		if file_name_parts_length > 3:
-			print(False)
-		elif file_name_parts_length is 3:
-			print(file_name_parts[2])
+			return -1
 		elif file_name_parts_length is 2:
+			return file_name_parts[2]
+		elif file_name_parts_length is 3:
 			try:
-				int(file_name_parts[1])
+				int(file_name_parts[2])
+				return file_name_parts[2]
 			except ValueError:
-				number = ""
-				if 'test' in file_name_parts[1]:
-					parts = file_name_parts[1].split('test')
+				try:
+					int(file_name_parts[1])
+					return file_name_parts[1]
+				except ValueError:
+					aux = ""
+					if 'test' in file_name_parts[1]:
+						parts = file_name_parts[1].split('test')
 
-					if 'test' is parts[0]:
-						number = parts[1]
-					else:
-						number = parts[0]
-				if 'e' in file_name_parts[1]:
-					parts = file_name_parts[1].split('e')
+						if '' is parts[0]:
+							aux = parts[1] + file_name_parts[2]
+						else:
+							aux = parts[0] + file_name_parts[2]
+					if 'e' in aux:
+						file_name_parts = aux.split('e')
+						parts = file_name_parts[1].split('e')
 
-					if 'e' is parts[0]:
-						number = parts[1]
-					else:
-						number = parts[0]
-				if '_' in file_name_parts[1]:
-					parts = file_name_parts[1].split('_')
+						if '' is parts[0]:
+							aux = parts[1]
+						else:
+							aux = parts[0]
+					if '_' in aux:
+						file_name_parts = aux.split('_')
+						parts = file_name_parts[1].split('_')
 
-					if '_' is parts[0]:
-						number = parts[1]
-					else:
-						number = parts[0]
-				return number
+						if '' is parts[0]:
+							aux = parts[1]
+						else:
+							aux = parts[0]
+					return aux
 
 	else:
 		return -1
@@ -581,11 +588,17 @@ def set_test_in_order(tests):
 	tests_in_order = []
 	last_number = -1
 
+	print_variable_debug("Tests: " + str(tests))
+
 	for i in range(len(tests)):
 		for test in tests:
 			file_parts = test.split('.')
 			test_number = get_test_number(file_parts)
 			if last_number + 1 == test_number:
+				print_variables_debug([
+					"Test number: " + str(test_number),
+					"last_number + 1 == test_number: " + str(last_number + 1 == test_number)
+				])
 				last_number += 1
 				tests_in_order.append(test)
 			# file_name = file_parts[0]
