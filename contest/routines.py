@@ -531,13 +531,18 @@ def get_team_attempts(team):
 
 
 def get_test_number(file_parts):
+	# print_variable_debug("File parts length: " + str(len(file_parts)))
+
 	if len(file_parts) is 2:
 
 		file_name = file_parts[0]
+		# print_variable_debug("File name: " + str(file_name))
 
 		file_name_parts = file_name.split('_')
+		# print_variable_debug("File name parts: " + str(file_name_parts))
 
 		file_name_parts_length = len(file_name_parts)
+		# print_variable_debug("File name parts length: " + str(file_name_parts_length))
 
 		if file_name_parts_length > 3:
 			return -1
@@ -546,10 +551,12 @@ def get_test_number(file_parts):
 		elif file_name_parts_length is 3:
 			try:
 				int(file_name_parts[2])
+				print_variable_debug("File name part[2]: " + str(file_name_parts[2]))
 				return file_name_parts[2]
 			except ValueError:
 				try:
 					int(file_name_parts[1])
+					print_variable_debug("File name part[1]: " + str(file_name_parts[1]))
 					return file_name_parts[1]
 				except ValueError:
 					aux = ""
@@ -588,13 +595,24 @@ def set_test_in_order(tests):
 	tests_in_order = []
 	last_number = -1
 
-	print_variable_debug("Tests: " + str(tests))
+	# print_variables_debug([
+	# 	"Tests: " + str(tests),
+	# 	"Tests length: " + str(len(tests))
+	# ])
 
 	for i in range(len(tests)):
+		# print_variable_debug("I: " + str(i))
 		for test in tests:
+			# print_variable_debug("Test: " + str(test))
 			file_parts = test.split('.')
+			# print_variable_debug("Test parts: " + str(file_parts))
 			test_number = get_test_number(file_parts)
-			if last_number + 1 == test_number:
+			print_variables_debug([
+				"Test number: " + str(test_number),
+				"Last number: " + str(last_number),
+				"Last number + 1: " + str(last_number + 1)
+			])
+			if last_number + 1 == int(str(test_number)):
 				print_variables_debug([
 					"Test number: " + str(test_number),
 					"last_number + 1 == test_number: " + str(last_number + 1 == test_number)
