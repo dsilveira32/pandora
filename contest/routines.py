@@ -651,8 +651,8 @@ def set_test_in_order(tests):
 	return tests_in_order
 
 
-def cleanup_past_attempts(team_obj, atempt_obj):
-	attempts_qs = Atempt.objects.filter(team=team_obj).exclude(id=atempt_obj.id).order_by('-date')
+def cleanup_past_attempts(team_obj, attempt_obj):
+	attempts_qs = Atempt.objects.filter(team=team_obj).exclude(id=attempt_obj.id).order_by('-date')
 	for at in attempts_qs:
 		results = at.classification_set.all()
 		for res in results:

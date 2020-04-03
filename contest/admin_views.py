@@ -121,6 +121,11 @@ def admin_contest_creation(request):
 	return render(request, template_name, context)
 
 
+def __get_zip_file_path(zip_file):
+	zip_path = os.path.abspath(zip_file.path)
+	return str(os.path.dirname(zip_path)) + "/temp"
+
+
 @superuser_only
 def admin_test_creation(request):
 	template_name = 'contest/test_creation.html'
@@ -185,18 +190,14 @@ def admin_test_creation(request):
 					test = Test()
 					test.contest = contest
 					test.weight_pct = weight
-					# f = open(in_files[i])
-					path = str("/home/bruno/dev/data/temp/in/" + str(in_files[i]))
+					path = __get_zip_file_path(zip_in) + "/in/" + str(in_files[i])
 					f = open(path)
 					test.input_file.save(in_files[i], File(f))
-					# f.close()
-					# print_variable_debug(test.input_file)
-					# print_variable_debug(test.input_file.path)
-					# f = open(out_files[i])
-					path = str("/home/bruno/dev/data/temp/out/" + str(out_files[i]))
+					f.close()
+					path = __get_zip_file_path(zip_in) + "/out/" + str(out_files[i])
 					f = open(path)
 					test.output_file.save(out_files[i], File(f))
-					# f.close()
+					f.close()
 					if in_files[i].split('.')[1] == "in":
 						test.use_for_time_benchmark = False
 						test.use_for_memory_benchmark = False
