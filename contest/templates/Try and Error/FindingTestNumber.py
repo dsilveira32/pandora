@@ -72,7 +72,21 @@ files = [
 	'5shortnametest.py',
 
 	'5testeshortname.py',
-	'5testshortname.py'
+	'5testshortname.py',
+
+	# without the word test
+	'5shortname.py',
+	'5shortname.py',
+
+	'shortname5.py',
+	'shortname5.py',
+
+	'5_shortname.py',
+	'5_shortname.py',
+
+	'shortname_5.py',
+	'shortname_5.py',
+
 ]
 
 
