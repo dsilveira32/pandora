@@ -530,6 +530,51 @@ def get_team_attempts(team):
 	return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
 
 
+def get_test_number(file_parts):
+	if len(file_parts) is 2:
+
+		file_name = file_parts[0]
+
+		file_name_parts = file_name.split('_')
+
+		file_name_parts_length = len(file_name_parts)
+
+		if file_name_parts_length > 3:
+			print(False)
+		elif file_name_parts_length is 3:
+			print(file_name_parts[2])
+		elif file_name_parts_length is 2:
+			try:
+				int(file_name_parts[1])
+			except ValueError:
+				number = ""
+				if 'test' in file_name_parts[1]:
+					parts = file_name_parts[1].split('test')
+
+					if 'test' is parts[0]:
+						number = parts[1]
+					else:
+						number = parts[0]
+				if 'e' in file_name_parts[1]:
+					parts = file_name_parts[1].split('e')
+
+					if 'e' is parts[0]:
+						number = parts[1]
+					else:
+						number = parts[0]
+				if '_' in file_name_parts[1]:
+					parts = file_name_parts[1].split('_')
+
+					if '_' is parts[0]:
+						number = parts[1]
+					else:
+						number = parts[0]
+				return number
+
+	else:
+		return -1
+
+
 # set tests in order
 def set_test_in_order(tests):
 	print_variable_debug("Start putting tests in order!")
@@ -538,30 +583,39 @@ def set_test_in_order(tests):
 
 	for i in range(len(tests)):
 		for test in tests:
-			file_name = test.split('.')[0]
+			file_parts = test.split('.')
+			test_number = get_test_number(file_parts)
+			if last_number + 1 == test_number:
+				last_number += 1
+				tests_in_order.append(test)
+			# file_name = file_parts[0]
 			# print_variable_debug(["File name: ", file_name])
-			file_name_parts = file_name.split('_')
+			# file_name_parts = file_name.split('_')
 			# print_variable_debug(["File name parts: ", file_name_parts])
-			for part in file_name_parts:
-				if 'test' in part:
-					# print_variable_debug("Found the test number")
-					test_number_aux = part.split('test')
-					test_number = test_number_aux[1]
-					if 'e' in test_number:
-						test_number = test_number.split('e')[1]
-					if '_' in test_number:
-						test_number = test_number.split('_')[1]
-					# print_variable_debug(test_number)
-
-					# print_variables_debug([
-					# 	last_number + 1,
-					# 	int(test_number),
-					# 	last_number + 1 == int(test_number),
-					# 	last_number + 1 == test_number
-					# ])
-					if last_number + 1 == int(test_number):
-						last_number += 1
-						tests_in_order.append(test)
+			# for part in file_name_parts:
+			# 	print_variable_debug(["Part: ", part])
+			# 	if 'test' in part:
+			# 		print_variable_debug("Found the test number")
+			# 		test_number_aux = part.split('test')
+			# 		test_number = test_number_aux[1]
+			# 		print_variable_debug(["Test number: ", test_number])
+			# 		if 'e' in test_number:
+			# 			test_number = test_number.split('e')[1]
+			# 		print_variable_debug(test_number)
+			# 		if '_' in test_number:
+			# 			test_number = test_number.split('_')[1]
+			# 		print_variable_debug(test_number)
+			# 		# print_variable_debug(test_number)
+			#
+			# 		# print_variables_debug([
+			# 		# 	last_number + 1,
+			# 		# 	int(test_number),
+			# 		# 	last_number + 1 == int(test_number),
+			# 		# 	last_number + 1 == test_number
+			# 		# ])
+			# 		if last_number + 1 == int(test_number):
+			# 			last_number += 1
+			# 			tests_in_order.append(test)
 
 	return tests_in_order
 
