@@ -530,54 +530,49 @@ def get_team_attempts(team):
 	return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
 
 
-def get_test_number(file_parts):
+def get_test_number(file_parts, short_name):
 	# print_variable_debug("File parts length: " + str(len(file_parts)))
+
+	short_name = short_name.lower()
+
+	file_parts_aux = file_parts
+
+	for i in range(len(file_parts_aux)):
+		file_parts[i] = file_parts_aux[i].lower()
 
 	if len(file_parts) is 2:
 
 		file_name = file_parts[0]
-		# print_variable_debug("File name: " + str(file_name))
 
 		file_name_parts = file_name.split('_')
-		# print_variable_debug("File name parts: " + str(file_name_parts))
 
 		file_name_parts_length = len(file_name_parts)
-		# print_variable_debug("File name parts length: " + str(file_name_parts_length))
 
 		if file_name_parts_length > 3:
 			return -1
-		elif file_name_parts_length is 2:
-			return file_name_parts[2]
-		elif file_name_parts_length is 3:
+		elif file_name_parts_length is 1:
+			parts = file_name_parts[0].split(short_name)
 			try:
-				int(file_name_parts[2])
-				print_variable_debug("File name part[2]: " + str(file_name_parts[2]))
-				return file_name_parts[2]
+				int(parts[0])
+				return parts[0]
 			except ValueError:
 				try:
-					int(file_name_parts[1])
-					print_variable_debug("File name part[1]: " + str(file_name_parts[1]))
-					return file_name_parts[1]
+					int(parts[1])
+					return parts[1]
 				except ValueError:
-					aux = ""
-					if 'test' in file_name_parts[1]:
-						parts = file_name_parts[1].split('test')
-
-						if '' is parts[0]:
-							aux = parts[1] + file_name_parts[2]
-						else:
-							aux = parts[0] + file_name_parts[2]
-					if 'e' in aux:
-						file_name_parts = aux.split('e')
-						parts = file_name_parts[1].split('e')
+					if '' is parts[0]:
+						aux = str(parts[1])
+					else:
+						aux = str(parts[0])
+					if 'test' in aux:
+						parts = aux.split('test')
 
 						if '' is parts[0]:
 							aux = parts[1]
 						else:
 							aux = parts[0]
-					if '_' in aux:
-						file_name_parts = aux.split('_')
-						parts = file_name_parts[1].split('_')
+					if 'e' in aux:
+						parts = aux.split('e')
 
 						if '' is parts[0]:
 							aux = parts[1]
@@ -585,12 +580,80 @@ def get_test_number(file_parts):
 							aux = parts[0]
 					return aux
 
+		elif file_name_parts_length is 2:
+			try:
+				int(file_name_parts[0])
+				return file_name_parts[0]
+			except ValueError:
+				try:
+					int(file_name_parts[1])
+					return file_name_parts[1]
+				except ValueError:
+					parts = []
+					if short_name in file_name_parts[1]:
+						parts = file_name_parts[1].split(short_name)
+						if str(parts[0]) is str(parts[1]) is '':
+							aux = ""
+							if 'test' in file_name_parts[0]:
+								parts = file_name_parts[0].split('test')
+								if '' is parts[0]:
+									aux = str(parts[1])
+								else:
+									aux = parts[0]
+							if 'e' in aux:
+								parts = aux.split('e')
+
+								if '' is parts[0]:
+									aux = parts[1]
+								else:
+									aux = parts[0]
+							return aux
+						elif str(parts[0]) is not '':
+							return parts[0]
+						elif str(parts[1]) is not '':
+							return parts[1]
+					elif short_name in file_name_parts[0]:
+						parts = file_name_parts[0].split(short_name)
+						if str(parts[0]) is str(parts[1]) is '':
+							aux = ""
+							if 'test' in file_name_parts[1]:
+								parts = file_name_parts[1].split('test')
+								if '' is parts[0]:
+									aux = str(parts[1])
+								else:
+									aux = parts[0]
+							if 'e' in aux:
+								parts = aux.split('e')
+								if '' is parts[0]:
+									aux = parts[1]
+								else:
+									aux = parts[0]
+							return aux
+						elif str(parts[0]) is not '':
+							return parts[0]
+						elif str(parts[1]) is not '':
+							return parts[1]
+		elif file_name_parts_length is 3:
+			try:
+				int(file_name_parts[0])
+				return file_name_parts[0]
+			except ValueError:
+				try:
+					int(file_name_parts[1])
+					return file_name_parts[1]
+				except ValueError:
+					try:
+						int(file_name_parts[2])
+						return file_name_parts[2]
+					except ValueError:
+						return -1
+
 	else:
 		return -1
 
 
 # set tests in order
-def set_test_in_order(tests):
+def set_test_in_order(tests, short_name):
 	print_variable_debug("Start putting tests in order!")
 	tests_in_order = []
 	last_number = -1
@@ -606,7 +669,7 @@ def set_test_in_order(tests):
 			# print_variable_debug("Test: " + str(test))
 			file_parts = test.split('.')
 			# print_variable_debug("Test parts: " + str(file_parts))
-			test_number = get_test_number(file_parts)
+			test_number = get_test_number(file_parts, short_name)
 			print_variables_debug([
 				"Test number: " + str(test_number),
 				"Last number: " + str(last_number),
