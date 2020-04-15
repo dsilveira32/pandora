@@ -107,7 +107,7 @@ class Contest(models.Model):
 class Test(models.Model):
 	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
 	input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
-	output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
+	output_file = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)
 	
 	opt_file1 = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)
 	opt_file2 = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)

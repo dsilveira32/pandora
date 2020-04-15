@@ -27,7 +27,13 @@ class CreateTestModelForm(forms.ModelForm):
 
 	class Meta:
 		model = Test
-		fields = "__all__"
+		fields = [
+			'contest',
+			'input_file',
+			'opt_file1',
+			'opt_file2'
+		]
+	# "__all__"
 
 	def changed_input_file(self, *args, **kwargs):
 		input_file = self.changed_data.get('input_file')
@@ -48,6 +54,7 @@ class UserEditForm(forms.ModelForm):
 	class Meta:
 		model = User
 		fields = ['email','first_name','last_name']
+
 
 class ProfileEditForm(forms.ModelForm):
 	number = forms.IntegerField(required=True, label='Student Number')

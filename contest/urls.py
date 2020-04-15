@@ -1,17 +1,23 @@
 from django.urls import path
 
-from .admin_views import (
+from contest.views.admin.tests import (
     admin_choose_test,
-    admin_contest_creation,
     admin_test_creation,
-    admin_test_editor,
+    admin_test_editor
+
+)
+from contest.views.admin_views import (
+    admin_contest_creation,
     admin_view,
     admin_view_teams_status,
     extract_grades,
     extract_zip,
 
 )
-from .views import (
+from contest.views.views import (
+    nonactive_view
+)
+from contest.views.login_required import (
     contest_list_view,
     contest_detail_view,
     attempt_create_view,
@@ -22,7 +28,6 @@ from .views import (
     attempt_list_view,
     ranking_view,
     profile_view,
-    nonactive_view,
     complete_profile_view,
     home_view
 )

@@ -85,8 +85,7 @@ files = [
 	'5_shortname.py',
 
 	'shortname_5.py',
-	'shortname_5.py',
-
+	'shortname_5.py'
 ]
 
 
