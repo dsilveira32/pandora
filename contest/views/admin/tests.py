@@ -482,6 +482,7 @@ def get_tests_from_zip(zip_path, f):
 	extract_dir_temp = str(os.path.dirname(zip_path)) + '/temp/temp'
 	extract_dir_in = str(os.path.dirname(zip_path)) + '/temp/in'
 	extract_dir_out = str(os.path.dirname(zip_path)) + '/temp/out'
+	extract_dir_info = str(os.path.dirname(zip_path)) + '/temp/info'
 
 	file_name = str(os.path.basename(zip_path))
 
@@ -489,11 +490,13 @@ def get_tests_from_zip(zip_path, f):
 	deleting_previous_unzips(extract_dir_temp)
 	deleting_previous_unzips(extract_dir_in)
 	deleting_previous_unzips(extract_dir_out)
+	deleting_previous_unzips(extract_dir_info)
 
 	print_variable_debug("Double checking for previous unzips")
 	deleting_previous_unzips(extract_dir_temp)
 	deleting_previous_unzips(extract_dir_in)
 	deleting_previous_unzips(extract_dir_out)
+	deleting_previous_unzips(extract_dir_info)
 
 	print_variable_debug("Unzipping file " + str(file_name))
 	with zipfile.ZipFile(f, 'r') as in_files:
@@ -507,18 +510,13 @@ def get_tests_from_zip(zip_path, f):
 	if not os.path.isdir(extract_dir_out):
 		os.mkdir(extract_dir_out)
 
-	# count = 0
-	#
-	# for c in os.walk(os.path.dirname(extract_dir_temp)):
-	# 	print(c)
-	# 	count += 1
+	if not os.path.isdir(extract_dir_info):
+		os.mkdir(extract_dir_info)
 
-	# pos = 0
-
-	print("start")
+	# print_variable_debug("start")
 
 	for file in os.walk(os.path.dirname(extract_dir_temp)):
-		print("searching in " + str(file))
+		# print_variable_debug("searching in " + str(file))
 		# pos += 1
 		file_path = file[0]
 		file_path_parts = str(file_path).split("/")
@@ -537,17 +535,20 @@ def get_tests_from_zip(zip_path, f):
 		# 	]
 		# )
 		if file_dirs == [] and str(file_path_parts[len(file_path_parts) - 1]) == "temp":  # pos == count:
-			# print(str(file_files) + "\n\n")
+			print_variable_debug(str(file_files) + "\n\n")
 			for f in file_files:
-				# print(f)
+				print_variable_debug(f)
 				f_parts = f.split('.')
-				print(f_parts[len(f_parts) - 1])
+				print_variable_debug(f_parts[len(f_parts) - 1])
 
 				if str(f_parts[len(f_parts) - 1]) == "in":
 					os.replace(str(extract_dir_temp) + "/" + str(f), str(extract_dir_in) + "/" + str(f))
 
 				elif str(f_parts[len(f_parts) - 1]) == "out":
 					os.replace(str(extract_dir_temp) + "/" + str(f), str(extract_dir_out) + "/" + str(f))
+
+				elif str(f_parts[len(f_parts) - 1]) == "info":
+					os.replace(str(extract_dir_temp) + "/" + str(f), str(extract_dir_info) + "/" + str(f))
 
 	return
 
