@@ -92,6 +92,8 @@ def attempt_view(request, id):
 		else:
 			res.obtained_output = ''
 
+		res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
+										 errors='strict')
 
 	context = {'contest': contest_obj}
 	context.update({'team': team})

@@ -52,11 +52,11 @@
 							<tr>
 								<th>Test #</th>
 								<th>Weight </th>
-								<th>Execution Time</th>
-								<th>Memory Usage</th>
+								<th>Time(ms)/Mem(kiB)</th>
 								<th>Type</th>
 								<th>Result</th>
 								<th>Info</th>
+								<th>Input</th>
 								<th>Exp./Obt.</th>
 							</tr>
 						</thead>
@@ -65,8 +65,7 @@
 							<tr>
 								<td>{{ forloop.counter }}</td>
 								<td>{{ r.test.weight_pct|floatformat }} &#37;</td>
-								<td>{{ r.execution_time }} (ms)</td>
-								<td>{{ r.memory_usage }} (kiB)</td>					
+								<td>{{ r.execution_time }}/{{ r.memory_usage }}</td>					
 								<td>{% if r.test.mandatory %}Mandatory{% else %}General{% endif %}</td>
 								<td>{% if r.passed %}<span class="oi oi-check text-success"></span>{% else %}<span class="oi oi-x text-danger"></span>{% endif %}</td>
 								<td>
@@ -74,7 +73,16 @@
 								</td>
 								<td>
 									{% if r.test.type_of_feedback == 1 %}
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-input{{ forloop.counter }}">Input</button>
+									{% elif user.is_superuser %}
+									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-input{{ forloop.counter }}">Input</button>
+									{% endif %}									
+								</td>								
+								<td>
+									{% if r.test.type_of_feedback <= 2 %}
 									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-expected{{ forloop.counter }}">Open</button>
+									{% elif user.is_superuser %}
+									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-expected{{ forloop.counter }}">Open</button>
 									{% endif %}
 								</td>
 							</tr>
@@ -107,7 +115,28 @@
 </div>
 
 {% for r in results %}
-{% if r.test.type_of_feedback == 1 %}
+{% if r.test.type_of_feedback == 1 or user.is_superuser %}
+<div class="modal fade bd-example-modal-xl" id="modal-input{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Input</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+<pre>{{ r.input }}</pre>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endif %}
+
+{% if r.test.type_of_feedback <= 2 or user.is_superuser %}
 <div class="modal fade bd-example-modal-xl" id="modal-expected{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">

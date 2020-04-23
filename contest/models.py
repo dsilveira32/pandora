@@ -63,7 +63,9 @@ class Contest(models.Model):
 	title = models.CharField(max_length=128)
 	short_name = models.CharField(max_length=16, blank=False, unique=True)
 	description = models.TextField(null=True, blank=True)
-	sow = models.FileField(upload_to=get_contest_detail_path, blank=True, null=True, max_length=512)
+#	sow = models.FileField(upload_to=get_contest_detail_path, blank=True, null=True, max_length=512)
+	sow = models.URLField(max_length=200, blank=True)
+
 
 	reference_code = models.FileField(upload_to=get_contest_code_path, blank=True, null=True)
 

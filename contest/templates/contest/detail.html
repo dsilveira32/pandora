@@ -36,7 +36,9 @@
 							</tr>								
 							</tbody>
 					</table>
-					<a href="{{ contest.sow.url }}"><strong class="d-inline-block mb-2 text-success">Statement Of Work</strong></a>
+					{% if contest.sow %}
+					<a href="{{ contest.sow }}"><strong class="d-inline-block mb-2 text-success">Statement Of Work</strong></a>
+					{% endif %}
 				</p>
 			</div>
 		</div>

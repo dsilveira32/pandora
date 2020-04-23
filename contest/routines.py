@@ -381,6 +381,7 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.cpu_time = 0
 	atempt.elapsed_time = 0
 
+	timeouts = 0
 	for test in test_set:
 		record = Classification()
 		record.attempt = atempt
@@ -451,6 +452,13 @@ def handle_uploaded_file(atempt, f, contest):
 			# delete all files
 			os.remove(record.output.path)
 			record.output = None
+			timeouts = timeouts + 1
+			if timeouts == 2:
+				record.error_description += " Reached the 2 Timeouts Limit. Aborting the test execution."
+				record.passed = False
+				record.save()
+				break
+
 
 		if record.error != safeexec_ok:
 			record.passed = False
