@@ -340,53 +340,23 @@ def admin_view(request, id):
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 
-	teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
+#	teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
+	teams = contest_obj.team_set.all()
 
 	for t in teams:
-		t.members = TeamMember.objects.filter(team=t)
+#		t.members = TeamMember.objects.filter(team=t)
+		t.members = t.teammember_set.all()
+		t.nMembers = t.members.count()
+		t.atempts = t.atempt_set.all()
+		t.lastAtempt = t.atempts.latest('id')
+		t.grade = t.lastAtempt.grade
+		t.time = t.lastAtempt.time_benchmark
+		t.memory = t.lastAtempt.memory_benchmark
+		t.nAtempts = t.atempts.count()
+		for m in t.members:
+			m.nAtempts = t.atempts.filter(user = m.user).count()
 
 	context.update({'teams': teams})
-
-	# TODO Make it better
-	query = "Select ca.id, c.name as team_name, ca.grade as team_grade, maxs.atempts as team_atempts" \
-			"	from (" \
-			"		select max(id) as id, count(id) as atempts, team_id" \
-			"			from contest_atempt" \
-			"				where contest_id = " + str(contest_obj.id) + \
-			"					group by team_id" \
-			"	) maxs" \
-			"		inner join contest_atempt ca on ca.id = maxs.id " \
-			"		join contest_team c on ca.team_id = c.id" \
-			"		join auth_user au on ca.user_id = au.id"
-
-	grades = Atempt.objects.raw(query)
-
-	context.update({'grades': grades})
-
-	# TODO Make it better
-	query = "SELECT ca.id, maxs.team_atempts, maxs.team_id, au.username as username, au.first_name, au.last_name," \
-			"umax.atempts as user_atempts" \
-			"	FROM (" \
-			"		select max(id) as id, count(id) as team_atempts, team_id" \
-			"			from contest_atempt" \
-			"				where contest_id = " + str(contest_obj.id) + \
-			"					group by team_id" \
-			"	) maxs" \
-			"		inner join contest_atempt ca on ca.id = maxs.id" \
-			"		join contest_teammember ct on ct.team_id = ca.team_id" \
-			"		join contest_team c on ca.team_id = c.id" \
-			"		join auth_user au on au.id = ct.user_id" \
-			"		join (" \
-			"			select max(id) as id, count(id) as atempts, user_id" \
-			"				from contest_atempt" \
-			"					where contest_id = 1" \
-			"						group by user_id" \
-			"		) umax on umax.user_id = ct.user_id" \
-			"			order by atempts asc"
-
-	atempts = Atempt.objects.raw(query)
-
-	context.update({'atempts': atempts})
 
 	form = TeamMemberForm(request.POST or None)
 
