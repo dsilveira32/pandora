@@ -348,11 +348,19 @@ def admin_view(request, id):
 		t.members = t.teammember_set.all()
 		t.nMembers = t.members.count()
 		t.atempts = t.atempt_set.all()
-		t.lastAtempt = t.atempts.latest('id')
-		t.grade = t.lastAtempt.grade
-		t.time = t.lastAtempt.time_benchmark
-		t.memory = t.lastAtempt.memory_benchmark
-		t.nAtempts = t.atempts.count()
+		if t.atempts:
+			t.lastAtempt = t.atempts.latest('id')
+			t.grade = t.lastAtempt.grade
+			t.time = t.lastAtempt.time_benchmark
+			t.memory = t.lastAtempt.memory_benchmark
+			t.nAtempts = t.atempts.count()
+		else:
+			t.lastAtempt = None
+			t.grade = 0
+			t.time = 0
+			t.memory = 0
+			t.nAtempts = 0
+
 		for m in t.members:
 			m.nAtempts = t.atempts.filter(user = m.user).count()
 
@@ -399,11 +407,16 @@ def admin_view_teams_status(request, c_id, t_id):
 		context.update({'last_classification': atempts.first().grade})
 		context.update({'last_execution_time': atempts.first().time_benchmark})
 		context.update({'last_memory_usage': atempts.first().memory_benchmark})
+		if os.path.isfile(atempts.first().file.path):
+			context.update({'download': atempts.first().file})
+		else:
+			context.update({'download': 0})
 	else:
 		context.update({'number_of_submitions': 0})
 		context.update({'last_classification': 0})
 		context.update({'last_execution_time': 0})
 		context.update({'last_memory_usage': 0})
+		context.update({'download': 0})
 
 	team_obj.members = members
 	context.update({'team': team_obj})

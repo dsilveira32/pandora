@@ -38,11 +38,16 @@ def attempt_list_view(request, id):
 		context.update({'last_classification': atempts.first().grade})
 		context.update({'last_execution_time': atempts.first().time_benchmark})
 		context.update({'last_memory_usage': atempts.first().memory_benchmark})
+		if os.path.isfile(atempts.first().file.path):
+			context.update({'download': atempts.first().file})
+		else:
+			context.update({'download': 0})
 	else:
 		context.update({'number_of_submitions': 0})
 		context.update({'last_classification': 0})
-		context.update({'last_execution_time': int(sys.maxsize)})
-		context.update({'last_memory_usage': int(sys.maxsize)})
+		context.update({'last_execution_time': 0})
+		context.update({'last_memory_usage': 0})
+		context.update({'download': 0})
 
 	team_obj.members = members
 	context.update({'team': team_obj})

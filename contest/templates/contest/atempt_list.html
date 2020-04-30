@@ -46,10 +46,18 @@
 								<td>Time Benchmark</td>						
 								<td>{{ last_execution_time }} (ms)</td>
 							</tr>
+							<tr>
 								<td>Memory Benchmark</td>						
 								<td>{{ last_memory_usage }} (kiB)</td>
-							</tr>						
-
+							</tr>
+							<tr>
+								<td>File</td>
+								{% if download %}					
+								<td><a href="{{ download.url }}">download</a></td>
+								{% else %}
+								<td></td>
+								{% endif %}
+							</tr>	
 						</tbody>
 					</table>
 				</p>
