@@ -13,8 +13,6 @@
 										<th>Test ID</th>
 										<th>Mandatory</th>
 										<th>Weight</th>
-										<th>Time benchmark</th>
-										<th>Memory benchmark</th>
 										<th>Type of feedback</th>
 										<th></th>
 									</tr>
@@ -34,26 +32,11 @@
 											<input type="number" name="weight" value={{ t.weight_pct }}>
 										</td>
 										<td>
-											{% if t.use_for_time_benchmark == True %}
-												<input type="checkbox" id="tb" name="time_benchmark{{ t.id }}" checked>
-											{% else %}
-												<input type="checkbox" id="tb" name="time_benchmark{{ t.id }}">
-											{% endif %}
-										</td>
-										<td>
-											{% if t.use_for_memory_benchmark == True %}
-												<input type="checkbox" id="mb" name="memory_benchmark{{ t.id }}" checked>
-											{% else %}
-												<input type="checkbox" id="mb" name="memory_benchmark{{ t.id }}">
-											{% endif %}
-										</td>
-										<td>
 											<input type="number" name="feedback" value={{ t.type_of_feedback }}>
 										</td>
 										<td>
 											<button class="btn btn-secondary" name="test_id" type='submit' style="background-color: #005cbf"
-												value="Edit {{ t.id }}" {#{{ mandatory.choice_value }} {{ t.weight_pct }} {{ t.use_for_time_benchmark }} {{ t.use_for_memory_benchmark }} {{ t.type_of_feedback }}"#}
-											onclick="alert('Changes saved')">
+												value="Edit {{ t.id }}" {#{{ mandatory.choice_value }} {{ t.weight_pct }} {{ t.type_of_feedback }}#}>
 												Save
 											</button>
 											<button class="btn btn-secondary" name="test_id" type='submit' value={{ t.id }}>

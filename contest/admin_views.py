@@ -29,19 +29,12 @@ def admin_choose_test(request, id):
 	context = {'contest': contest_obj}
 	contest_tests = contest_obj.test_set.all()
 
-	print_variables_debug(["Test:", contest_tests])
 	context.update({'tests': contest_tests})
 
 	form = TestForm(request.POST or None)
-
-	print_form_info_debug(form)
-
 	if form.is_valid():
 		t_id = form.cleaned_data.get("test_id")
-		# if request.method == 'POST':
-		# 	fruits = request.POST.getlist('mandatory')
-		# print_variables_debug([form.mandatory])
-		print("Tid = " + str(t_id))
+
 		if "Edit" not in t_id:
 			print_variables_debug(["t_id:", t_id])
 			# verificar codigo team join e team status
@@ -50,20 +43,12 @@ def admin_choose_test(request, id):
 			# id mandatory weight_pct use_for_time_benchmark use_for_memory_benchmark type_of_feedback
 			test_changes = str(t_id).split(" ")
 			test_id = int(test_changes[1])
-			print("--> test_id is = " + str(test_id))
+
 			tst_idx = 0
 			for xtest in contest_tests:
 				if xtest.id == test_id:
 					break
 				tst_idx = tst_idx+1
-			print("--> test_idx is = " + str(tst_idx))
-
-
-			#print_variables_debug(['\n\nmandatory value:\n\n', request.POST.getlist('mandatory' + test_id),
-			#					   '\n\nweight value:\n\n', request.POST.getlist('weight'),
-			#					   '\n\ntime_benchmark value:\n\n', request.POST.getlist('time_benchmark' + test_id),
-			#					   '\n\nmemory_benchmark value:\n\n', request.POST.getlist('memory_benchmark' + test_id),
-			#					   '\n\nfeedback value:\n\n', request.POST.getlist('feedback')])
 
 			if 'on' in request.POST.getlist('weight' + str(test_id)):
 				test_mandatory = True
@@ -73,10 +58,7 @@ def admin_choose_test(request, id):
 			
 			test_feedback = request.POST.getlist('feedback')[tst_idx]
 
-			#print_variables_debug(["Input\n", test_mandatory, test_weight, test_time_benchmark, test_memory_benchmark,
-			#					   test_feedback])
-
-			test = Test.objects.get(contest_id=id, id=test_id)
+			test = Test.objects.get(id=test_id)
 
 			#print_variables_debug(["Before\n", test.mandatory, test.weight_pct, test.use_for_time_benchmark,
 			#					   test.use_for_memory_benchmark, test.type_of_feedback])
@@ -85,6 +67,9 @@ def admin_choose_test(request, id):
 			test.weight_pct = test_weight
 			test.type_of_feedback = test_feedback
 			test.save()
+			contest_tests = contest_obj.test_set.all()
+			context.update({'tests': contest_tests})
+			form = TestForm()
 
 			#print_variables_debug(["After\n", test.mandatory, test.weight_pct, test.use_for_time_benchmark,
 			#					   test.use_for_memory_benchmark, test.type_of_feedback])
@@ -270,12 +255,10 @@ def admin_test_editor(request, id, t_id):
 
 	contest_obj = get_object_or_404(Contest, id=id)
 
-	test = Test.objects.filter(contest_id=id, id=t_id)
-
+	test = contest_obj.test_set.all()
 	# print_variables_debug(["Test:", test])
 
 	context = {'test': test}
-
 	form = TestForm(request.POST or None)
 
 	if form.is_valid():
@@ -324,10 +307,11 @@ def admin_test_editor(request, id, t_id):
 		test.clock = test_clock
 		test.save()
 
-		print_variables_debug(["After\n", test.override_exec_options, test.cpu, test.mem, test.space, test.core,
-							   test.nproc, test.fsize, test.stack, test.clock])
 
-		return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/test/chooser/'))
+		form = TestForm()
+		test = contest_obj.test_set.all()
+
+		#return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/test/chooser/'))
 
 	return render(request, template_name, context)
 
