@@ -35,7 +35,7 @@ def get_test_contest_details(t_c):
 
 # ---------------------------------- functions needed in the functions that are needed ---------------------------------
 # exec functions
-def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1):
+def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1, data_files):
 	print_variable_debug("Submission dir: " + str(submission_dir))
 	if test.override_exec_options:
 		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
@@ -83,6 +83,9 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 
 	if opt_user_file1:
 		run_args = run_args.replace('%f1%', opt_user_file1)
+
+	for data_file in data_files:
+		run_args = run_args.replace("<"+data_file.file_name+">", data_file.user_copy)
 
 	ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
 	# exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + ' > ' + user_output
@@ -379,6 +382,15 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.elapsed_time = 0
 
 	timeouts = 0
+
+	# copy data files to the same path
+	data_files = contest.contesttestdatafile_set.all()
+	for dfile in data_files:
+		print("---------->" + dfile.file_name)
+		data_file_base = os.path.basename(dfile.data_file.path)
+		dfile.user_copy = os.path.join(submition_dir, data_file_base)
+		copyfile(dfile.data_file.path, dfile.user_copy)
+
 	for test in test_set:
 		record = Classification()
 		record.attempt = atempt
@@ -400,7 +412,7 @@ def handle_uploaded_file(atempt, f, contest):
 		else:
 			opt_user_file1 = ""
 
-		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1)
+		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1, data_files)
 
 		print('exec cmd is:')
 		print(exec_cmd)
@@ -498,6 +510,11 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
 	os.remove(os.path.join(submition_dir, obj_file))
+	# remove data files from user directory
+	for dfile in data_files:
+		if os.path.isfile(dfile.user_copy):
+			os.remove(dfile.user_copy)
+
 	cleanup_past_attempts(atempt.team, atempt)
 
 

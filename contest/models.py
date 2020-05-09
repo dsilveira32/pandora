@@ -33,6 +33,9 @@ def get_contest_code_path(instance, filename):
 	return os.path.join('contests/%s' % instance.short_name, 'src/', filename)
 
 
+def get_contest_data_path(instance, filename):
+	return os.path.join('contests/%s' % instance.contest.short_name, 'data/', filename)
+
 def get_contest_ins_files_path(instance, filename):
 	return os.path.join('contests/%s' % instance.short_name, 'src/temp/in', filename)
 
@@ -213,3 +216,11 @@ class UserContestDateException(models.Model):
 	start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 	end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 	unique_together = ('contest', 'user')
+
+
+class ContestTestDataFile(models.Model):
+	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
+	data_file = models.FileField(upload_to=get_contest_data_path, blank=False, null=False, max_length=512)
+	file_name = models.CharField(max_length=150, blank=False)
+	unique_together = ('contest', 'file_name')
+	
