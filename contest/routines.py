@@ -35,7 +35,7 @@ def get_test_contest_details(t_c):
 
 # ---------------------------------- functions needed in the functions that are needed ---------------------------------
 # exec functions
-def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, opt_user_file1, data_files):
+def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, data_files):
 	print_variable_debug("Submission dir: " + str(submission_dir))
 	if test.override_exec_options:
 		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
@@ -80,9 +80,6 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 		run_args = str(test.run_arguments)
 	else:
 		run_args = ''
-
-	if opt_user_file1:
-		run_args = run_args.replace('%f1%', opt_user_file1)
 
 	for data_file in data_files:
 		run_args = run_args.replace("<"+data_file.file_name+">", data_file.user_copy)
@@ -331,48 +328,47 @@ def handle_uploaded_file(atempt, f, contest):
 
 	safeexec_ok = SafeExecError.objects.get(description='OK')
 	safeexec_NZS = SafeExecError.objects.get(description='Command exited with non-zero status')	
+	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
 
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
 	print_variable_debug(src_base)
 	(src_name, ext) = os.path.splitext(src_base)
-	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
 
-	# print('ext: ' + ext)
 	if ext == '.zip':
 		handle_zip_file(atempt, f, contest)
 
 	print('source path = ' + src_path)
 
 	submition_dir = os.path.dirname(src_path)
-	# obj_file = submition_dir + '/' + src_name + '.user.o'
 	obj_file = src_name + '.user.o'
 
-	# print('submition dir = ' + submition_dir)
-
 	atempt.compile_error = False
-	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + src_base + ' -o ' + obj_file + ' ' + contest.linkage_flags
-	my_cmd = 'gcc ' + contest.compile_flags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + obj_file + ' ' +\
-		contest.linkage_flags
-	# my_cmd = 'gcc ' + contest.compile_flags + ' ' + submition_dir + '/*.c ' + ' -I ' + submition_dir + '/src/*.c ' +
-	# ' -o ' + obj_file + ' ' + contest.linkage_flags
 
-	print('compilation: ' + my_cmd)
-	output, ret = check_output(my_cmd, submition_dir)
+	lflags = ''
+	cflags = ''
 
+	if contest.linkage_flags:
+		lflags = contest.linkage_flags
+
+	if contest.compile_flags:
+		cflags = contest.compile_flags
+
+	compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + obj_file + ' ' + lflags
+	print('compilation: ' + compile_cmd)
+	output, ret = check_output(compile_cmd, submition_dir)
+
+	# if compilation errors or warnings dont bother with running the tests
 	if output[0] != '':
 		atempt.compile_error = True
 		atempt.error_description = output[0]
-		print('compile error... terminating...')
 		atempt.save()
-		return  # if compilation errors or warnings dont bother with running the tests
+		return
 
 	chmod_cmd = "chmod a+w " + submition_dir
 	output, ret = check_output(chmod_cmd, submition_dir)
-	print_variables_debug([output, ret])
 
 	test_set = contest.test_set.all()
-
 	n_tests = test_set.count()
 	mandatory_failed = False
 	pct = 0
@@ -380,13 +376,11 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.memory_benchmark = 0
 	atempt.cpu_time = 0
 	atempt.elapsed_time = 0
-
 	timeouts = 0
 
 	# copy data files to the same path
 	data_files = contest.contesttestdatafile_set.all()
 	for dfile in data_files:
-		print("---------->" + dfile.file_name)
 		data_file_base = os.path.basename(dfile.data_file.path)
 		dfile.user_copy = os.path.join(submition_dir, data_file_base)
 		copyfile(dfile.data_file.path, dfile.user_copy)
@@ -401,19 +395,8 @@ def handle_uploaded_file(atempt, f, contest):
 		(test_out_name, ext) = os.path.splitext(test_out_base)
 		user_output = os.path.join(submition_dir, test_out_base + '.user')
 		user_report = os.path.join(submition_dir, test_out_name + '.report')
-# 				user_output = test_out_base + '.user'
-# 				user_report = test_out_name + '.report'
 
-		# copy option file to the same path
-		if test.opt_file1:
-			opt_file_base = os.path.basename(test.opt_file1.path)
-			opt_user_file1 = os.path.join(submition_dir, opt_file_base)
-			copyfile(test.opt_file1.path, opt_user_file1)
-		else:
-			opt_user_file1 = ""
-
-		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, opt_user_file1, data_files)
-
+		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, data_files)
 		print('exec cmd is:')
 		print(exec_cmd)
 
@@ -421,31 +404,23 @@ def handle_uploaded_file(atempt, f, contest):
 		check_output(exec_cmd, submition_dir)
 		record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000, 0)  # Get execution time.
 
-		#remove option files
-		if opt_user_file1 and os.path.isfile(opt_user_file1):
-			os.remove(opt_user_file1)
-
-
 		# save files
 		f = open(user_report, "r")
 		lines = f.readlines()
 		f.close()
 		os.remove(user_report)
 
-		# problematic save
 		f = open(user_output)
 		record.output.save(user_output, File(f))
 		f.close()
 
 		# verify safeexec report
 		safeexec_error_description = lines[0][:-1]
-
 		se_obj = SafeExecError.objects.get(description='Other')
 		for e in safeexec_errors:
 			if e.description in safeexec_error_description:
 				se_obj = e
 				break
-
 
 		record.error = se_obj
 		record.error_description = safeexec_error_description
@@ -474,7 +449,6 @@ def handle_uploaded_file(atempt, f, contest):
 				record.save()
 				break
 
-
 		if record.error != safeexec_ok and record.error != safeexec_NZS:
 			record.passed = False
 			record.save()
@@ -497,8 +471,6 @@ def handle_uploaded_file(atempt, f, contest):
 			atempt.cpu_time += record.cpu_time
 			atempt.elapsed_time += record.elapsed_time
 
-			if test.use_for_memory_benchmark:
-				atempt.memory_benchmark = record.memory_usage
 		else:
 			record.error_description = 'Wrong Answer'
 

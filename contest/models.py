@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 from .validators import validate_file_extension
 
 
@@ -113,15 +112,10 @@ class Test(models.Model):
 	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
 	input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
 	output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
-	
-	opt_file1 = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)
-	opt_file2 = models.FileField(upload_to=get_tests_path, blank=True, null=True, max_length=512)
-	
+		
 	mandatory = models.BooleanField(null=False, default=False)
 	weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
 	run_arguments = models.CharField(max_length=512, null=True, blank=True)
-	use_for_time_benchmark = models.BooleanField(null=False, default=False)
-	use_for_memory_benchmark = models.BooleanField(null=False, default=False)
 	type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 	# test specific options
 	override_exec_options = models.BooleanField(null=False, default=False)
@@ -188,7 +182,6 @@ class Classification(models.Model):
 	test = models.ForeignKey(Test, default=1, null=False, on_delete=models.CASCADE)
 	passed = models.BooleanField(null=False, default=False)
 	output = models.FileField(blank=True, null=True, max_length=512)
-	#report_file = models.FileField(blank=True, null=True, max_length=512)
 	execution_time = models.IntegerField(blank=True, null=True)
 	error_description = models.TextField(null=True, blank=True)
 	error = models.ForeignKey(SafeExecError, blank=True, null=True, on_delete=models.SET_NULL)
