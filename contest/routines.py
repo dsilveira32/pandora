@@ -323,14 +323,11 @@ def create_test(request, in_files, out_files, contest):
 
 
 def handle_uploaded_file(atempt, f, contest):
-	print_variable_debug("Handling zip file...")
-	print_variable_debug("\"SafeExecError.objects.all()\"")
 	safeexec_errors = SafeExecError.objects.all()
 	print_variable_debug(safeexec_errors)
 
-	print_variable_debug("\"SafeExecError.objects.get(description='OK')\"")
 	safeexec_ok = SafeExecError.objects.get(description='OK')
-	print_variable_debug(safeexec_ok)
+	safeexec_NZS = SafeExecError.objects.get(description='Command exited with non-zero status')	
 
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
@@ -412,6 +409,11 @@ def handle_uploaded_file(atempt, f, contest):
 		check_output(exec_cmd, submition_dir)
 		record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000, 0)  # Get execution time.
 
+		#remove option files
+		if opt_user_file1 and os.path.isfile(opt_user_file1):
+			os.remove(opt_user_file1)
+
+
 		# save files
 		f = open(user_report, "r")
 		lines = f.readlines()
@@ -432,9 +434,10 @@ def handle_uploaded_file(atempt, f, contest):
 				se_obj = e
 				break
 
+
 		record.error = se_obj
 		record.error_description = safeexec_error_description
-		print(safeexec_error_description)
+		#print(safeexec_error_description)
 
 		# lines[1] = elapsed time: 2 seconds
 		# lines[2] = memory usage: 1424 kbytes
@@ -460,7 +463,7 @@ def handle_uploaded_file(atempt, f, contest):
 				break
 
 
-		if record.error != safeexec_ok:
+		if record.error != safeexec_ok and record.error != safeexec_NZS:
 			record.passed = False
 			record.save()
 			continue
