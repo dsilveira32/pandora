@@ -164,3 +164,7 @@ URL_PREFIX = 'pandora/'
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 SOCIAL_AUTH_REVOKE_TOKENS_ON_DISCONNECT = True
+
+
+STATIC_ANALYZER = 'cppcheck --enable=all .'
+VALGRIND_EXEC = '/usr/bin/valgrind --error-exitcode=77 --leak-check=full -q'

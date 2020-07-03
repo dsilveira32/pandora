@@ -72,7 +72,7 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 		run_args = ''
 
 	if test.check_leak:
-		check_leak = '/usr/bin/valgrind --error-exitcode=77 --leak-check=full -q'
+		check_leak = VALGRIND_EXEC
 	else:
 		check_leak = ''
 		
@@ -347,7 +347,7 @@ def compile(atempt, contest, submition_dir, src_name):
 	return 1
 
 def static_analysis(atempt, contest, submition_dir):
-	output, ret = check_output("cppcheck --enable=all .", submition_dir)
+	output, ret = check_output(STATIC_ANALYZER, submition_dir)
 	atempt.static_analysis = output[0]
 
 def handle_uploaded_file(atempt, f, contest):
@@ -554,63 +554,6 @@ def get_team_attempts(team):
 	return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
 
 
-def get_test_number(file_parts):
-	# print_variable_debug("File parts length: " + str(len(file_parts)))
-
-	if len(file_parts) is 2:
-
-		file_name = file_parts[0]
-		# print_variable_debug("File name: " + str(file_name))
-
-		file_name_parts = file_name.split('_')
-		# print_variable_debug("File name parts: " + str(file_name_parts))
-
-		file_name_parts_length = len(file_name_parts)
-		# print_variable_debug("File name parts length: " + str(file_name_parts_length))
-
-		if file_name_parts_length > 3:
-			return -1
-		elif file_name_parts_length is 2:
-			return file_name_parts[2]
-		elif file_name_parts_length is 3:
-			try:
-				int(file_name_parts[2])
-				print_variable_debug("File name part[2]: " + str(file_name_parts[2]))
-				return file_name_parts[2]
-			except ValueError:
-				try:
-					int(file_name_parts[1])
-					print_variable_debug("File name part[1]: " + str(file_name_parts[1]))
-					return file_name_parts[1]
-				except ValueError:
-					aux = ""
-					if 'test' in file_name_parts[1]:
-						parts = file_name_parts[1].split('test')
-
-						if '' is parts[0]:
-							aux = parts[1] + file_name_parts[2]
-						else:
-							aux = parts[0] + file_name_parts[2]
-					if 'e' in aux:
-						file_name_parts = aux.split('e')
-						parts = file_name_parts[1].split('e')
-
-						if '' is parts[0]:
-							aux = parts[1]
-						else:
-							aux = parts[0]
-					if '_' in aux:
-						file_name_parts = aux.split('_')
-						parts = file_name_parts[1].split('_')
-
-						if '' is parts[0]:
-							aux = parts[1]
-						else:
-							aux = parts[0]
-					return aux
-
-	else:
-		return -1
 
 
 def cleanup_past_attempts(team_obj, attempt_obj):
