@@ -130,7 +130,7 @@ class Test(models.Model):
 	check_leak = models.BooleanField(null=False, default=False)
 
 class Team(models.Model):
-	name = models.SlugField(max_length=15, blank=False)
+	name = models.SlugField(max_length=50, blank=False)
 	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
 
 	# image  = models.ImageField(upload_to='images/', blank=True, null=True)
