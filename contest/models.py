@@ -130,7 +130,7 @@ class Test(models.Model):
 	check_leak = models.BooleanField(null=False, default=False)
 
 class Team(models.Model):
-	name = models.CharField(max_length=150, blank=True)
+	name = models.SlugField(max_length=15, blank=False)
 	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
 
 	# image  = models.ImageField(upload_to='images/', blank=True, null=True)
@@ -168,6 +168,7 @@ class Atempt(models.Model):
 	memory_benchmark = models.IntegerField(blank=True, null=True, default=0)
 	elapsed_time = models.IntegerField(blank=True, null=True, default=0)
 	cpu_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
+	static_analysis = models.TextField(blank=True, null=True)
 
 	def get_absolute_url(self):
 		return "/contests/attempt/%i/" % self.id

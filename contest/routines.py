@@ -37,31 +37,10 @@ def get_test_contest_details(t_c):
 # ---------------------------------- functions needed in the functions that are needed ---------------------------------
 # exec functions
 def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, data_files):
-	print_variable_debug("Submission dir: " + str(submission_dir))
 	if test.override_exec_options:
 		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
-		# cpu = test.cpu
-		# mem = test.mem
-		# space = test.space
-		# minuid = test.minuid
-		# maxuid = test.maxuid
-		# core = test.core
-		# nproc = test.nproc
-		# fsize = test.fsize
-		# stack = test.stack
-		# clock = test.clock
 	else:
 		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(contest)
-		# cpu = contest.cpu
-		# mem = contest.mem
-		# space = contest.space
-		# minuid = contest.minuid
-		# maxuid = contest.maxuid
-		# core = contest.core
-		# nproc = contest.nproc
-		# fsize = contest.fsize
-		# stack = contest.stack
-		# clock = contest.clock
 
 	exec_cmd = os.path.join(settings.MEDIA_ROOT, "safeexec")
 	exec_cmd += " --cpu %d " % cpu
@@ -341,6 +320,36 @@ def create_test(request, in_files, out_files, contest):
 	return
 
 
+def compile(atempt, contest, submition_dir, src_name):
+	obj_file = src_name + '.user.o'
+
+	atempt.compile_error = False
+
+	lflags = ''
+	cflags = ''
+
+	if contest.linkage_flags:
+		lflags = contest.linkage_flags
+
+	if contest.compile_flags:
+		cflags = contest.compile_flags
+
+	compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + obj_file + ' ' + lflags
+	print('compilation: ' + compile_cmd)
+	output, ret = check_output(compile_cmd, submition_dir)
+
+	if output[0] != '':
+		atempt.compile_error = True
+		atempt.error_description = output[0]
+		atempt.save()
+		return 0
+
+	return 1
+
+def static_analysis(atempt, contest, submition_dir):
+	output, ret = check_output("cppcheck --enable=all .", submition_dir)
+	atempt.static_analysis = output[0]
+
 def handle_uploaded_file(atempt, f, contest):
 	safeexec_errors = SafeExecError.objects.all()
 	print_variable_debug(safeexec_errors)
@@ -362,30 +371,11 @@ def handle_uploaded_file(atempt, f, contest):
 	submition_dir = os.path.dirname(src_path)
 	obj_file = src_name + '.user.o'
 
-	atempt.compile_error = False
+	if not compile(atempt, contest, submition_dir, src_name):
+		return 	# if compilation errors or warnings dont bother with running the tests
 
-	lflags = ''
-	cflags = ''
-
-	if contest.linkage_flags:
-		lflags = contest.linkage_flags
-
-	if contest.compile_flags:
-		cflags = contest.compile_flags
-
-	compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + obj_file + ' ' + lflags
-	print('compilation: ' + compile_cmd)
-	output, ret = check_output(compile_cmd, submition_dir)
-
-	# if compilation errors or warnings dont bother with running the tests
-	if output[0] != '':
-		atempt.compile_error = True
-		atempt.error_description = output[0]
-		atempt.save()
-		return
-
-	chmod_cmd = "chmod a+w " + submition_dir
-	output, ret = check_output(chmod_cmd, submition_dir)
+	check_output("chmod a+w " + submition_dir, submition_dir)
+	static_analysis(atempt, contest, submition_dir)
 
 	test_set = contest.test_set.all()
 	n_tests = test_set.count()
@@ -416,8 +406,8 @@ def handle_uploaded_file(atempt, f, contest):
 		user_report = os.path.join(submition_dir, test_out_name + '.report')
 
 		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, data_files)
-		print('exec cmd is:')
-		print(exec_cmd)
+#		print('exec cmd is:')
+#		print(exec_cmd)
 
 		time_started = datetime.datetime.now()  # Save start time.
 		check_output(exec_cmd, submition_dir)
@@ -433,8 +423,8 @@ def handle_uploaded_file(atempt, f, contest):
 		record.output.save(user_output, File(f))
 		f.close()
 
-		print("safeexec:")
-		print(lines)
+#		print("safeexec:")
+#		print(lines)
 		# verify safeexec report
 		safeexec_error_description = lines[0][:-1]
 		se_obj = SafeExecError.objects.get(description='Other')
@@ -456,11 +446,6 @@ def handle_uploaded_file(atempt, f, contest):
 		record.memory_usage = int(memory[2])
 		record.cpu_time = float(cpu[2])
 		record.elapsed_time = int(elapsed[2])
-
-
-		print("elapsed: ")
-		print(elapsed)
-
 
 		# if there was a timeout, chances are the files generated are huge
 		# for safety reasons it is better to delete them
@@ -504,10 +489,11 @@ def handle_uploaded_file(atempt, f, contest):
 
 		if record.passed:
 			pct += test.weight_pct
-			atempt.memory_benchmark += record.memory_usage
-			atempt.time_benchmark += record.execution_time
-			atempt.cpu_time += record.cpu_time
-			atempt.elapsed_time += record.elapsed_time
+			if not test.check_leak:
+				atempt.memory_benchmark += record.memory_usage
+				atempt.time_benchmark += record.execution_time
+				atempt.cpu_time += record.cpu_time
+				atempt.elapsed_time += record.elapsed_time
 
 		else:
 			record.error_description = 'Wrong Answer'
