@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import zipfile
+import re
 from shutil import copyfile
 from subprocess import check_output
 
@@ -64,7 +65,13 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 
 	exec_cmd = os.path.join(settings.MEDIA_ROOT, "safeexec")
 	exec_cmd += " --cpu %d " % cpu
-	exec_cmd += "--mem %d " % mem
+
+	if test.check_leak:
+		exec_cmd += "--mem %d " % (int(mem)+100000) 
+	else:
+		exec_cmd += "--mem %d " % mem
+
+	#exec_cmd += "--mem %d " % mem
 	exec_cmd += "--space %d " % space
 	exec_cmd += "--minuid %d " % min_uid
 	exec_cmd += "--maxuid %d " % max_uid
@@ -72,7 +79,11 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 	exec_cmd += "--nproc %d " % n_proc
 	exec_cmd += "--fsize %d " % f_size
 	exec_cmd += "--stack %d " % stack
-	exec_cmd += "--clock %d " % clock
+	if test.check_leak:
+		exec_cmd += "--clock %d " % (int(clock)+5)
+	else:
+		exec_cmd += "--clock %d " % clock
+
 	exec_cmd += "--usage %s " % user_report
 	exec_cmd += "--exec "
 
@@ -81,12 +92,20 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 	else:
 		run_args = ''
 
+	if test.check_leak:
+		check_leak = '/usr/bin/valgrind --error-exitcode=77 --leak-check=full -q'
+	else:
+		check_leak = ''
+		
+
 	for data_file in data_files:
 		run_args = run_args.replace("<"+data_file.file_name+">", data_file.user_copy)
 
+	obj_file = "./" + obj_file
+
 	ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
 	# exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + ' > ' + user_output
-	exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + '| ' + ascii_path + ' > ' + user_output
+	exec_cmd += check_leak + ' ' + obj_file + ' ' + run_args + ' < ' + test.input_file.path + '| ' + ascii_path + ' > ' + user_output
 
 	return exec_cmd
 
@@ -414,6 +433,8 @@ def handle_uploaded_file(atempt, f, contest):
 		record.output.save(user_output, File(f))
 		f.close()
 
+		print("safeexec:")
+		print(lines)
 		# verify safeexec report
 		safeexec_error_description = lines[0][:-1]
 		se_obj = SafeExecError.objects.get(description='Other')
@@ -436,6 +457,11 @@ def handle_uploaded_file(atempt, f, contest):
 		record.cpu_time = float(cpu[2])
 		record.elapsed_time = int(elapsed[2])
 
+
+		print("elapsed: ")
+		print(elapsed)
+
+
 		# if there was a timeout, chances are the files generated are huge
 		# for safety reasons it is better to delete them
 		if record.error == safeexec_timeout:
@@ -453,6 +479,18 @@ def handle_uploaded_file(atempt, f, contest):
 			record.passed = False
 			record.save()
 			continue
+
+		if test.check_leak and record.error == safeexec_NZS:
+			# find out the non zero status
+			code = int(re.findall(r'([0-9]+)', safeexec_error_description)[0])
+			if code == 77:
+				record.error_description += "\nMemory Leak Detected"
+				record.passed = False
+				record.save()
+				continue
+
+
+
 
 		# uses the diff tool
 		diff, ret =\
@@ -587,68 +625,6 @@ def get_test_number(file_parts):
 
 	else:
 		return -1
-
-
-# set tests in order
-def set_test_in_order(tests):
-	print_variable_debug("Start putting tests in order!")
-	tests_in_order = []
-	last_number = -1
-
-	# print_variables_debug([
-	# 	"Tests: " + str(tests),
-	# 	"Tests length: " + str(len(tests))
-	# ])
-
-	for i in range(len(tests)):
-		# print_variable_debug("I: " + str(i))
-		for test in tests:
-			# print_variable_debug("Test: " + str(test))
-			file_parts = test.split('.')
-			# print_variable_debug("Test parts: " + str(file_parts))
-			test_number = get_test_number(file_parts)
-			print_variables_debug([
-				"Test number: " + str(test_number),
-				"Last number: " + str(last_number),
-				"Last number + 1: " + str(last_number + 1)
-			])
-			if last_number + 1 == int(str(test_number)):
-				print_variables_debug([
-					"Test number: " + str(test_number),
-					"last_number + 1 == test_number: " + str(last_number + 1 == test_number)
-				])
-				last_number += 1
-				tests_in_order.append(test)
-			# file_name = file_parts[0]
-			# print_variable_debug(["File name: ", file_name])
-			# file_name_parts = file_name.split('_')
-			# print_variable_debug(["File name parts: ", file_name_parts])
-			# for part in file_name_parts:
-			# 	print_variable_debug(["Part: ", part])
-			# 	if 'test' in part:
-			# 		print_variable_debug("Found the test number")
-			# 		test_number_aux = part.split('test')
-			# 		test_number = test_number_aux[1]
-			# 		print_variable_debug(["Test number: ", test_number])
-			# 		if 'e' in test_number:
-			# 			test_number = test_number.split('e')[1]
-			# 		print_variable_debug(test_number)
-			# 		if '_' in test_number:
-			# 			test_number = test_number.split('_')[1]
-			# 		print_variable_debug(test_number)
-			# 		# print_variable_debug(test_number)
-			#
-			# 		# print_variables_debug([
-			# 		# 	last_number + 1,
-			# 		# 	int(test_number),
-			# 		# 	last_number + 1 == int(test_number),
-			# 		# 	last_number + 1 == test_number
-			# 		# ])
-			# 		if last_number + 1 == int(test_number):
-			# 			last_number += 1
-			# 			tests_in_order.append(test)
-
-	return tests_in_order
 
 
 def cleanup_past_attempts(team_obj, attempt_obj):

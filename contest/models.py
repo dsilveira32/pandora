@@ -127,7 +127,7 @@ class Test(models.Model):
 	fsize = models.PositiveIntegerField(default=8192)  # <kbytes>            Default: 8192 kbyte(s)
 	stack = models.PositiveIntegerField(default=8192)  # <kbytes>            Default: 8192 kbyte(s)
 	clock = models.PositiveIntegerField(default=10)  # <seconds>           Wall clock timeout (default: 10)
-
+	check_leak = models.BooleanField(null=False, default=False)
 
 class Team(models.Model):
 	name = models.CharField(max_length=150, blank=True)

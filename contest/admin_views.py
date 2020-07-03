@@ -112,6 +112,18 @@ def __get_zip_file_path(zip_file):
 	return str(os.path.dirname(zip_path)) + "/temp"
 
 
+
+def atoi(text):
+	return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+	'''
+	alist.sort(key=natural_keys) sorts in human order
+	http://nedbatchelder.com/blog/200712/human_sorting.html
+	(See Toothy's implementation in the comments)
+	'''
+	return [ atoi(c) for c in re.split(r'(\d+)', text) ]
+
 @superuser_only
 def admin_test_creation(request):
 	template_name = 'contest/test_creation.html'
@@ -136,15 +148,21 @@ def admin_test_creation(request):
 		if '.zip' in str(zip_in) and '.zip' in str(zip_out):
 			print_variable_debug("The files: \n" + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
 								 "\nare zip files!")
-			in_files = set_test_in_order(check_in_files(zip_in, contest))
-			print_variable_debug(in_files)
 
+
+			in_files = check_in_files(zip_in, contest)
+			in_files.sort(key=natural_keys)
+			print_variable_debug(in_files)
 			print_variable_debug(zip_in)
 			n_tests = len(in_files)
 			print_variable_debug(n_tests)
-
 			print_variable_debug(zip_out)
-			out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
+
+			#out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
+
+			out_files = check_out_files(zip_out, contest, n_tests)
+			out_files.sort(key=natural_keys)
+
 			print_variable_debug(out_files)
 
 			print_variable_debug("In files: ")
@@ -182,6 +200,9 @@ def admin_test_creation(request):
 					f.close()
 					path = __get_zip_file_path(zip_in) + "/out/" + str(out_files[i])
 					f = open(path)
+					print(out_files[i])
+					print(f)
+
 					test.output_file.save(out_files[i], File(f))
 					f.close()
 					if in_files[i].split('.')[1] == "in":
