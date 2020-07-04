@@ -72,7 +72,7 @@ def exec_command(test, contest, submission_dir, obj_file, user_output, user_repo
 		run_args = ''
 
 	if test.check_leak:
-		check_leak = VALGRIND_EXEC
+		check_leak = settings.VALGRIND_EXEC
 	else:
 		check_leak = ''
 		
@@ -347,7 +347,7 @@ def compile(atempt, contest, submition_dir, src_name):
 	return 1
 
 def static_analysis(atempt, contest, submition_dir):
-	output, ret = check_output(STATIC_ANALYZER, submition_dir)
+	output, ret = check_output(settings.STATIC_ANALYZER, submition_dir)
 	atempt.static_analysis = output[0]
 
 def handle_uploaded_file(atempt, f, contest):
