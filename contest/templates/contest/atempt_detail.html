@@ -179,7 +179,9 @@
 				</button>
 			</div>
 			<div class="modal-body">
+			{% if r.test.run_arguments != None %}			
 <pre>{{ r.test.run_arguments }}</pre>
+			{% endif %}
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
