@@ -395,6 +395,11 @@ def handle_uploaded_file(atempt, f, contest):
 		copyfile(dfile.data_file.path, dfile.user_copy)
 
 	for test in test_set:
+#		for root, dirs, files in os.walk(submition_dir):
+#			for momo in files:
+#				os.chmod(os.path.join(root, momo), 644)
+
+
 		record = Classification()
 		record.attempt = atempt
 		record.test = test
