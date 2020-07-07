@@ -62,6 +62,7 @@
 								<th>Type</th>
 								<th>Result</th>
 								<th>Info</th>
+								<th>Args</th>
 								<th>Input</th>
 								<th>Exp./Obt.</th>
 							</tr>
@@ -77,6 +78,13 @@
 								<td>
 									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-error{{ forloop.counter }}">More</button>
 								</td>
+								<td>
+									{% if r.test.type_of_feedback == 1 %}
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Input</button>
+									{% elif user.is_superuser %}
+									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Input</button>
+									{% endif %}									
+								</td>								
 								<td>
 									{% if r.test.type_of_feedback == 1 %}
 									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-input{{ forloop.counter }}">Input</button>
@@ -153,6 +161,25 @@
 			</div>
 			<div class="modal-body">
 <pre>{{ r.input }}</pre>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade bd-example-modal-xl" id="modal-cmd{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Args</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+<pre>{{ r.test.run_arguments }}</pre>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
