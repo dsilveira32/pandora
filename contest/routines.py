@@ -350,6 +350,13 @@ def static_analysis(atempt, contest, submition_dir):
 	output, ret = check_output(settings.STATIC_ANALYZER, submition_dir)
 	atempt.static_analysis = output[0]
 
+
+
+def run_inout_test(test, contest):
+	return 1 #  test passed
+
+
+
 def handle_uploaded_file(atempt, f, contest):
 	safeexec_errors = SafeExecError.objects.all()
 	print_variable_debug(safeexec_errors)
@@ -463,17 +470,23 @@ def handle_uploaded_file(atempt, f, contest):
 				record.error_description += " Reached the 2 Timeouts Limit. Aborting the test execution."
 				record.passed = False
 				record.save()
+				if test.mandatory:
+					mandatory_failed = True
 				break
 
 		if record.error != safeexec_ok and record.error != safeexec_NZS:
 			record.passed = False
 			record.save()
+			if test.mandatory:
+				mandatory_failed = True
 			continue
 
 		if test.check_leak and record.error == safeexec_NZS:
 			# find out the non zero status
 			code = int(re.findall(r'([0-9]+)', safeexec_error_description)[0])
 			if code == 77:
+				if test.mandatory:
+					mandatory_failed = True
 				record.error_description += "\nMemory Leak Detected"
 				record.passed = False
 				record.save()
