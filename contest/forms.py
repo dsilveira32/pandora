@@ -77,4 +77,4 @@ class TeamModelForm(forms.ModelForm):
 
 
 class TestForm(forms.Form):
-	test_id = forms.CharField(required=True)
+	pass

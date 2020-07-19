@@ -10,6 +10,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import TeamMemberForm, CreateContestModelForm, TestForm
 from .models import Contest, Test, get_tests_path
 from .routines import *
+from django.db import transaction
+
 
 
 def superuser_only(function):
@@ -24,57 +26,36 @@ def superuser_only(function):
 @superuser_only
 def admin_choose_test(request, id):
 	template_name = 'contest/test_chooser.html'
-
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 	contest_tests = contest_obj.test_set.all()
-
 	context.update({'tests': contest_tests})
-
 	form = TestForm(request.POST or None)
 	if form.is_valid():
-		t_id = form.cleaned_data.get("test_id")
+		with transaction.atomic():
+			mandatory_ids = request.POST.getlist('mandatory')
+			check_leak_ids = request.POST.getlist('check_leak')
+			contest_tests.filter(pk__in=mandatory_ids).update(mandatory = True)
+			contest_tests.exclude(pk__in=mandatory_ids).update(mandatory = False)
+			contest_tests.filter(pk__in=check_leak_ids).update(check_leak = True)
+			contest_tests.exclude(pk__in=check_leak_ids).update(check_leak = False)
 
-		if "Edit" not in t_id:
-			print_variables_debug(["t_id:", t_id])
-			# verificar codigo team join e team status
-			return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/test/' + str(t_id) + '/editor/'))
-		else:
-			# id mandatory weight_pct use_for_time_benchmark use_for_memory_benchmark type_of_feedback
-			test_changes = str(t_id).split(" ")
-			test_id = int(test_changes[1])
+			type_of_feedback_list = request.POST.getlist('type_of_feedback')
+			run_arguments_list = request.POST.getlist('run_arguments')
+			weight_pct_list = request.POST.getlist('weight_pct')
 
-			tst_idx = 0
-			for xtest in contest_tests:
-				if xtest.id == test_id:
-					break
-				tst_idx = tst_idx+1
+			idx = 0
+			for t in contest_tests:
+				t.type_of_feedback = type_of_feedback_list[idx]
+				t.run_arguments = run_arguments_list[idx]
+				t.weight_pct = weight_pct_list[idx]
 
-			if 'on' in request.POST.getlist('weight' + str(test_id)):
-				test_mandatory = True
-			else:
-				test_mandatory = False
-			test_weight = request.POST.getlist('weight')[tst_idx]
-			
-			test_feedback = request.POST.getlist('feedback')[tst_idx]
+				idx = idx + 1
+				t.save()
 
-			test = Test.objects.get(id=test_id)
-
-			#print_variables_debug(["Before\n", test.mandatory, test.weight_pct, test.use_for_time_benchmark,
-			#					   test.use_for_memory_benchmark, test.type_of_feedback])
-
-			test.mandatory = test_mandatory
-			test.weight_pct = test_weight
-			test.type_of_feedback = test_feedback
-			test.save()
-			contest_tests = contest_obj.test_set.all()
-			context.update({'tests': contest_tests})
-			form = TestForm()
-
-			#print_variables_debug(["After\n", test.mandatory, test.weight_pct, test.use_for_time_benchmark,
-			#					   test.use_for_memory_benchmark, test.type_of_feedback])
-
-		# print_variables_debug(["test id:", test_id])
+		contest_tests = contest_obj.test_set.all()
+		context.update({'tests': contest_tests})
+		form = TestForm()
 
 	return render(request, template_name, context)
 
