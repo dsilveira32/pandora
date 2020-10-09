@@ -1,15 +1,9 @@
 import os
 
-from .DB_SetUp import *
-
 try:
     from .local_settings import *
 except ImportError:
     pass
-
-DB_USER = db_user()
-DB_PASSWORD = db_password()
-SECRET_KEY = secret_key()
 
 
 """
@@ -38,7 +32,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = hosts()
 
 # Application definition
 INSTALLED_APPS = [
