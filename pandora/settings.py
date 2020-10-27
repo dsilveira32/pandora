@@ -1,17 +1,3 @@
-import os
-
-from .DB_SetUp import *
-
-try:
-    from .local_settings import *
-except ImportError:
-    pass
-
-DB_USER = db_user()
-DB_PASSWORD = db_password()
-SECRET_KEY = secret_key()
-
-
 """
 Django settings for pandora project.
 
@@ -23,22 +9,22 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+
+import os
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.environ.get("SECRET_KEY", '')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = hosts()
 
 # Application definition
 INSTALLED_APPS = [
@@ -48,7 +34,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'crispy_forms',
     'contest',
     'social_django'
@@ -79,8 +64,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-		'social_django.context_processors.backends',  # <--
-		'social_django.context_processors.login_redirect', # <--
+	            'social_django.context_processors.backends',
+		        'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -92,18 +77,11 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
-#LOGIN_REDIRECT_URL = '/manage/'
+
 LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-
 LOGIN_URL = 'login'
-#LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'home'
-
-
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 
 # Password validation
@@ -141,30 +119,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATIC_URL = '/static/'
 
-
 LOCAL_STATIC_CDN_PATH = os.path.join(os.path.dirname(BASE_DIR), 'data')
 
-STATIC_ROOT = os.path.join(LOCAL_STATIC_CDN_PATH, 'static') # live cdn AWS S3
+STATIC_ROOT = os.path.join(LOCAL_STATIC_CDN_PATH, 'static')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-
 MEDIA_ROOT = os.path.join(LOCAL_STATIC_CDN_PATH)
 MEDIA_URL = '/media/' # django-storages
-
-
-#LOGIN_REDIRECT_URL = '/'
-#LOGOUT_REDIRECT_URL = '/'
-
 URL_PREFIX = 'pandora/'
 
-
-
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
 SOCIAL_AUTH_REVOKE_TOKENS_ON_DISCONNECT = True
 
-
+# static analyzer configuration
 STATIC_ANALYZER = 'cppcheck --enable=all .'
+
+# valgrind configuration
 VALGRIND_EXEC = '/usr/bin/valgrind --error-exitcode=77 --leak-check=full -q'
