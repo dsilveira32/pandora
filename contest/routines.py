@@ -6,6 +6,7 @@ import zipfile
 import re
 from shutil import copyfile
 from subprocess import check_output
+import json 
 
 from django.conf import settings
 from django.core.files import File
@@ -320,11 +321,7 @@ def create_test(request, in_files, out_files, contest):
 	return
 
 
-def compile(atempt, contest, submition_dir, src_name):
-	obj_file = src_name + '.user.o'
-
-	atempt.compile_error = False
-
+def compile(contest, paths):
 	lflags = ''
 	cflags = ''
 
@@ -334,55 +331,147 @@ def compile(atempt, contest, submition_dir, src_name):
 	if contest.compile_flags:
 		cflags = contest.compile_flags
 
-	compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + obj_file + ' ' + lflags
+	compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + paths['obj'] + ' ' + lflags
 	print('compilation: ' + compile_cmd)
-	output, ret = check_output(compile_cmd, submition_dir)
+	output = check_output(compile_cmd, paths['dir'])
 
 	if output[0] != '':
-		atempt.compile_error = True
-		atempt.error_description = output[0]
-		atempt.save()
-		return 0
+		return False, output[0]
 
-	return 1
-
-def static_analysis(atempt, contest, submition_dir):
-	output, ret = check_output(settings.STATIC_ANALYZER, submition_dir)
-	atempt.static_analysis = output[0]
-
-
-
+	return True, "Compilation OK"
 def run_inout_test(test, contest):
 	return 1 #  test passed
 
 
 
-def handle_uploaded_file(atempt, f, contest):
-	safeexec_errors = SafeExecError.objects.all()
-	print_variable_debug(safeexec_errors)
+def run_cmd(test, paths, data_files, test_idx):
+	if test.override_exec_options:
+		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
+	else:
+		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test.contest)
 
-	safeexec_ok = SafeExecError.objects.get(description='OK')
-	safeexec_NZS = SafeExecError.objects.get(description='Command exited with non-zero status')	
-	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
+	if test.run_arguments:
+		run_args = str(test.run_arguments)
+	else:
+		run_args = ''
 
+	if test.check_leak:
+		check_leak = settings.VALGRIND_EXEC
+	else:
+		check_leak = ''
+		
+	for data_file in data_files:
+		run_args = run_args.replace("<"+data_file.file_name+">", data_file.user_copy)
+
+	ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
+
+	exec_cmd = '/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o ' + paths['test_time'][test_idx]
+	exec_cmd += ' /usr/bin/timeout ' + str(clock)
+	exec_cmd += " ./" + paths['obj'] + ' ' + run_args
+	exec_cmd += " <" + test.input_file.path + ' | ' + ascii_path
+	exec_cmd += " 1>" + paths['test_stdout'][test_idx]
+	return exec_cmd
+
+def run_test(record, paths, data_files, i):
+	test = record.test
+	contest = test.contest
+	paths['test_time'].append(os.path.join(paths['dir'], 'test' + str(i) + '.time'))
+	paths['test_stdout'].append(os.path.join(paths['dir'], 'test' + str(i) + '.stdout'))
+
+	exec_cmd = run_cmd(record.test, paths, data_files, i)
+	print('exec cmd is:')
+	print(exec_cmd)
+	time_started = datetime.datetime.now()  # Save start time.
+	check_output(exec_cmd, paths['dir'])
+	record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000, 0)  # Get execution time.
+
+	f = open(paths['test_stdout'][i])
+	record.output.save(paths['test_stdout'][i], File(f))
+	f.close()
+
+	f = open(paths['test_time'][i], "r")
+	lines = f.readlines()
+	print(lines)
+	f.close()
+	os.remove(paths['test_time'][i])
+	time_info = lines[0].split(" ")
+	# format:
+	# %U %K %p %e %M %x
+	# K      Average total (data+stack+text) memory use of the process, in Kilobytes.
+	# M      Maximum resident set size of the process during its lifetime, in Kilobytes.
+	# U      Total number of CPU-seconds that the process used directly (in user mode), in seconds.
+	# e      Elapsed real (wall clock) time used by the process, in seconds.
+	# p      Average unshared stack size of the process, in Kilobytes.
+	# x      Exit status of the command.
+	#elapsed = lines[1].split(" ")
+	record.memory_usage = int(time_info[4]) - 512
+	record.elapsed_time = float(time_info[3])
+
+	# uses the diff tool
+	diff, ret = check_output('diff -B --ignore-all-space ' + paths['test_stdout'][i] + ' ' + test.output_file.path, paths['dir'])
+	if int(time_info[5]) == 124:
+		record.result = 2
+	else:
+		record.result = 0 if diff[0] == '' else 1
+
+	# results meaning:
+	# 0 - passed
+	# 1 - output is different than expected - wrong answer
+	# 2 - timeout
+	# 3 ...
+	# 4 ...
+
+	os.remove(paths['test_stdout'][i])
+
+	return record.result
+
+def static_analysis(paths):
+	output = check_output(settings.STATIC_ANALYZER, paths['dir'])
+	return output[0]
+
+def unzip(paths):
+	output, ret = check_output('unzip ' + paths['src'], paths['dir'])
+	return ret
+
+def extract(f):
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
-	print_variable_debug(src_base)
 	(src_name, ext) = os.path.splitext(src_base)
 
+	paths = {
+		'src': src_path,
+		'base' :src_base,
+		'name' : src_name,
+		'ext' : ext,
+		'dir' : os.path.dirname(src_path),
+		'obj' : src_name + '.out',
+		'test_time' : [],
+		'test_stdout' : [],
+	}
+
 	if ext == '.zip':
-		handle_zip_file(atempt, f, contest)
+		unzip(paths)
 
-	print('source path = ' + src_path)
+	return paths
 
-	submition_dir = os.path.dirname(src_path)
-	obj_file = src_name + '.user.o'
+def handle_uploaded_file(atempt, f, contest):
+#	safeexec_errors = SafeExecError.objects.all()
 
-	if not compile(atempt, contest, submition_dir, src_name):
+#	safeexec_ok = SafeExecError.objects.get(description='OK')
+#	safeexec_NZS = SafeExecError.objects.get(description='Command exited with non-zero status')	
+#	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
+	paths = extract(f)
+
+	atempt.compile_error, atempt.error_description =  compile(contest, paths)
+	atempt.save()
+
+	if atempt.compile_error:
 		return 	# if compilation errors or warnings dont bother with running the tests
+#	check_output("chmod a+w " + submition_dir, submition_dir)
 
-	check_output("chmod a+w " + submition_dir, submition_dir)
-	static_analysis(atempt, contest, submition_dir)
+	atempt.static_analysis = static_analysis(paths)
+
+
 
 	test_set = contest.test_set.all()
 	n_tests = test_set.count()
@@ -398,132 +487,37 @@ def handle_uploaded_file(atempt, f, contest):
 	data_files = contest.contesttestdatafile_set.all()
 	for dfile in data_files:
 		data_file_base = os.path.basename(dfile.data_file.path)
-		dfile.user_copy = os.path.join(submition_dir, data_file_base)
+		dfile.user_copy = os.path.join(paths['dir'], data_file_base)
 		copyfile(dfile.data_file.path, dfile.user_copy)
 
+	timeouts = 0
+	i = 0
 	for test in test_set:
-#		for root, dirs, files in os.walk(submition_dir):
-#			for momo in files:
-#				os.chmod(os.path.join(root, momo), 644)
-
-
 		record = Classification()
 		record.attempt = atempt
 		record.test = test
-		record.passed = True
-
-		test_out_base = os.path.basename(test.output_file.path)
-		(test_out_name, ext) = os.path.splitext(test_out_base)
-		user_output = os.path.join(submition_dir, test_out_base + '.user')
-		user_report = os.path.join(submition_dir, test_out_name + '.report')
-
-		exec_cmd = exec_command(test, contest, submition_dir, obj_file, user_output, user_report, data_files)
-#		print('exec cmd is:')
-#		print(exec_cmd)
-
-		time_started = datetime.datetime.now()  # Save start time.
-		check_output(exec_cmd, submition_dir)
-		record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000, 0)  # Get execution time.
-
-		# save files
-		f = open(user_report, "r")
-		lines = f.readlines()
-		f.close()
-		os.remove(user_report)
-
-		f = open(user_output)
-		record.output.save(user_output, File(f))
-		f.close()
-
-#		print("safeexec:")
-#		print(lines)
-		# verify safeexec report
-		safeexec_error_description = lines[0][:-1]
-		se_obj = SafeExecError.objects.get(description='Other')
-		for e in safeexec_errors:
-			if e.description in safeexec_error_description:
-				se_obj = e
-				break
-
-		record.error = se_obj
-		record.error_description = safeexec_error_description
-		#print(safeexec_error_description)
-
-		# lines[1] = elapsed time: 2 seconds
-		# lines[2] = memory usage: 1424 kbytes
-		# lines[3] = cpu usage: 1.000 seconds
-		elapsed = lines[1].split(" ")
-		memory = lines[2].split(" ")
-		cpu = lines[3].split(" ")
-		record.memory_usage = int(memory[2])
-		record.cpu_time = float(cpu[2])
-		record.elapsed_time = int(elapsed[2])
-
-		# if there was a timeout, chances are the files generated are huge
-		# for safety reasons it is better to delete them
-		if record.error == safeexec_timeout:
-			# delete all files
-			os.remove(record.output.path)
-			record.output = None
-			timeouts = timeouts + 1
-			if timeouts == 2:
-				record.error_description += " Reached the 2 Timeouts Limit. Aborting the test execution."
-				record.passed = False
-				record.save()
-				if test.mandatory:
-					mandatory_failed = True
-				break
-
-		if record.error != safeexec_ok and record.error != safeexec_NZS:
-			record.passed = False
-			record.save()
-			if test.mandatory:
-				mandatory_failed = True
-			continue
-
-		if test.check_leak and record.error == safeexec_NZS:
-			# find out the non zero status
-			code = int(re.findall(r'([0-9]+)', safeexec_error_description)[0])
-			if code == 77:
-				if test.mandatory:
-					mandatory_failed = True
-				record.error_description += "\nMemory Leak Detected"
-				record.passed = False
-				record.save()
-				continue
-
-
-
-
-		# uses the diff tool
-		diff, ret =\
-			check_output('diff -B --ignore-all-space ' + user_output + ' ' + test.output_file.path, submition_dir)
-
-		record.passed = diff[0] == ''
+		run_test(record, paths, data_files, i)
+		record.passed = record.result == 0
+		if not record.passed and test.mandatory:
+			mandatory_failed = True
 
 		if contest.automatic_weight:
 			test.weight_pct = round(100 / n_tests, 2)
 			test.save()
 
-		if record.passed:
-			pct += test.weight_pct
-			if not test.check_leak:
-				atempt.memory_benchmark += record.memory_usage
-				atempt.time_benchmark += record.execution_time
-				atempt.cpu_time += record.cpu_time
-				atempt.elapsed_time += record.elapsed_time
+		if record.result == 2: #timeout
+			timeouts = timeouts + 1
+			if timeouts == 2:
+				record.result = 4
+				record.save()
+				break
 
-		else:
-			record.error_description = 'Wrong Answer'
-
-			if test.mandatory:
-				mandatory_failed = True
-		record.save()
-		os.remove(user_output)
+		record.save()		
+		i = i+1
 
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
-	os.remove(os.path.join(submition_dir, obj_file))
+	#os.remove(os.path.join(submition_dir, obj_file))
 	# remove data files from user directory
 	for dfile in data_files:
 		if os.path.isfile(dfile.user_copy):

@@ -80,9 +80,9 @@
 								</td>
 								<td>
 									{% if r.test.type_of_feedback == 1 %}
-									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Input</button>
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Args</button>
 									{% elif user.is_superuser %}
-									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Input</button>
+									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Args</button>
 									{% endif %}									
 								</td>								
 								<td>
@@ -228,7 +228,19 @@
 				</button>
 			</div>
 			<div class="modal-body">
-<pre>{{ r.error_description }}</pre>
+<pre>
+{% if r.result == 0 %}
+OK
+{% elif r.result == 1 %}
+Wrong Answer
+Output different than expected
+{% elif r.result == 2 %}
+Time Limit Exceeded
+{% elif r.result == 4 %}
+Time Limit Exceeded
+Reached the 2 Timeouts Limit. Aborting the test execution.
+{% endif %}
+</pre>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

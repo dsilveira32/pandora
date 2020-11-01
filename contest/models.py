@@ -185,11 +185,13 @@ class Classification(models.Model):
 	output = models.FileField(blank=True, null=True, max_length=512)
 	execution_time = models.IntegerField(blank=True, null=True)
 	error_description = models.TextField(null=True, blank=True)
-	error = models.ForeignKey(SafeExecError, blank=True, null=True, on_delete=models.SET_NULL)
+#	error = models.ForeignKey(SafeExecError, blank=True, null=True, on_delete=models.SET_NULL)
 	memory_usage = models.IntegerField(blank=True, null=True)
-	cpu_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
-	elapsed_time = models.IntegerField(blank=True, null=True)
-	exception = models.TextField(null=True, blank=True)
+	elapsed_time = 	models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
+#	exception = models.TextField(null=True, blank=True)
+	timeout = models.BooleanField(null=False, default=False)
+	result = models.IntegerField(null=False, default=0)
+
 
 
 class TeamMember(models.Model):
