@@ -35,61 +35,6 @@ def get_test_contest_details(t_c):
 	return t_c.cpu, t_c.mem, t_c.space, t_c.minuid, t_c.maxuid, t_c.core, t_c.nproc, t_c.fsize, t_c.stack, t_c.clock
 
 
-# ---------------------------------- functions needed in the functions that are needed ---------------------------------
-# exec functions
-def exec_command(test, contest, submission_dir, obj_file, user_output, user_report, data_files):
-	if test.override_exec_options:
-		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
-	else:
-		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(contest)
-
-	exec_cmd = os.path.join(settings.MEDIA_ROOT, "safeexec")
-	exec_cmd += " --cpu %d " % cpu
-
-	if test.check_leak:
-		exec_cmd += "--mem %d " % (int(mem)+100000) 
-	else:
-		exec_cmd += "--mem %d " % mem
-
-	#exec_cmd += "--mem %d " % mem
-	exec_cmd += "--space %d " % space
-	exec_cmd += "--minuid %d " % min_uid
-	exec_cmd += "--maxuid %d " % max_uid
-	exec_cmd += "--core %d " % core
-	exec_cmd += "--nproc %d " % n_proc
-	exec_cmd += "--fsize %d " % f_size
-	exec_cmd += "--stack %d " % stack
-	if test.check_leak:
-		exec_cmd += "--clock %d " % (int(clock)+5)
-	else:
-		exec_cmd += "--clock %d " % clock
-
-	exec_cmd += "--usage %s " % user_report
-	exec_cmd += "--exec "
-
-	if test.run_arguments:
-		run_args = str(test.run_arguments)
-	else:
-		run_args = ''
-
-	if test.check_leak:
-		check_leak = settings.VALGRIND_EXEC
-	else:
-		check_leak = ''
-		
-
-	for data_file in data_files:
-		run_args = run_args.replace("<"+data_file.file_name+">", data_file.user_copy)
-
-	obj_file = "./" + obj_file
-
-	ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
-	# exec_cmd += obj_file + ' ' + run_args + ' < ' + test.input_file.path + ' > ' + user_output
-	exec_cmd += check_leak + ' ' + obj_file + ' ' + run_args + ' < ' + test.input_file.path + '| ' + ascii_path + ' > ' + user_output
-
-	return exec_cmd
-
-
 # handle functions
 def handle_zip_file(attempt, f, contest):
 	print_variable_debug("Handling zip file...")
@@ -222,7 +167,6 @@ def unzip_zip_file(zip_path, f, in_out):
 	return
 
 
-# -------------------------------------------------- functions needed --------------------------------------------------
 # check in files
 def check_in_files(f, contest):
 	# set the zip path
@@ -320,7 +264,7 @@ def create_test(request, in_files, out_files, contest):
 			obj.save()
 	return
 
-
+# compile the program
 def compile(contest, paths):
 	lflags = ''
 	cflags = ''
@@ -339,11 +283,8 @@ def compile(contest, paths):
 		return False, output[0]
 
 	return True, "Compilation OK"
-def run_inout_test(test, contest):
-	return 1 #  test passed
 
-
-
+# build the execution command
 def run_cmd(test, paths, data_files, test_idx):
 	if test.override_exec_options:
 		cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
@@ -374,7 +315,6 @@ def run_cmd(test, paths, data_files, test_idx):
 
 def run_test(record, paths, data_files, i):
 	test = record.test
-	contest = test.contest
 	paths['test_time'].append(os.path.join(paths['dir'], 'test' + str(i) + '.time'))
 	paths['test_stdout'].append(os.path.join(paths['dir'], 'test' + str(i) + '.stdout'))
 
@@ -455,32 +395,26 @@ def extract(f):
 	return paths
 
 def handle_uploaded_file(atempt, f, contest):
-#	safeexec_errors = SafeExecError.objects.all()
-
-#	safeexec_ok = SafeExecError.objects.get(description='OK')
-#	safeexec_NZS = SafeExecError.objects.get(description='Command exited with non-zero status')	
-#	safeexec_timeout = SafeExecError.objects.get(description='Time Limit Exceeded')
 	paths = extract(f)
+	atempt.time_benchmark = 0
+	atempt.memory_benchmark = 0
+	atempt.cpu_time = 0
+	atempt.elapsed_time = 0
+	atempt.grade = 0
 
 	atempt.compile_error, atempt.error_description =  compile(contest, paths)
 	atempt.save()
 
 	if atempt.compile_error:
 		return 	# if compilation errors or warnings dont bother with running the tests
-#	check_output("chmod a+w " + submition_dir, submition_dir)
 
 	atempt.static_analysis = static_analysis(paths)
-
-
 
 	test_set = contest.test_set.all()
 	n_tests = test_set.count()
 	mandatory_failed = False
 	pct = 0
-	atempt.time_benchmark = 0
-	atempt.memory_benchmark = 0
-	atempt.cpu_time = 0
-	atempt.elapsed_time = 0
+
 	timeouts = 0
 
 	# copy data files to the same path
@@ -517,7 +451,8 @@ def handle_uploaded_file(atempt, f, contest):
 
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
-	#os.remove(os.path.join(submition_dir, obj_file))
+
+	os.remove(os.path.join(paths['dir'], paths['obj']))
 	# remove data files from user directory
 	for dfile in data_files:
 		if os.path.isfile(dfile.user_copy):
@@ -556,7 +491,6 @@ def get_user_team(request, contest_id):
 
 	return team_obj, members
 
-
 # get the team attempts
 def get_team_attempts(team):
 	members_ids = team.teammember_set.values_list('user__id', flat=True).distinct()
@@ -564,9 +498,6 @@ def get_team_attempts(team):
 		return None
 
 	return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
-
-
-
 
 def cleanup_past_attempts(team_obj, attempt_obj):
 	attempts_qs = Atempt.objects.filter(team=team_obj).exclude(id=attempt_obj.id).order_by('-date')
