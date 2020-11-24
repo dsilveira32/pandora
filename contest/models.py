@@ -191,7 +191,7 @@ class Classification(models.Model):
 #	exception = models.TextField(null=True, blank=True)
 	timeout = models.BooleanField(null=False, default=False)
 	result = models.IntegerField(null=False, default=0)
-
+	diff = models.TextField(default='')
 
 
 class TeamMember(models.Model):

@@ -99,6 +99,7 @@ def attempt_view(request, id):
 
 		res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
 										 errors='strict')
+		#res.diff = ' '.join(map(str, res.diff)) 
 
 	context = {'contest': contest_obj}
 	context.update({'team': team})

@@ -196,19 +196,28 @@
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Expected Output / Obtained Output</h5>
+				<h5 class="modal-title">Expected Output / Obtained Output / Smash</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-md-6">
-<pre>{{ r.expected_output }}</pre>
+					<div class="col-md-4">
+						<del style="background:#ffe6e6;"> </del>
+						<span>
+							{{ r.expected_output }}
+						</span>
 					</div>
-					<div class="col-md-6">
-<pre>{{ r.obtained_output }}</pre>
+					<div class="col-md-4">
+						<del style="background:#ffe6e6;"> </del>
+						<span>					
+							{{ r.obtained_output }}
+						</span>	
 					</div>
+					<div class="col-md-4">
+						{% autoescape off %}{{ r.diff }}{% endautoescape %}
+					</div>					
 				</div>
 			</div>
 			<div class="modal-footer">

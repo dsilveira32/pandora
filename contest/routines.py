@@ -6,10 +6,11 @@ import zipfile
 import re
 from shutil import copyfile
 from subprocess import check_output
-import json 
-
+import json
+import difflib
 from django.conf import settings
 from django.core.files import File
+import diff_match_patch
 
 from .forms import CreateTestModelForm
 from .models import Classification, Team, TeamMember, Atempt, SafeExecError
@@ -300,7 +301,7 @@ def run_cmd(test, paths, data_files, test_idx):
 		check_leak = settings.VALGRIND_EXEC
 	else:
 		check_leak = ''
-		
+
 	for data_file in data_files:
 		run_args = run_args.replace("<"+data_file.file_name+">", data_file.user_copy)
 
@@ -347,12 +348,27 @@ def run_test(record, paths, data_files, i):
 	record.memory_usage = int(time_info[4]) - 512
 	record.elapsed_time = float(time_info[3])
 
+
 	# uses the diff tool
-	diff, ret = check_output('diff -B --ignore-all-space ' + paths['test_stdout'][i] + ' ' + test.output_file.path, paths['dir'])
+	with open(paths['test_stdout'][i]) as ff:
+		fromlines = ff.readlines()
+	with open(test.output_file.path) as tf:
+		tolines = tf.readlines()
+
+	dmp = diff_match_patch.diff_match_patch()
+
+	str1 = "\n".join(fromlines)
+	str2 = "\n".join(tolines)
+	is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
+
+	diffs = dmp.diff_main("\n".join(fromlines), "\n".join(tolines))
+	dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
+	record.diff = dmp.diff_prettyHtml(diffs)
+
 	if int(time_info[5]) == 124:
 		record.result = 2
 	else:
-		record.result = 0 if diff[0] == '' else 1
+		record.result = 0 if is_same == True else 1
 
 	# results meaning:
 	# 0 - passed
@@ -360,9 +376,7 @@ def run_test(record, paths, data_files, i):
 	# 2 - timeout
 	# 3 ...
 	# 4 ...
-
 	os.remove(paths['test_stdout'][i])
-
 	return record.result
 
 def static_analysis(paths):
