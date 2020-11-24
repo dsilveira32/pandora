@@ -357,12 +357,13 @@ def run_test(record, paths, data_files, i):
 
 	dmp = diff_match_patch.diff_match_patch()
 
-	str1 = "\n".join(fromlines)
-	str2 = "\n".join(tolines)
+	str1 = " ".join(fromlines)
+	str2 = " ".join(tolines)
+	print(str2)
 	is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
 
-	diffs = dmp.diff_main("\n".join(fromlines), "\n".join(tolines))
-	dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
+	diffs = dmp.diff_main(str1, str2)
+	#dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
 	record.diff = dmp.diff_prettyHtml(diffs)
 
 	if int(time_info[5]) == 124:
