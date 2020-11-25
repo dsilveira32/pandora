@@ -461,7 +461,14 @@ def handle_uploaded_file(atempt, f, contest):
 				record.save()
 				break
 
-		record.save()		
+		if record.passed:
+			pct += test.weight_pct
+			atempt.time_benchmark += record.execution_time
+			atempt.memory_benchmark += record.memory_usage
+			atempt.cpu_time += record.execution_time
+			atempt.elapsed_time += record.execution_time
+
+		record.save()
 		i = i+1
 
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
