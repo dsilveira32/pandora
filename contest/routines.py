@@ -280,6 +280,8 @@ def compile(contest, paths):
 	print('compilation: ' + compile_cmd)
 	output = check_output(compile_cmd, paths['dir'])
 
+	print(output[0])
+
 	if output[0] != '':
 		return False, output[0]
 
@@ -417,7 +419,8 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.elapsed_time = 0
 	atempt.grade = 0
 
-	atempt.compile_error, atempt.error_description =  compile(contest, paths)
+	compile_error, atempt.error_description =  compile(contest, paths)
+	atempt.compile_error = not compile_error
 	atempt.save()
 
 	if atempt.compile_error:
@@ -474,7 +477,9 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
 
-	os.remove(os.path.join(paths['dir'], paths['obj']))
+	if os.path.isfile(os.path.join(paths['dir'], paths['obj'])):
+		os.remove(os.path.join(paths['dir'], paths['obj']))
+
 	# remove data files from user directory
 	for dfile in data_files:
 		if os.path.isfile(dfile.user_copy):
