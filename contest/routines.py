@@ -23,13 +23,13 @@ def check_output(command, cwd):
 		command,
 		shell=True,
 		stdout=subprocess.PIPE,
-		stderr=subprocess.STDOUT,
+		stderr=subprocess.PIPE,
 		universal_newlines=True,
 		cwd=cwd
 	)
-	output = process.communicate()
+	outs, errs = process.communicate()
 	ret_code = process.poll()
-	return output, ret_code
+	return errs, ret_code, outs
 
 
 def get_test_contest_details(t_c):
@@ -278,12 +278,17 @@ def compile(contest, paths):
 
 	compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + paths['obj'] + ' ' + lflags
 	print('compilation: ' + compile_cmd)
-	output = check_output(compile_cmd, paths['dir'])
+	outs, retCode, errs = check_output(compile_cmd, paths['dir'])
+	print(outs)
+	print("---------------")	
+	print(retCode)
+	print("---------------")	
+	print(errs)
 
-	print(output[0])
 
-	if output[0] != '':
-		return False, output[0]
+
+	if outs != '':
+		return False, outs
 
 	return True, "Compilation OK"
 
