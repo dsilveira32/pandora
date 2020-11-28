@@ -91,7 +91,7 @@ class Contest(models.Model):
 	nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
 	fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
 	stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-	clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
+	clock = models.PositiveIntegerField(default=1)  # <seconds>		Wall clock timeout (default: 10)
 	chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
 
 	def is_open(self):
