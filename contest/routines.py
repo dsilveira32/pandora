@@ -11,6 +11,7 @@ import difflib
 from django.conf import settings
 from django.core.files import File
 import diff_match_patch
+from zipfile import ZipFile
 
 from .forms import CreateTestModelForm
 from .models import Classification, Team, TeamMember, Atempt, SafeExecError
@@ -391,10 +392,6 @@ def static_analysis(paths):
 	output = check_output(settings.STATIC_ANALYZER, paths['dir'])
 	return output[0]
 
-def unzip(paths):
-	output, ret = check_output('unzip ' + paths['src'], paths['dir'])
-	return ret
-
 def extract(f):
 	src_path = os.path.abspath(f.path)
 	src_base = os.path.basename(src_path)
@@ -409,10 +406,16 @@ def extract(f):
 		'obj' : src_name + '.out',
 		'test_time' : [],
 		'test_stdout' : [],
+		'zip_files' : [],
 	}
 
 	if ext == '.zip':
-		unzip(paths)
+		with ZipFile(paths['src'], 'r') as zipObj:
+			listOfFileNames = zipObj.namelist()
+			zipObj.extractall(paths['dir'])
+			paths['zip_files'] = listOfFileNames
+#			print('files within zip:')
+#			print("\n".join(listOfFileNames))
 
 	return paths
 
@@ -482,14 +485,22 @@ def handle_uploaded_file(atempt, f, contest):
 	atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
 	atempt.save()
 
+	# remove object
 	if os.path.isfile(os.path.join(paths['dir'], paths['obj'])):
 		os.remove(os.path.join(paths['dir'], paths['obj']))
+
+	# remove extracted files (if submition was a zip)
+	for f in paths['zip_files']:
+		p = os.path.join(paths['dir'], f)
+		if os.path.isfile(p):
+			os.remove(p)
 
 	# remove data files from user directory
 	for dfile in data_files:
 		if os.path.isfile(dfile.user_copy):
 			os.remove(dfile.user_copy)
 
+	# remove previous atempts files
 	cleanup_past_attempts(atempt.team, atempt)
 
 
