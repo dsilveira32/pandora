@@ -48,12 +48,14 @@ class CustomUserAdmin(UserAdmin):
             return list()
         return super(CustomUserAdmin, self).get_inline_instances(request, obj)
 
+class AtemptAdmin(admin.ModelAdmin):
+    readonly_fields = ('date',)
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Contest)
 admin.site.register(Test)
-admin.site.register(Atempt)
+admin.site.register(Atempt, AtemptAdmin)
 admin.site.register(Classification)
 admin.site.register(Team)
 admin.site.register(TeamMember)
