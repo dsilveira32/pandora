@@ -7,12 +7,13 @@ from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import smart_text
+from django.core import serializers
 
 from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
 	ProfileEditForm, UserEditForm
 from .models import Contest, UserContestDateException
 from .routines import *
-
+from .tasks import run_tests
 
 # attempt
 @login_required
@@ -183,14 +184,19 @@ def attempt_create_view(request, id):
 		obj.contest = contest_obj
 		obj.team = team_obj
 		obj.save()
-		print_variables_debug([
-			"Object: " + str(obj),
-			"Object file: " + str(obj.file),
-			"Object file path: " + str(obj.file.path),
-			"Contest object: " + str(contest_obj)
-		])
-		handle_uploaded_file(obj, obj.file, contest_obj)
-		return redirect(obj.get_absolute_url())
+
+		print("aki....")
+
+		download_task = run_tests.delay(obj.id, contest_obj.id)
+		# Get ID
+		task_id = download_task.task_id
+		# Print Task ID
+		print(f'Celery Task ID: {task_id}')
+		# Return demo view with Task ID
+		context.update({'task_id': task_id})
+		context.update({'atempt_id': obj.id})
+
+		return render(request, 'contest/progress.html', context)		
 
 	context.update({'form': form, 'title': "Submit"})
 	return render(request, template_name, context)
