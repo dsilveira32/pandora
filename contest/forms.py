@@ -78,3 +78,10 @@ class TeamModelForm(forms.ModelForm):
 
 class TestForm(forms.Form):
 	pass
+
+
+class DownloadForm(forms.Form):
+	url = forms.CharField(max_length = 255, widget=forms.TextInput({
+				'class':'form-control',
+				'placeholder':'Enter URL to download...',
+			}))

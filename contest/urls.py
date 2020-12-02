@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .admin_views import (
     admin_choose_test,
@@ -24,7 +24,8 @@ from .views import (
     profile_view,
     nonactive_view,
     complete_profile_view,
-    home_view
+    home_view,
+    demo_view
 )
 
 urlpatterns = [
@@ -50,5 +51,6 @@ urlpatterns = [
 
     path('complete_profile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
-    path('profile/', profile_view, name='profile')
+    path('profile/', profile_view, name='profile'),
+    path('demo/', demo_view, name='demo'),
 ]
