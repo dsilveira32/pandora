@@ -521,6 +521,7 @@ def handle_uploaded_file(atempt, f, contest):
 			timeouts = timeouts + 1
 			if timeouts == 2:
 				record.result = 4
+				record.error_description += "\nYou reached a maximum allows number of Timeouts"
 				record.save()
 				break
 
