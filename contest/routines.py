@@ -354,7 +354,8 @@ def run_test(record, paths, data_files, i):
 	# x      Exit status of the command.
 	#elapsed = lines[1].split(" ")
 	record.memory_usage = int(time_info[4]) - 512
-	record.elapsed_time = float(time_info[3])
+	#record.elapsed_time = float(time_info[3])
+	record.elapsed_time = 0
 
 
 	# uses the diff tool
