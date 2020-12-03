@@ -328,8 +328,8 @@ def run_test(record, paths, data_files, i):
 	paths['test_stdout'].append(os.path.join(paths['dir'], 'test' + str(i) + '.stdout'))
 
 	exec_cmd = run_cmd(record.test, paths, data_files, i)
-	print('exec cmd is:')
-	print(exec_cmd)
+	#print('exec cmd is:')
+	#print(exec_cmd)
 	time_started = datetime.datetime.now()  # Save start time.
 	check_output(exec_cmd, paths['dir'])
 	record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000, 0)  # Get execution time.
@@ -340,10 +340,56 @@ def run_test(record, paths, data_files, i):
 
 	f = open(paths['test_time'][i], "r")
 	lines = f.readlines()
-	print(lines)
+	#print(lines)
 	f.close()
 	os.remove(paths['test_time'][i])
-	time_info = lines[0].split(" ")
+	killed = False
+
+	if lines[0].find('Command') != -1:
+		sig_info = lines[0].split()
+		sig = int(sig_info[-1])
+		switcher = {
+			1: "SIGHUP	1	Exit	Hangup",
+			2: "SIGINT	2	Exit	Interrupt",
+			3: "SIGQUIT	3	Core	Quit",
+			4:	"SIGILL Core	Illegal Instruction",
+			5:	"SIGTRAP Core	Trace/Breakpoint Trap",
+			6:	"SIGABRT Core	Abort",
+			7:	"SIGEMT Core	Emulation Trap",
+			8:	"SIGFPE Core	Arithmetic Exception",
+			9:	"SIGKILL Exit	Killed",
+			10:	"SIGBUS Core	Bus Error",
+			11:	"SIGSEGV Core	Segmentation Fault",
+			12:	"SIGSYS Core	Bad System Call",
+			13:	"SIGPIPE Exit	Broken Pipe",
+			14:	"SIGALRM Exit	Alarm Clock",
+			15:	"SIGTERM Exit	Terminated",
+			16:	"SIGUSR1 Exit	User Signal 1",
+			17:	"SIGUSR2 Exit	User Signal 2",
+			18:	"SIGCHLD Ignore	Child Status",
+			19:	"SIGPWR Ignore	Power Fail/Restart",
+			20:	"SIGWINCH Ignore	Window Size Change",
+			21:	"SIGURG Ignore	Urgent Socket Condition",
+			22:	"SIGPOLL Ignore	Socket I/O Possible",
+			23:	"SIGSTOP		Stop	Stopped (signal)",
+			24:	"SIGTSTP		Stop	Stopped (user)",
+			25:	"SIGCONT		Ignore	Continued",
+			26:	"SIGTTIN		Stop	Stopped (tty input)",
+			27:	"SIGTTOU		Stop	Stopped (tty output)",
+			28:	"SIGVTALRM	Exit	Virtual Timer Expired",
+			29:	"SIGPROF		Exit	Profiling Timer Expired",
+			30:	"SIGXCPU		Core	CPU time limit exceeded",
+			31:	"SIGXFSZ		Core	File size limit exceeded",
+			32:	"SIGWAITING	Ignore	All LWPs blocked",
+			33:	"SIGLWP		Ignore	Virtual Interprocessor Interrupt for Threads Library",
+			34:	"SIGAIO		Ignore	Asynchronous I/O"
+    	}
+		msg = switcher.get(sig, "Other")	
+		time_info = lines[1].split(" ")
+		killed = True
+	else:
+		time_info = lines[0].split(" ")
+
 	# format:
 	# %U %K %p %e %M %x
 	# K      Average total (data+stack+text) memory use of the process, in Kilobytes.
@@ -353,9 +399,9 @@ def run_test(record, paths, data_files, i):
 	# p      Average unshared stack size of the process, in Kilobytes.
 	# x      Exit status of the command.
 	#elapsed = lines[1].split(" ")
+
 	record.memory_usage = int(time_info[4]) - 512
-	#record.elapsed_time = float(time_info[3])
-	record.elapsed_time = 0
+	record.elapsed_time = float(time_info[3])
 
 
 	# uses the diff tool
@@ -368,7 +414,6 @@ def run_test(record, paths, data_files, i):
 
 	str1 = " ".join(fromlines)
 	str2 = " ".join(tolines)
-	print(str2)
 	is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
 
 	diffs = dmp.diff_main(str1, str2)
@@ -377,15 +422,21 @@ def run_test(record, paths, data_files, i):
 
 	if int(time_info[5]) == 124:
 		record.result = 2
+		msg = "Timeout"
+	elif killed == True:
+		record.result = 3
 	else:
 		record.result = 0 if is_same == True else 1
+		msg = "OK"
 
 	# results meaning:
 	# 0 - passed
 	# 1 - output is different than expected - wrong answer
 	# 2 - timeout
-	# 3 ...
+	# 3 - Killed
 	# 4 ...
+	record.error_description = msg
+	record.save()
 	os.remove(paths['test_stdout'][i])
 	return record.result
 

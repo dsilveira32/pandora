@@ -246,17 +246,7 @@
 			</div>
 			<div class="modal-body">
 <pre>
-{% if r.result == 0 %}
-OK
-{% elif r.result == 1 %}
-Wrong Answer
-Output different than expected
-{% elif r.result == 2 %}
-Time Limit Exceeded
-{% elif r.result == 4 %}
-Time Limit Exceeded
-Reached the 2 Timeouts Limit. Aborting the test execution.
-{% endif %}
+{{ r.error_description }}
 </pre>
 			</div>
 			<div class="modal-footer">
