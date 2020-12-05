@@ -24,8 +24,7 @@ from .views import (
     profile_view,
     nonactive_view,
     complete_profile_view,
-    home_view,
-    demo_view
+    home_view
 )
 
 urlpatterns = [
@@ -48,9 +47,7 @@ urlpatterns = [
     path('contests/<int:id>/zip-downloader/', extract_zip),
     path('admin-view/contest-creation/', admin_contest_creation),
     path('admin-view/test-creation/', admin_test_creation),
-
     path('complete_profile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
-    path('profile/', profile_view, name='profile'),
-    path('demo/', demo_view, name='demo'),
+    path('profile/', profile_view, name='profile')
 ]
