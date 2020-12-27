@@ -6,4 +6,6 @@ diff-match-patch==20200713
 celery==5.0.2
 celery-progress==0.0.14
 redis==3.5.3
+mysqlclient==2.0.1
+diff-match-patch==20200713
 

@@ -319,7 +319,7 @@ def run_cmd(test, paths, data_files, test_idx):
 	exec_cmd += ' /usr/bin/timeout ' + str(clock)
 	exec_cmd += " ./" + paths['obj'] + ' ' + run_args
 	exec_cmd += " <" + test.input_file.path + ' | ' + ascii_path
-	exec_cmd += " 1>" + paths['test_stdout'][test_idx]
+	exec_cmd += " >" + paths['test_stdout'][test_idx] + " 2>&1"
 	return exec_cmd
 
 def run_test(record, paths, data_files, i):

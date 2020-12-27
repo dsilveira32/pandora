@@ -214,13 +214,13 @@
 					<div class="col-md-4">
 						<del style="background:#ffe6e6;"> </del>
 						<span>
-							{{ r.expected_output }}
+							{{ r.expected_output|linebreaks }}
 						</span>
 					</div>
 					<div class="col-md-4">
 						<del style="background:#ffe6e6;"> </del>
 						<span>					
-							{{ r.obtained_output }}
+							{{ r.obtained_output|linebreaks }}
 						</span>	
 					</div>
 					<div class="col-md-4">
