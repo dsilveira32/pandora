@@ -1,14 +1,28 @@
 <div class="row justify-content-center align-items-center">
-    <div class="col-md-6">
+    <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger" role="alert">{{ message|safe }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if can_delete %}
+            <button class="btn btn-warning btn-sm" name="team_delete" type='submit' value="{{ team.id }}">
+                Delete Team
+            </button>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                This team can not be deleted.
+            </div>
+        {% endif %}
         <div class="card border rounded shadow-sm mb-4 mt-4">
             <div class="card-body text-center">
-                <h5 class="car-title mb-2 text-primary">{{ contest.short_name }} / {{ team.name }} ({% if team.active %}
-                    Active {% else %} Waiting for Admin Activation {% endif %})</h5>
+                <h5 class="car-title mb-2 text-primary">
+                    {{ contest_detail_layout.contest.short_name }} / {{ team.name }}
+                    ({% if team.active %} Active {% else %} Waiting for Admin Activation {% endif %})
+                </h5>
                 <form method='POST' action='contest' enctype='multipart/form-data'> {% csrf_token %}
-
                     <p class="card-text mb-auto">
-
-
                     <table class="table">
                         <thead>
                         <tr>
@@ -57,22 +71,6 @@
                         </tbody>
                     </table>
                     </p>
-
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-danger" role="alert">{{ message|safe }}</div>
-                        {% endfor %}
-                    {% endif %}
-
-                    {% if can_delete %}
-                        <button class="btn btn-warning btn-sm" name="team_delete" type='submit' value="{{ team.id }}">
-                            Delte Team
-                        </button>
-                    {% else %}
-                        <div class="alertalert-dark" role="alert">
-                            This team can not be deleted.
-                        </div>
-                    {% endif %}
                 </form>
             </div>
         </div>

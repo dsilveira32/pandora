@@ -171,7 +171,7 @@ class Atempt(models.Model):
 	static_analysis = models.TextField(blank=True, null=True)
 
 	def get_absolute_url(self):
-		return "/contests/attempt/%i/" % self.id
+		return "/contests/%i/attempt/%i/" % (self.contest.id, self.id)
 
 
 class SafeExecError(models.Model):

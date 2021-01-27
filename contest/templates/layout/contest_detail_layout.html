@@ -2,18 +2,28 @@
 {% block pageContent %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Contests</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ contest_detail_layout.contest.short_name }}</li>
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/contests/">Contests</a></li>
+            {% if contest_detail_layout.contest.short_name %}
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if subpage %}
+                    <a href="{{ contest_detail_layout.contest.get_absolute_url }}">{{ contest_detail_layout.contest.short_name }}</a>
+                {% else %}
+                    {{ contest_detail_layout.contest.short_name }}
+                {% endif %}
+            </li>
+            {% endif %}
+            {% if subpage %}
+                <li class="breadcrumb-item active" aria-current="page">{{ subpage }}</li>
+            {% endif %}
         </ol>
     </nav>
     {% if user_has_access %}
         <hr>
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">{{ contest_detail_layout.contest.short_name }}
-                - {{ contest_detail_layout.contest.title }}: {{ title }}</h1>
+            <h5>{{ contest_detail_layout.contest.short_name }}
+                - {{ contest_detail_layout.contest.title }}: {{ title }}</h5>
         </div>
-
         <b>Contest Options</b>
         <nav class="navbar navbar-expand nav-pills">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser"
@@ -24,19 +34,7 @@
             <div class="collapse navbar-collapse" id="navbarContestUser">
                 <a class="nav-link {% if page == 'detail' %}active{% endif %}"
                    href="{{ contest_detail_layout.contest.get_absolute_url }}">
-                    Details
-                </a>
-                <a class="nav-link {% if page == 'status' %}active{% endif %}"
-                   href="{{ contest_detail_layout.contest.get_absolute_url }}status/">
-                    Status
-                </a>
-                <a class="nav-link {% if page == 'submit' %}active{% endif %}"
-                   href="{{ contest_detail_layout.contest.get_absolute_url }}attempt/">
-                    Submit
-                </a>
-                <a class="nav-link {% if page == 'ranking' %}active{% endif %}"
-                   href="{{ contest_detail_layout.contest.get_absolute_url }}ranking/">
-                    Ranking
+                    Dashboard
                 </a>
                 <a class="nav-link {% if page == 'my_team' %}active{% endif %}"
                    href="{{ contest_detail_layout.contest.get_absolute_url }}my_team/">
@@ -50,12 +48,6 @@
                     <a class="nav-link {% if page == 'edit_tests' %}active{% endif %}"
                        href="{{ contest_detail_layout.contest.get_absolute_url }}admin-view/test/chooser/">
                         Edit Tests
-                    </a>
-                    <a class="nav-link" href="{{ contest_detail_layout.contest.get_absolute_url }}grades-downloader/">
-                        Extract grades
-                    </a>
-                    <a class="nav-link" href="{{ contest_detail_layout.contest.get_absolute_url }}zip-downloader/">
-                        Extract Files
                     </a>
                 {% endif %}
             </div>

@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'contest',
-    'social_django'
+    'social_django',
+    'fontawesome-free'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

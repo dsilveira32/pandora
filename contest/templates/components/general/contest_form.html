@@ -8,11 +8,12 @@
 							<div class="alert alert-danger" role="alert">{{ message|safe }}</div>
 						{% endfor %}
 					{% endif %}	
-				<form method='POST' action='../../contest' enctype='multipart/form-data'> {% csrf_token %}
+				<form method='POST' action='{{ contest_detail_layout.contest.get_absolute_url }}attempt/' enctype='multipart/form-data'> {% csrf_token %}
 					{{ form|crispy }}
-   					<button type="submit"  class="btn btn-success">Send</button>
+   					<button type="submit"  class="btn btn-success">Submit</button>
 				</form> 
 			</div>
 		</div>
 	</div>	
 </div>
+
