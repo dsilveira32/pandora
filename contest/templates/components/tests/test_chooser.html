@@ -1,0 +1,63 @@
+<form method='POST' action='contest' enctype='multipart/form-data'> {% csrf_token %}
+    <div class='row'>
+        <div class="col-md-12">
+            <div class="card border rounded shadow-sm mb-4 mt-4">
+                <div class="card-body text-center">
+                    <h5 class="car-title mb-2 text-primary">Contest: {{ contest.short_name|upper }}</h5>
+                    <p class="card-text mb-auto">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Test #</th>
+                            <th>Test ID</th>
+                            <th>Mandatory</th>
+                            <th>Weight</th>
+                            <th>run_arguments</th>
+                            <th>check_leak</th>
+                            <th>Type of feedback</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for t in tests %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ t.id }}</td>
+                                <td>
+                                    {% if t.mandatory == True %}
+                                        <input type="checkbox" value='{{ t.id }}' id="mandatory" name="mandatory"
+                                               checked>
+                                    {% else %}
+                                        <input type="checkbox" value='{{ t.id }}' id="mandatory" name="mandatory">
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <input type="number" name="weight_pct" value="{{ t.weight_pct }}">
+                                </td>
+                                <td>
+                                    <input type="text" name="run_arguments"
+                                           value="{{ t.run_arguments|default_if_none:'' }}">
+                                </td>
+                                <td>
+                                    {% if t.check_leak == True %}
+                                        <input type="checkbox" value='{{ t.id }}' id="check_leak" name="check_leak"
+                                               checked>
+                                    {% else %}
+                                        <input type="checkbox" value='{{ t.id }}' id="check_leak" name="check_leak">
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <input type="number" name="type_of_feedback" value="{{ t.type_of_feedback }}">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <input type="submit" value="Save">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

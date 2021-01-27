@@ -14,6 +14,7 @@ from .admin_views import (
 from .views import (
     contest_list_view,
     contest_detail_view,
+    contest_view,
     attempt_create_view,
     team_create_view,
     team_join_view,
@@ -29,8 +30,8 @@ from .views import (
 
 urlpatterns = [
     path('', home_view, name='home'),
-    path('contests/', contest_list_view, name='contest_list'),
-    path('contests/<int:id>/', contest_detail_view),
+    path('contests/', home_view, name='contest_list'),
+    path('contests/<int:id>/', contest_view),
     path('contests/<int:id>/attempt/', attempt_create_view),
     path('contests/<int:id>/team/', team_create_view),
     path('contests/<int:id>/team/join/', team_join_view),

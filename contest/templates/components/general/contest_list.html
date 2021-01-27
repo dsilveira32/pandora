@@ -1,17 +1,9 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-	<h1 class="h2">{{ title }}</h1>
-</div>
-
 <div class="row">
-
 	<div class="col-md-6">
 		<div class="card border rounded shadow-sm">
 			<div class="card-body text-center">
 				<h5 class="car-title mb-2 text-success">Open Contests</h5>
 				<p class="card-text mb-auto">
-
 					<table class="table">
 						<thead>
 							<tr>
@@ -22,7 +14,7 @@
 						</tr>
 						</thead>
 						<tbody>
-							{% for o in object_list %}
+							{% for o in contest_list.contests %}
 							{% if o.is_open %}
 							<tr>
 								<td scope="row"><a href="{{ o.get_absolute_url }}">{{ o.short_name }}</a></td>
@@ -38,8 +30,6 @@
 			</div>
 		</div>
 	</div>
-
-
 	<div class="col-md-6">
 		<div class="card border rounded shadow-sm">
 			<div class="card-body text-center">
@@ -55,7 +45,7 @@
 						</tr>
 						</thead>
 						<tbody>
-							{% for o in object_list %}
+							{% for o in contest_list.contests %}
 							{% if not o.is_open %}
 							<tr>
 								<td scope="row"><a href="{{ o.get_absolute_url }}">{{ o.short_name }}</a></td>
@@ -71,6 +61,3 @@
 		</div>
 	</div>
 </div>
-
-
-{% endblock %}

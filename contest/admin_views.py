@@ -321,7 +321,7 @@ def admin_test_editor(request, id, t_id):
 # admin view
 @superuser_only
 def admin_view(request, id):
-	template_name = 'contest/admin_view.html'
+	template_name = 'contest/team_list.html'
 
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
@@ -379,7 +379,7 @@ def admin_view(request, id):
 
 @superuser_only
 def admin_view_teams_status(request, c_id, t_id):
-	template_name = 'contest/atempt_list.html'
+	template_name = 'contest/team_submission_list.html'
 
 	contest_obj = get_object_or_404(Contest, id=c_id)
 	context = {'contest': contest_obj}

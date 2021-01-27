@@ -1,12 +1,4 @@
-{% extends "base.html" %}
-
-{% block content %}
-
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-	<h1 class="h2">{{ contest.short_name }} - {{ contest.title }}: {{ title }}</h1>
-</div>
-
-<form method='POST' action='.' enctype='multipart/form-data'> {% csrf_token %}
+<form method='POST' action='../../contest' enctype='multipart/form-data'> {% csrf_token %}
 	{% if messages %}
 		{% for message in messages %}
 			<div class="alert alert-danger" role="alert">{{ message|safe }}</div>
@@ -62,6 +54,3 @@
 			</table>
 		</div>
 </form>
-
-
-{% endblock %}

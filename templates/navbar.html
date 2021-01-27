@@ -1,14 +1,11 @@
 {% load static from staticfiles %}
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-	<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}"><img src="{% static 'logo3.png' %}" height="30" class="d-inline-block align-top" alt=""></a>
-	
-	<ul class="navbar-nav px-3">
-	  <li class="nav-item text-nowrap">
-		<a class="nav-link" href="{% url 'logout' %}">
-			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-		</a>
-	  </li>
-	</ul>
-  </nav>
 
-
+<!-- <a class="nav-link" href="{% url 'logout' %}"> -->
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}">Pandora</a>
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="{% url 'logout' %}">Sign out</a>
+        </li>
+    </ul>
+</nav>
