@@ -7,7 +7,7 @@
 </div>
 
 
-<form method='POST' action='contest' enctype='multipart/form-data'> {% csrf_token %}
+<form method='POST' action='.' enctype='multipart/form-data'> {% csrf_token %}
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-danger" role="alert">{{ message|safe }}</div>

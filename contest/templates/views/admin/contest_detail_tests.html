@@ -1,0 +1,10 @@
+{% extends "layout/admin_contest_detail_layout.html" %}
+{% block contestDetailContent %}
+    <div>
+        <button class="btn btn-primary" type="button">Create Test</button>
+    </div>
+    <div class="col-12">
+        {% include "components/tests/test_chooser.html" %}
+    </div>
+
+{% endblock %}

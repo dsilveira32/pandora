@@ -11,6 +11,7 @@ from .forms import TeamMemberForm, CreateContestModelForm, TestForm
 from .models import Contest, Test, get_tests_path
 from .routines import *
 from django.db import transaction
+from .context_functions import *
 
 
 
@@ -25,7 +26,7 @@ def superuser_only(function):
 
 @superuser_only
 def admin_choose_test(request, id):
-	template_name = 'contest/test_chooser.html'
+	template_name = 'components/tests/test_chooser.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 	contest_tests = contest_obj.test_set.all()
@@ -320,7 +321,7 @@ def admin_test_editor(request, id, t_id):
 
 # admin view
 @superuser_only
-def admin_view(request, id):
+def admin_view_old(request, id):
 	template_name = 'contest/team_list.html'
 
 	contest_obj = get_object_or_404(Contest, id=id)
@@ -490,3 +491,94 @@ def extract_zip(request, id):
 	resp = HttpResponse(zip_buffer, content_type='application/zip')
 	resp['Content-Disposition'] = 'attachment; filename = %s' % 'bla.zip'
 	return resp
+
+
+
+############################################
+# NEW STUFF - DELETE OLD WHEN THIS IS DONE #
+############################################
+
+#############################
+#         NEW VIEWS         #
+#############################
+
+# Admin contest general view (list of contests)
+@superuser_only
+def admin_contest_home_view(request):
+	template_name = 'views/admin/contest_home.html'
+	context = {}
+	contests = getContests(request)
+
+
+	context.update(getAdminContestListContext(contests))
+	return render(request, template_name, context)
+
+# Admin detail contest home view
+@superuser_only
+def admin_contest_detail_home_view(request, id):
+	template_name = 'views/admin/contest_detail_home.html'
+	context = {}
+	contest = getContestByID(id)
+	context.update(getAdminContestDetailLayoutContext(request, contest))
+
+	# For team_list.html
+	teams = structureTeamsData(getContestTeams(contest))
+	context.update(getTeamListContext(teams))
+
+	return render(request, template_name, context)
+
+@superuser_only
+def admin_contest_detail_tests_view(request, id):
+	template_name = 'views/admin/contest_detail_tests.html'
+	context = {}
+
+	contest = getContestByID(id)
+	contest_tests = getContestTests(contest)
+
+	context.update(getAdminContestDetailLayoutContext(request, contest))
+
+	context.update(getTestChooserContext(contest_tests))
+	form = TestForm(request.POST or None)
+	if form.is_valid():
+		with transaction.atomic():
+			mandatory_ids = request.POST.getlist('mandatory')
+			check_leak_ids = request.POST.getlist('check_leak')
+			contest_tests.filter(pk__in=mandatory_ids).update(mandatory = True)
+			contest_tests.exclude(pk__in=mandatory_ids).update(mandatory = False)
+			contest_tests.filter(pk__in=check_leak_ids).update(check_leak = True)
+			contest_tests.exclude(pk__in=check_leak_ids).update(check_leak = False)
+
+			type_of_feedback_list = request.POST.getlist('type_of_feedback')
+			run_arguments_list = request.POST.getlist('run_arguments')
+			weight_pct_list = request.POST.getlist('weight_pct')
+
+			idx = 0
+			for t in contest_tests:
+				t.type_of_feedback = type_of_feedback_list[idx]
+				t.run_arguments = run_arguments_list[idx]
+				t.weight_pct = weight_pct_list[idx]
+
+				idx = idx + 1
+				t.save()
+
+		contest_tests = contest.test_set.all()
+		context.update(getTestChooserContext(contest_tests))
+		form = TestForm()
+
+	return render(request, template_name, context)
+
+
+# Admin teams view
+@superuser_only
+def admin_contest_detail_teams_view(request, id):
+	template_name = 'views/admin/contest_detail_teams.html'
+	context = {}
+	contest = getContestByID(id)
+	context.update(getAdminContestDetailLayoutContext(request, contest))
+
+	# For team_list.html
+	teams = structureTeamsData(getContestTeams(contest))
+	context.update(getTeamListContext(teams))
+
+	return render(request, template_name, context)
+

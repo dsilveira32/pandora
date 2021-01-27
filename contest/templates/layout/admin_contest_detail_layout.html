@@ -1,0 +1,58 @@
+{% extends "userAreaLayout.html" %}
+{% block pageContent %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/contests/">Contests</a></li>
+            {% if admin_contest_detail_layout.contest.short_name %}
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if subpage %}
+                        <a href="{{ admin_contest_detail_layout.contest.get_absolute_url }}">{{ admin_contest_detail_layout.contest.short_name }}</a>
+                    {% else %}
+                        {{ admin_contest_detail_layout.contest.short_name }}
+                    {% endif %}
+                </li>
+            {% endif %}
+            {% if subpage %}
+                <li class="breadcrumb-item active" aria-current="page">{{ subpage }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+    <hr>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h5>{{ admin_contest_detail_layout.contest.short_name }}
+            - {{ admin_contest_detail_layout.contest.title }}</h5>
+    </div>
+    <b>Contest Menu</b>
+    <nav class="navbar navbar-expand nav-pills">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser"
+                aria-controls="navbarContestUser" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContestUser">
+            <a class="nav-link {% if page == 'detail' %}active{% endif %}"
+               href="{{ admin_contest_detail_layout.contest.get_absolute_url }}admin">
+                Dashboard
+            </a>
+            <a class="nav-link {% if page == 'my_team' %}active{% endif %}"
+               href="{{ admin_contest_detail_layout.contest.get_absolute_url }}admin/tests/">
+                Tests
+            </a>
+            <a class="nav-link {% if page == 'view_teams' %}active{% endif %}"
+               href="{{ admin_contest_detail_layout.contest.get_absolute_url }}admin/teams">
+                Teams
+            </a>
+            <!--
+                <a class="nav-link {% if page == 'edit_tests' %}active{% endif %}"
+                   href="{{ admin_contest_detail_layout.contest.get_absolute_url }}admin-view/test/chooser/">
+                    Edit Tests
+                </a>
+             -->
+        </div>
+    </nav>
+    <hr>
+    {% block contestDetailContent %}
+    {% endblock %}
+
+{% endblock %}

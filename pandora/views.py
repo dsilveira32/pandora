@@ -14,4 +14,4 @@ def manage(request):
 
 @login_required
 def home(request):
-    return render(request, 'core/home.html')
+    return render(request, 'core/contest_detail_home.html')
