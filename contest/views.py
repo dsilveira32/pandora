@@ -345,6 +345,9 @@ def attempt_view(request, id, attempt_id):
     context.update({'n_general': n_general})
     context.update({'results': results})
     context.update({'title': "Atempt Detail"})
+    print_variables_debug([
+        "Context: " + str(context),
+    ])
     return render(request, template_name, context)
 
 
@@ -354,7 +357,7 @@ def attempt_view(request, id, attempt_id):
 def team_detail_view(request, id):
     checkUserProfileInRequest(request)
     template_name = 'pages/team.html'
-    contest = get_object_or_404(Contest, id=id)
+    contest = getContestByID(id)
     context = getContestDetailLayoutContext(request, contest)
     # qs = TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
     team = getUserTeamFromContest(request, contest)
