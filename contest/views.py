@@ -299,7 +299,7 @@ def home_view_old(request):
 def attempt_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
-    template_name = 'views/user/contest_attempt_submission.html'
+    template_name = 'views/user/contest_attempt.html'
     atempt_obj = get_object_or_404(Atempt, id=attempt_id)
     contest = atempt_obj.contest
     context = getContestDetailLayoutContext(request, contest)
@@ -409,7 +409,7 @@ def team_detail_view(request, id):
 @login_required
 def attempt_submission_view(request, id):
     checkUserProfileInRequest(request)
-    template_name = 'views/user/contest_attempt_submission.html'
+    template_name = 'views/user/contest_attempt.html'
     contest = get_object_or_404(Contest, id=id)
     context = getContestDetailLayoutContext(request, contest)
 
