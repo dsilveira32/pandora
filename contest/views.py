@@ -57,7 +57,6 @@ def attempt_list_view(request, id):
     return render(request, template_name, context)
 
 
-
 # contest
 @login_required
 def contest_list_view(request):
@@ -186,6 +185,7 @@ def team_create_view(request, id):
     context.update({"title": 'Create New Team'})
     return render(request, template_name, context)
 
+
 @login_required
 def team_join_view(request, id):
     if not request.user.profile.number:
@@ -297,7 +297,7 @@ def home_view_old(request):
 def attempt_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
-    template_name = 'pages/contest_attempt_submission.html'
+    template_name = 'pages/contest_attempt.html'
     atempt_obj = get_object_or_404(Atempt, id=attempt_id)
     contest = atempt_obj.contest
     context = getContestDetailLayoutContext(request, contest)
@@ -351,8 +351,7 @@ def attempt_view(request, id, attempt_id):
     return render(request, template_name, context)
 
 
-
-#TEAM DETAIL
+# TEAM DETAIL
 @login_required
 def team_detail_view(request, id):
     checkUserProfileInRequest(request)
@@ -377,7 +376,7 @@ def team_detail_view(request, id):
             team.delete()
             return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
 
-        if team_member_obj.approved: #TODO: Is this duplicated check necessary?
+        if team_member_obj.approved:  # TODO: Is this duplicated check necessary?
             if "member_id" in request.POST:
                 team_member_obj2 = TeamMember.objects.get(id=form.cleaned_data.get("member_id"))
                 team_member_obj2.approved = True
@@ -403,62 +402,37 @@ def team_detail_view(request, id):
     ])
     return render(request, template_name, context)
 
-#SUMISSION VIEW
+
+# SUMISSION VIEW
 @login_required
-def attempt_submission_view(request, id):
+def contest_attempt_form_view(request, id):
     checkUserProfileInRequest(request)
-    template_name = 'pages/contest_attempt_submission.html'
-    contest = get_object_or_404(Contest, id=id)
-    context = getContestDetailLayoutContext(request, contest)
+    template_name = 'pages/contest_attempt.html'
+    context = {'title': 'Submit',
+               'description': 'PANDORA is an Automated Assessment Tool.',
+               # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
+               }
 
     can_submit = True
 
-    start_date = contest.start_date
-    end_date = contest.end_date
-
-    # this is to allow specific users to submit outside the scheduled dates
-    # example is a user that was sick
-    #TODO: Make this without being an exception, and being part of the normal process
-    #### EXCEPTIONS START ####
-    try:
-        user_excep = UserContestDateException.objects.get(user=request.user, contest=contest)
-    except UserContestDateException.DoesNotExist:
-        user_excep = None
-    if user_excep:
-        start_date = user_excep.start_date
-        end_date = user_excep.end_date
-
-    present = timezone.now()
-    # present = datetime.datetime.now()
-    if not request.user.is_superuser:
-        if present < start_date or present > end_date:
-            # contest is not opened
-            return redirect(os.path.join(contest.get_absolute_url()))
-    #### EXCEPTIONS END ####
-
-    #Check team members
+    contest = getContestByID(id)
     team = getUserTeamFromContest(request, contest)
-    if not team:
-        if contest.max_team_members == 1:
-            team = Team(name=request.user.username, contest=contest)
-            team.save()
-            tm = TeamMember(team=team, user=request.user, approved=True)
-            tm.save()
-            team.members = team.teammember_set.all()
-        else:
-            return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
+    attempts = get_team_attempts(team)
 
-    #Check attempts
-    atempts = get_team_attempts(team)
-    if contest.max_submitions > 0:
-        if atempts and atempts.count() >= contest.max_submitions:
-            messages.error(request, "You have reached the maximum number of submissions for this contest.")
-            can_submit = False
+    # this will allow specific users to submit outside the scheduled dates
+    # example is a user that was sick
+    if not checkUsersDateExceptions(request, contest):
+        return redirect(os.path.join(contest.get_absolute_url()))
 
-    #Check contest
-    if not contest.is_open:
-        messages.error(request, "This contest is not active.")
-        can_submit = False
+    # Check team members when user doenst have team
+    if not UserHaveTeam(request.user, contest, team):
+        return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
+
+    # Check attempts
+    can_submit = checkContestAttempts(request, contest, attempts)
+
+    # Check contest
+    can_submit = checkIsContestOpen(request, contest)
 
     # Check team
     if not team.active or not team.members.filter(user=request.user).first().approved or not request.user.profile.valid:
@@ -466,26 +440,19 @@ def attempt_submission_view(request, id):
                        "You need to be an Active member and approved member of an active team to make submitions")
         can_submit = False
 
-    #Form OnSubmit()
+    # Form Submit
     form = AttemptModelForm(request.POST or None, request.FILES or None)
-    if can_submit and form.is_valid():
-        obj = form.save(commit=False)
-        obj.user = request.user
-        obj.contest = contest
-        obj.team = team
-        obj.save()
-        print_variables_debug([
-            "Object: " + str(obj),
-            "Object file: " + str(obj.file),
-            "Object file path: " + str(obj.file.path),
-            "Contest object: " + str(contest)
-        ])
-        handle_uploaded_file(obj, obj.file, contest)
-        return redirect(obj.get_absolute_url())
-    context.update(getTeamSubmissionHistoryContext(get_team_attempts(team)))
-    context.update({'form': form, 'title': "Submit", "subpage":"Submission"})
+    submitted, submittedForm = attemptFormSubmit(request, can_submit, form, contest, team)
+    print_variables_debug([
+        "submitted: " + str(submitted),
+        "submittedForm: " + str(submittedForm)
+    ])
+    if submitted:
+        return redirect(submittedForm.get_absolute_url())
+    context.update(getContestDetailLayoutContext(request, contest))
+    context.update(getContestFormContext(request, contest, form))
+    context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
-
 
 # HOME VIEW
 @login_required
@@ -531,7 +498,77 @@ def contest_view(request, id):
 #############################
 #      HELPER FUCTIONS      #
 #############################
+def attemptFormSubmit(request, can_submit, form, contest, team):
+    if can_submit and form.is_valid():
+        obj = form.save(commit=False)
+        obj.user = request.user
+        obj.contest = contest
+        obj.team = team
+        obj.save()
+        print_variables_debug([
+            "Object: " + str(obj),
+            "Object file: " + str(obj.file),
+            "Object file path: " + str(obj.file.path),
+            "Contest object: " + str(contest)
+        ])
+        handle_uploaded_file(obj, obj.file, contest)
+        return True, obj
+    return False, None
 
+
+def checkContestAttempts(request, contest, attempts):
+    if contest.max_submitions > 0:
+        if attempts and attempts.count() >= contest.max_submitions:
+            messages.error(request, "You have reached the maximum number of submissions for this contest.")
+            return False
+    return True
+
+
+def checkIsContestOpen(request, contest):
+    if not contest.is_open:
+        messages.error(request, "This contest is not active.")
+        return False
+    return True
+
+
+def UserHaveTeam(user, contest, team):
+    if not team:
+        if contest.max_team_members == 1:
+            team = Team(name=user.username, contest=contest)
+            team.save()
+            tm = TeamMember(team=team, user=user, approved=True)
+            tm.save()
+            team.members = team.teammember_set.all()
+            return True
+        else:
+            return False
+    return True
+
+
+def checkUsersDateExceptions(request, contest):
+    # this is to allow specific users to submit outside the scheduled dates
+    # example is a user that was sick
+    # TODO: Make this without being an exception, and being part of the normal process
+    present = timezone.now()
+    start_date = contest.start_date
+    end_date = contest.end_date
+
+    # Get User exceptions
+    try:
+        user_excep = UserContestDateException.objects.get(user=request.user, contest=contest)
+    except UserContestDateException.DoesNotExist:
+        user_excep = None
+
+    # Check if user exceptions existes
+    if user_excep:
+        start_date = user_excep.start_date
+        end_date = user_excep.end_date
+    # Check if contest is opened if not superuser
+    if not request.user.is_superuser:
+        if present < start_date or present > end_date:
+            # contest is not opened
+            return False
+    return True
 
 
 def checkIfUserIsSuperUser(request):
@@ -595,6 +632,29 @@ def getAllContestAttemptsRanking(contest):
 #############################
 #      CONTEXT FUNCTIONS    #
 #############################
+# For team_submission_details.html
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+def getTeamSubmissionDetailsContext(request, contest, attempt):
+    context = {
+        'user_has_access': checkIfUserHasAccessToContest(request, contest),
+        'team_submission_details': {
+            'attempt': attempt
+        }
+    }
+    return context
+
+# For contest_form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+def getContestFormContext(request, contest, form):
+    context = {
+        'user_has_access': checkIfUserHasAccessToContest(request, contest),
+        'contest_form': {
+            'contest': contest,
+            'form': form
+        }
+    }
+    return context
+
 
 # For contest_list.html
 def getContestListContext(contests):

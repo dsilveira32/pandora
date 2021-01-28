@@ -4,7 +4,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="/contests/">Contests</a></li>
-            {% if contest_detail_layout.contest.short_name %}
+            {% if contest_detail_layout.contest %}
             <li class="breadcrumb-item active" aria-current="page">
                 {% if subpage %}
                     <a href="{{ contest_detail_layout.contest.get_absolute_url }}">{{ contest_detail_layout.contest.short_name }}</a>
@@ -12,9 +12,6 @@
                     {{ contest_detail_layout.contest.short_name }}
                 {% endif %}
             </li>
-            {% endif %}
-            {% if subpage %}
-                <li class="breadcrumb-item active" aria-current="page">{{ subpage }}</li>
             {% endif %}
         </ol>
     </nav>

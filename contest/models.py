@@ -2,6 +2,7 @@ import os
 import time
 import uuid
 
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
@@ -107,6 +108,19 @@ class Contest(models.Model):
 		return "/contests/%i/" % self.id
 		# return f"/contests/{self.id}/"
 
+	#def checkAttempts(self, request, attempts):
+	#	if self.max_submitions > 0:
+	#		if attempts and attempts.count() >= self.max_submitions:
+	#			messages.error(request, "You have reached the maximum number of submissions for this contest.")
+	#			return False
+	#	return True
+
+	#def checkIsOpen(self, request):
+	#	if not self.is_open:
+	#		messages.error(request, "This contest is not active.")
+	#		return False
+	#	return True
+
 
 class Test(models.Model):
 	contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
@@ -148,6 +162,14 @@ class Team(models.Model):
 
 	def get_absolute_url(self):
 		return f"/teams/{self.id}/"
+
+	#TODO: Its possible to make this inside the Model?
+	# get the team attempts
+	#def getAttempts(self):
+	#	members_ids = self.teammember_set.values_list('user__id', flat=True).distinct()
+	#	if not members_ids:
+	#		return None
+	#	return Atempt.objects.filter(contest=self.contest, user__in=members_ids).order_by('-date')
 
 
 class Atempt(models.Model):

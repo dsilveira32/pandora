@@ -25,7 +25,7 @@ def superuser_only(function):
 
 @superuser_only
 def admin_choose_test(request, id):
-	template_name = 'contest/test_chooser.html'
+	template_name = 'components/tests/test_chooser.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 	contest_tests = contest_obj.test_set.all()
@@ -107,7 +107,7 @@ def natural_keys(text):
 
 @superuser_only
 def admin_test_creation(request):
-	template_name = 'contest/test_creation.html'
+	template_name = 'pages/contest_admin.html'
 
 	test_form = CreateTestModelForm(request.POST or None, request.FILES or None)
 	print_form_info_debug(test_form)
