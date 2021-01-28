@@ -14,10 +14,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for o in contest_list.contests %}
+                        {% for o in admin_contest_list.contests %}
                             {% if o.is_open %}
                                 <tr>
-                                    <td scope="row"><a href="{{ o.get_absolute_url }}">{{ o.short_name }}</a></td>
+                                    <td scope="row"><a href="{{ o.get_absolute_url }}admin">{{ o.short_name }}</a></td>
                                     <td>{{ o.start_date }}</td>
                                     <td>{{ o.end_date }}</td>
                                     <td>{{ o.end_date|timeuntil }}</td>
@@ -44,10 +44,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for o in contest_list.contests %}
+                        {% for o in admin_contest_list.contests %}
                             {% if not o.is_open %}
                                 <tr>
-                                    <td scope="row"><a href="{{ o.get_absolute_url }}">{{ o.short_name }}</a></td>
+                                    <td scope="row"><a href="{{ o.get_absolute_url }}admin">{{ o.short_name }}</a></td>
                                     <td>{{ o.start_date }}</td>
                                     <td>{{ o.end_date }}</td>
                                 </tr>

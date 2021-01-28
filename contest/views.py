@@ -12,6 +12,7 @@ from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberAp
     ProfileEditForm, UserEditForm
 from .models import Contest, UserContestDateException
 from .routines import *
+from .context_functions import *
 
 
 # attempt
@@ -57,6 +58,7 @@ def attempt_list_view(request, id):
     return render(request, template_name, context)
 
 
+
 # contest
 @login_required
 def contest_list_view(request):
@@ -65,7 +67,7 @@ def contest_list_view(request):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'pages/home.html'
+    template_name = 'views/contest_detail_home.html'
 
     if request.user.is_superuser:
         contests_qs = Contest.objects.all()
@@ -185,7 +187,6 @@ def team_create_view(request, id):
     context.update({"title": 'Create New Team'})
     return render(request, template_name, context)
 
-
 @login_required
 def team_join_view(request, id):
     if not request.user.profile.number:
@@ -292,12 +293,13 @@ def home_view_old(request):
 #############################
 #         NEW VIEWS         #
 #############################
+
 # ATTEMPT PROCESS
 @login_required
 def attempt_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
-    template_name = 'pages/contest_attempt.html'
+    template_name = 'views/user/contest_attempt.html'
     atempt_obj = get_object_or_404(Atempt, id=attempt_id)
     contest = atempt_obj.contest
     context = getContestDetailLayoutContext(request, contest)
@@ -355,7 +357,7 @@ def attempt_view(request, id, attempt_id):
 @login_required
 def team_detail_view(request, id):
     checkUserProfileInRequest(request)
-    template_name = 'pages/team.html'
+    template_name = 'views/user/team.html'
     contest = getContestByID(id)
     context = getContestDetailLayoutContext(request, contest)
     # qs = TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
@@ -402,12 +404,11 @@ def team_detail_view(request, id):
     ])
     return render(request, template_name, context)
 
-
 # SUMISSION VIEW
 @login_required
 def contest_attempt_form_view(request, id):
     checkUserProfileInRequest(request)
-    template_name = 'pages/contest_attempt.html'
+    template_name = 'views/user/contest_attempt.html'
     context = {'title': 'Submit',
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
@@ -454,11 +455,12 @@ def contest_attempt_form_view(request, id):
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
 
+
 # HOME VIEW
 @login_required
 def home_view(request):
     checkUserProfileInRequest(request)
-    template_name = 'pages/home.html'
+    template_name = 'views/user/contest_detail_home.html'
     context = {'title': 'Contests',
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
@@ -473,7 +475,7 @@ def home_view(request):
 @login_required
 def contest_view(request, id):
     checkUserProfileInRequest(request)
-    template_name = 'pages/contest.html'
+    template_name = 'views/user/contest.html'
 
     # Get required data
     contest = getContestByID(id)
@@ -493,255 +495,3 @@ def contest_view(request, id):
     context.update(getContestRankingsContext(ranked_attempts))
     context.update(getTeamSubmissionStatusContext(team_attempts))
     return render(request, template_name, context)
-
-
-#############################
-#      HELPER FUCTIONS      #
-#############################
-def attemptFormSubmit(request, can_submit, form, contest, team):
-    if can_submit and form.is_valid():
-        obj = form.save(commit=False)
-        obj.user = request.user
-        obj.contest = contest
-        obj.team = team
-        obj.save()
-        print_variables_debug([
-            "Object: " + str(obj),
-            "Object file: " + str(obj.file),
-            "Object file path: " + str(obj.file.path),
-            "Contest object: " + str(contest)
-        ])
-        handle_uploaded_file(obj, obj.file, contest)
-        return True, obj
-    return False, None
-
-
-def checkContestAttempts(request, contest, attempts):
-    if contest.max_submitions > 0:
-        if attempts and attempts.count() >= contest.max_submitions:
-            messages.error(request, "You have reached the maximum number of submissions for this contest.")
-            return False
-    return True
-
-
-def checkIsContestOpen(request, contest):
-    if not contest.is_open:
-        messages.error(request, "This contest is not active.")
-        return False
-    return True
-
-
-def UserHaveTeam(user, contest, team):
-    if not team:
-        if contest.max_team_members == 1:
-            team = Team(name=user.username, contest=contest)
-            team.save()
-            tm = TeamMember(team=team, user=user, approved=True)
-            tm.save()
-            team.members = team.teammember_set.all()
-            return True
-        else:
-            return False
-    return True
-
-
-def checkUsersDateExceptions(request, contest):
-    # this is to allow specific users to submit outside the scheduled dates
-    # example is a user that was sick
-    # TODO: Make this without being an exception, and being part of the normal process
-    present = timezone.now()
-    start_date = contest.start_date
-    end_date = contest.end_date
-
-    # Get User exceptions
-    try:
-        user_excep = UserContestDateException.objects.get(user=request.user, contest=contest)
-    except UserContestDateException.DoesNotExist:
-        user_excep = None
-
-    # Check if user exceptions existes
-    if user_excep:
-        start_date = user_excep.start_date
-        end_date = user_excep.end_date
-    # Check if contest is opened if not superuser
-    if not request.user.is_superuser:
-        if present < start_date or present > end_date:
-            # contest is not opened
-            return False
-    return True
-
-
-def checkIfUserIsSuperUser(request):
-    return request.user.is_superuser
-
-
-def getContestByID(id):
-    return get_object_or_404(Contest, id=id)
-
-
-def getContests(request):
-    if checkIfUserIsSuperUser(request):
-        return Contest.objects.all()
-    else:
-        return Contest.objects.filter(visible=True)
-
-
-def getTeamContests(request):
-    return TeamMember.objects.select_related('team').filter(user=request.user)
-
-
-def checkUserProfileInRequest(request):
-    if not request.user.profile.number:
-        return redirect('complete_profile')
-    if not request.user.profile.valid:
-        return redirect('not_active')
-
-
-def checkIfUserHasAccessToContest(request, contest):
-    present = timezone.now()
-    # TODO: When groups are implemented, check if contest belongs to groups user is a part of
-    if not checkIfUserIsSuperUser(request) and present < contest.start_date:
-        return False
-    else:
-        return True
-
-
-def getUserTeamFromContest(request, contest):
-    team, members = get_user_team(request, contest.id)
-    team.members = members
-    return team
-
-
-def getAllContestAttemptsRanking(contest):
-    # TODO Make it better
-    query = "SELECT ca.*, maxs.atempts, maxs.team_id FROM (" \
-            "select max(id) as id," \
-            "count(id) as atempts," \
-            "team_id from " \
-            "contest_atempt" \
-            " where contest_id = " + str(contest.id) + \
-            "   group by team_id)" \
-            "       maxs inner join contest_atempt ca on ca.id = maxs.id" \
-            "           order by grade desc, atempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
-            "                       cpu_time asc"
-    # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
-
-    return Atempt.objects.raw(query)
-
-
-#############################
-#      CONTEXT FUNCTIONS    #
-#############################
-# For team_submission_details.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
-def getTeamSubmissionDetailsContext(request, contest, attempt):
-    context = {
-        'user_has_access': checkIfUserHasAccessToContest(request, contest),
-        'team_submission_details': {
-            'attempt': attempt
-        }
-    }
-    return context
-
-# For contest_form.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
-def getContestFormContext(request, contest, form):
-    context = {
-        'user_has_access': checkIfUserHasAccessToContest(request, contest),
-        'contest_form': {
-            'contest': contest,
-            'form': form
-        }
-    }
-    return context
-
-
-# For contest_list.html
-def getContestListContext(contests):
-    return {
-        'contest_list': {
-            'contests': contests,
-        }
-    }
-
-
-# For contest_details.html
-def getContestDetailsContext(contest):
-    return {
-        'contest_details': {
-            'contest': contest,
-        }
-    }
-
-
-# For contest_detail_layout.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
-def getContestDetailLayoutContext(request, contest):
-    context = {
-        'user_has_access': checkIfUserHasAccessToContest(request, contest),
-        'contest_detail_layout': {
-            'contest': contest
-        }
-    }
-    context.update(getContestClosedErrorContext(contest))
-    return context
-
-
-# For contest_closed_error.html
-# Probably not necessary since it is only used in Detail Layout but let's keep it here until we are sure
-def getContestClosedErrorContext(contest):
-    return {
-        'contest_closed_error': {
-            'contest': contest
-        }
-    }
-
-
-# For team_members.html
-def getTeamMembersContext(team):
-    return {
-        'team_members': {
-            'team': team
-        }
-    }
-
-
-# For team_submission_history.html
-def getTeamSubmissionHistoryContext(attempts):
-    return {
-        'team_submission_history': {
-            'attempts': attempts
-        }
-    }
-
-
-# For team_submission_status.html
-def getTeamSubmissionStatusContext(attempts):
-    context = {}
-    if attempts:
-        context.update({'number_of_submitions': attempts.count()})
-        context.update({'last_classification': attempts.first().grade})
-        context.update({'last_execution_time': attempts.first().time_benchmark})
-        context.update({'last_memory_usage': attempts.first().memory_benchmark})
-        if os.path.isfile(attempts.first().file.path):
-            context.update({'download': attempts.first().file})
-        else:
-            context.update({'download': 0})
-    else:
-        context.update({'number_of_submitions': 0})
-        context.update({'last_classification': 0})
-        context.update({'last_execution_time': 0})
-        context.update({'last_memory_usage': 0})
-        context.update({'download': 0})
-    return {
-        'team_submission_status': context
-    }
-
-
-# For contest_rankings.html
-def getContestRankingsContext(attempts):
-    return {
-        'contest_rankings': {
-            'attempts': attempts
-        }
-    }

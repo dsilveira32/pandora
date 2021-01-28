@@ -15,12 +15,13 @@
             {% endif %}
         </ol>
     </nav>
-    {% if user_has_access %}
+    {% if contest_detail_layout.user_has_access %}
         <hr>
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h5>{{ contest_detail_layout.contest.short_name }}
-                - {{ contest_detail_layout.contest.title }}: {{ title }}</h5>
+                - {{ contest_detail_layout.contest.title }}</h5>
         </div>
+        <!--
         <b>Contest Options</b>
         <nav class="navbar navbar-expand nav-pills">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser"
@@ -50,6 +51,7 @@
             </div>
         </nav>
         <hr>
+        -->
         {% block contestDetailContent %}
         {% endblock %}
     {% else %}
