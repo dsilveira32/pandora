@@ -515,7 +515,7 @@ def admin_contest_home_view(request):
 
 # Admin detail contest home view
 @superuser_only
-def admin_contest_detail_home_view(request, id):
+def admin_contest_detail_dashboard_view(request, id):
 	template_name = 'views/admin/contest_detail_home.html'
 	context = {}
 	contest = getContestByID(id)

@@ -7,14 +7,14 @@ from .admin_views import (
     admin_test_editor,
     admin_view_teams_status,
     extract_grades,
-    extract_zip, admin_contest_detail_tests_view, admin_contest_detail_teams_view, admin_contest_detail_home_view,
+    extract_zip, admin_contest_detail_tests_view, admin_contest_detail_teams_view, admin_contest_detail_dashboard_view,
     admin_contest_home_view,
 
 )
 from .views import (
     contest_list_view,
     contest_detail_view,
-    contest_view,
+    user_contest_detail_dashboard_view,
     contest_attempt_form_view,
     team_create_view,
     team_join_view,
@@ -25,20 +25,26 @@ from .views import (
     profile_view,
     nonactive_view,
     complete_profile_view,
-    home_view
+    user_contest_home_view
 )
 
 urlpatterns = [
     # New urls / views
-    path('contests/admin/', admin_contest_home_view),
-    path('contests/<int:id>/admin/', admin_contest_detail_home_view),
-    path('contests/<int:id>/admin/tests/', admin_contest_detail_tests_view),
-    path('contests/<int:id>/admin/teams/', admin_contest_detail_teams_view),
+    # ADMIN
+    path('manager/contests/', admin_contest_home_view, name='manager_contests_home'),
+    # TODO: make a create view and replace below
+    path('manager/contests/create', admin_contest_home_view, name='manager_contests_create'),
+
+    path('manager/contests/<int:id>/', admin_contest_detail_dashboard_view, name='manager_contests_detail_dashboard'),
+    path('manager/contests/<int:id>/tests/', admin_contest_detail_tests_view, name='manager_contests_detail_tests'),
+    path('manager/contests/<int:id>/teams/', admin_contest_detail_teams_view, name='manager_contests_detail_teams'),
+
+    # USER
+    path('contests/', user_contest_home_view, name='user_contests_home'),
+    path('contests/<int:id>/', user_contest_detail_dashboard_view, name='user_contests_detail_dashboard'),
 
     # Old
-    path('', home_view, name='home'),
-    path('contests/', home_view, name='contest_list'),
-    path('contests/<int:id>/', contest_view),
+    path('', user_contest_home_view, name='home'),
     path('contests/<int:id>/attempt/', contest_attempt_form_view),
     path('contests/<int:id>/team/', team_create_view),
     path('contests/<int:id>/team/join/', team_join_view),

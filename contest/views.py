@@ -458,7 +458,7 @@ def contest_attempt_form_view(request, id):
 
 # HOME VIEW
 @login_required
-def home_view(request):
+def user_contest_home_view(request):
     checkUserProfileInRequest(request)
     template_name = 'views/user/home.html'
     context = {'title': 'Contests',
@@ -473,7 +473,7 @@ def home_view(request):
 
 # CONTEST VIEW
 @login_required
-def contest_view(request, id):
+def user_contest_detail_dashboard_view(request, id):
     checkUserProfileInRequest(request)
     template_name = 'views/user/contest.html'
 
