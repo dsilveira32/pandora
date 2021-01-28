@@ -9,13 +9,14 @@ from subprocess import check_output
 import json
 import difflib
 from django.conf import settings
+from django.contrib import messages
 from django.core.files import File
 import diff_match_patch
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
 from .forms import CreateTestModelForm
-from .models import Classification, Team, TeamMember, Atempt, SafeExecError, Contest
+from .models import Classification, Team, TeamMember, Atempt, SafeExecError, Contest, UserContestDateException
 from .utils import *
 
 
@@ -647,3 +648,78 @@ def structureTeamsData(teams):
         for m in t.members:
             m.nAtempts = t.atempts.filter(user=m.user).count()
     return teams
+
+
+
+
+def attemptFormSubmit(request, can_submit, form, contest, team):
+    if can_submit and form.is_valid():
+        obj = form.save(commit=False)
+        obj.user = request.user
+        obj.contest = contest
+        obj.team = team
+        obj.save()
+        print_variables_debug([
+            "Object: " + str(obj),
+            "Object file: " + str(obj.file),
+            "Object file path: " + str(obj.file.path),
+            "Contest object: " + str(contest)
+        ])
+        handle_uploaded_file(obj, obj.file, contest)
+        return True, obj
+    return False, None
+
+
+def checkContestAttempts(request, contest, attempts):
+    if contest.max_submitions > 0:
+        if attempts and attempts.count() >= contest.max_submitions:
+            messages.error(request, "You have reached the maximum number of submissions for this contest.")
+            return False
+    return True
+
+
+def checkIsContestOpen(request, contest):
+    if not contest.is_open:
+        messages.error(request, "This contest is not active.")
+        return False
+    return True
+
+
+def UserHaveTeam(user, contest, team):
+    if not team:
+        if contest.max_team_members == 1:
+            team = Team(name=user.username, contest=contest)
+            team.save()
+            tm = TeamMember(team=team, user=user, approved=True)
+            tm.save()
+            team.members = team.teammember_set.all()
+            return True
+        else:
+            return False
+    return True
+
+
+def checkUsersDateExceptions(request, contest):
+    # this is to allow specific users to submit outside the scheduled dates
+    # example is a user that was sick
+    # TODO: Make this without being an exception, and being part of the normal process
+    present = timezone.now()
+    start_date = contest.start_date
+    end_date = contest.end_date
+
+    # Get User exceptions
+    try:
+        user_excep = UserContestDateException.objects.get(user=request.user, contest=contest)
+    except UserContestDateException.DoesNotExist:
+        user_excep = None
+
+    # Check if user exceptions existes
+    if user_excep:
+        start_date = user_excep.start_date
+        end_date = user_excep.end_date
+    # Check if contest is opened if not superuser
+    if not request.user.is_superuser:
+        if present < start_date or present > end_date:
+            # contest is not opened
+            return False
+    return True

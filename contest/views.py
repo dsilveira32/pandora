@@ -460,7 +460,7 @@ def contest_attempt_form_view(request, id):
 @login_required
 def home_view(request):
     checkUserProfileInRequest(request)
-    template_name = 'views/user/contest_detail_home.html'
+    template_name = 'views/user/home.html'
     context = {'title': 'Contests',
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),

@@ -131,3 +131,27 @@ def getTeamListContext(teams):
             'teams': teams
         }
     }
+
+# For team_submission_details.html
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+def getTeamSubmissionDetailsContext(request, contest, attempt):
+    context = {
+        'user_has_access': checkIfUserHasAccessToContest(request, contest),
+        'team_submission_details': {
+            'attempt': attempt
+        }
+    }
+    return context
+
+
+# For contest_form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+def getContestFormContext(request, contest, form):
+    context = {
+        'user_has_access': checkIfUserHasAccessToContest(request, contest),
+        'contest_form': {
+            'contest': contest,
+            'form': form
+        }
+    }
+    return context
