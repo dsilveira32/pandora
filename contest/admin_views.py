@@ -567,6 +567,16 @@ def admin_contest_detail_tests_view(request, id):
 
 	return render(request, template_name, context)
 
+# Admin create test view
+def admin_contest_detail_tests_create_view(request, id):
+	template_name = 'views/admin/contest_detail_tests.html'
+	context = {}
+	contest = getContestByID(id)
+	context.update(getAdminContestDetailLayoutContext(request, contest))
+
+	return render(request, template_name, context)
+
+
 
 # Admin teams view
 @superuser_only
@@ -581,4 +591,3 @@ def admin_contest_detail_teams_view(request, id):
 	context.update(getTeamListContext(teams))
 
 	return render(request, template_name, context)
-
