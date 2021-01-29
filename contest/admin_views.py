@@ -569,7 +569,7 @@ def admin_contest_detail_tests_view(request, id):
 
 # Admin create test view
 def admin_contest_detail_tests_create_view(request, id):
-	template_name = 'views/admin/contest_detail_tests.html'
+	template_name = 'views/admin/contest_detail_tests_create.html'
 	context = {}
 	contest = getContestByID(id)
 	context.update(getAdminContestDetailLayoutContext(request, contest))
