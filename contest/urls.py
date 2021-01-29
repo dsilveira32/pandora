@@ -8,7 +8,7 @@ from .admin_views import (
     admin_view_teams_status,
     extract_grades,
     extract_zip, admin_contest_detail_tests_view, admin_contest_detail_teams_view, admin_contest_detail_dashboard_view,
-    admin_contest_home_view,
+    admin_contest_home_view, admin_contest_detail_tests_create_view,
 
 )
 from .views import (
@@ -37,7 +37,7 @@ urlpatterns = [
 
     path('manager/contests/<int:id>/', admin_contest_detail_dashboard_view, name='manager_contests_detail_dashboard'),
     path('manager/contests/<int:id>/tests/', admin_contest_detail_tests_view, name='manager_contests_detail_tests'),
-    path('manager/contests/<int:id>/tests/create', admin_contest_detail_tests_view, name='manager_contests_detail_tests'),
+    path('manager/contests/<int:id>/tests/create', admin_contest_detail_tests_create_view, name='manager_contests_detail_tests_create'),
     path('manager/contests/<int:id>/teams/', admin_contest_detail_teams_view, name='manager_contests_detail_teams'),
 
     # USER
