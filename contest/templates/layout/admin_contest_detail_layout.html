@@ -3,15 +3,15 @@
      <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">
-                <a href="{% url 'user_contests_home' %}">Contests</a>
+                <a href="{% url 'manager_contests_home' %}">Contests</a>
             </li>
             {% if admin_contest_detail_layout.contest %}
             <li class="breadcrumb-item active">
-                <a href="{% url 'user_contests_detail_dashboard' contest_detail_layout.contest.id %}">{{ contest_detail_layout.contest.short_name }}</a>
+                <a href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">{{ admin_contest_detail_layout.contest.short_name }}</a>
             </li>
             {% endif %}
             {% if admin_contest_detail_layout.subpage %}
-            <li class="breadcrumb-item " aria-current="page">{{ contest_detail_layout.subpage }}</li>
+            <li class="breadcrumb-item " aria-current="page">{{ admin_contest_detail_layout.subpage }}</li>
             {% endif %}
         </ol>
     </nav>
