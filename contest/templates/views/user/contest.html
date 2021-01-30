@@ -1,12 +1,12 @@
 {% extends "layout/contest_detail_layout.html" %}
 {% block contestDetailContent %}
     <div class="row">
-        <div class="col-12">
-            <a class="btn btn-sm btn-primary" href="{{ contest_detail_layout.contest.get_absolute_url }}attempt/"><i class="fas fa-plus-circle"></i> Submit</a>
-            {% if user.is_superuser %}
-            <a class="btn btn-sm btn-info" href="{{ contest_detail_layout.contest.get_absolute_url }}grades-downloader/"><i class="fas fa-file-csv"></i> Extract grades</a>
-            <a class="btn btn-sm btn-info" href="{{ contest_detail_layout.contest.get_absolute_url }}zip-downloader/"><i class="fas fa-file-archive"></i> Extract Files</a>
-            {% endif %}
+        <div class="offset-4 col-4">
+            <a class="btn btn-primary w-100 py-3"
+               href="{{ contest_detail_layout.contest.get_absolute_url }}attempt/">
+                <i class="fas fa-plus-circle"></i>
+                Submit new attempt
+            </a>
         </div>
 
         <div class="col-6">

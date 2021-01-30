@@ -1,26 +1,28 @@
 {% extends "user_area_layout.html" %}
 {% block pageContent %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/contests/">Contests</a></li>
-            {% if contest_detail_layout.contest %}
-            <li class="breadcrumb-item active" aria-current="page">
-                {% if subpage %}
-                    <a href="{{ contest_detail_layout.contest.get_absolute_url }}">{{ contest_detail_layout.contest.short_name }}</a>
-                {% else %}
-                    {{ contest_detail_layout.contest.short_name }}
-                {% endif %}
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_contests_home' %}">Contests</a>
             </li>
+            {% if contest_detail_layout.contest %}
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_contests_detail_dashboard' contest_detail_layout.contest.id %}">{{ contest_detail_layout.contest.short_name }}</a>
+            </li>
+            {% endif %}
+            {% if contest_detail_layout.subpage %}
+            <li class="breadcrumb-item " aria-current="page">{{ contest_detail_layout.subpage }}</li>
             {% endif %}
         </ol>
     </nav>
-    {% if contest_detail_layout.user_has_access %}
-        <hr>
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h5>{{ contest_detail_layout.contest.short_name }}
-                - {{ contest_detail_layout.contest.title }}</h5>
-        </div>
+    <div class="container-fluid">
+        {% if contest_detail_layout.user_has_access %}
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h5>{{ contest_detail_layout.contest.short_name }}
+                    - {{ contest_detail_layout.contest.title }}</h5>
+            </div>
+            {% comment %}
         <!--
         <b>Contest Options</b>
         <nav class="navbar navbar-expand nav-pills">
@@ -52,10 +54,12 @@
         </nav>
         <hr>
         -->
-        {% block contestDetailContent %}
-        {% endblock %}
-    {% else %}
-        {% include "components/general/contest_closed_error.html" %}
-    {% endif %}
+        {% endcomment %}
+            {% block contestDetailContent %}
+            {% endblock %}
+        {% else %}
+            {% include "components/general/contest_closed_error.html" %}
+        {% endif %}
+    </div>
 
 {% endblock %}
