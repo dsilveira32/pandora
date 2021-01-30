@@ -30,6 +30,9 @@ def check_output(command, cwd):
         universal_newlines=True,
         cwd=cwd
     )
+    print("****** RUNING *******")
+    print(cwd+"/"+command)
+    print("*********************")
     output = process.communicate()
     ret_code = process.poll()
     return output, ret_code
@@ -285,10 +288,9 @@ def compile(contest, paths):
     compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + paths['obj'] + ' ' + lflags
     print('compilation: ' + compile_cmd)
     output = check_output(compile_cmd, paths['dir'])
-
-    print(output[0])
-
-    if output[0] != '':
+    print(output)
+    print(output[0][0])
+    if output[0][0] != '': #Output variable correction because the output is like (('', None), 0) not ('', None)
         return False, output[0]
 
     return True, "Compilation OK"

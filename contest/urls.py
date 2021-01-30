@@ -3,7 +3,7 @@ from django.urls import path
 from .admin_views import (
     admin_choose_test,
     admin_contest_creation,
-    admin_test_creation,
+    admin_test_creation_old,
     admin_test_editor,
     admin_view_teams_status,
     extract_grades,
@@ -60,7 +60,7 @@ urlpatterns = [
     path('contests/<int:id>/grades-downloader/', extract_grades),
     path('contests/<int:id>/zip-downloader/', extract_zip),
     path('admin-view/contest-creation/', admin_contest_creation),
-    path('admin-view/test-creation/', admin_test_creation),
+    #path('admin-view/test-creation/', admin_test_creation), # Old view
 
     path('complete_profile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),

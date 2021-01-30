@@ -107,7 +107,7 @@ def natural_keys(text):
 	return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 @superuser_only
-def admin_test_creation(request):
+def admin_test_creation_old(request):
 	template_name = 'pages/contest_admin.html'
 
 	test_form = CreateTestModelForm(request.POST or None, request.FILES or None)
@@ -131,7 +131,6 @@ def admin_test_creation(request):
 			print_variable_debug("The files: \n" + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
 								 "\nare zip files!")
 
-
 			in_files = check_in_files(zip_in, contest)
 			in_files.sort(key=natural_keys)
 			print_variable_debug(in_files)
@@ -153,14 +152,12 @@ def admin_test_creation(request):
 			print_variables_debug(out_files)
 
 			if len(in_files) > 0 and len(out_files) > 0:
-
 				for i in range(len(in_files)):
 					if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
 						a_ok = False
 					# print_variables_debug([in_files[i].split('.')[0], out_files[i].split('.')[0], a_ok])
 
 			else:
-
 				a_ok = False
 
 			if a_ok:
@@ -564,7 +561,7 @@ def admin_contest_detail_tests_view(request, id):
 		contest_tests = contest.test_set.all()
 		context.update(getTestChooserContext(contest_tests))
 		form = TestForm()
-
+		context.update(getContestDetailTestsContext(request, contest, form))
 	return render(request, template_name, context)
 
 # Admin create test view
@@ -574,6 +571,140 @@ def admin_contest_detail_tests_create_view(request, id):
 	contest = getContestByID(id)
 	context.update(getAdminContestDetailLayoutContext(request, contest))
 
+	form = CreateTestModelForm(request.POST or None, request.FILES or None)
+	# TODO A melhorar
+	print_form_info_debug(form)
+	# test_form = CreateTestModelForm(request.POST or None)
+	# print("-----------------------------------The form for the test is: " + str(test_form) +
+	#       "-----------------------------------")
+	# print("-----------------------------------The form for the test is valid: " + str(test_form.is_valid()) +
+	#       "-----------------------------------")
+	if form.is_valid():
+		obj = form.save(commit=False)
+		zip_in = obj.input_file
+		zip_out = obj.output_file
+		# start debug
+		print_variable_debug(contest.short_name)
+		print_variable_debug(contest)
+		a_ok = True
+		# end debug
+		if '.zip' in str(zip_in) and '.zip' in str(zip_out):
+			print_variable_debug("The files: \n" + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
+								 "\nare zip files!")
+
+			in_files = check_in_files(zip_in, contest)
+			in_files.sort(key=natural_keys)
+			print_variable_debug(in_files)
+			print_variable_debug(zip_in)
+			n_tests = len(in_files)
+			print_variable_debug(n_tests)
+			print_variable_debug(zip_out)
+
+			# out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
+
+			out_files = check_out_files(zip_out, contest, n_tests)
+			out_files.sort(key=natural_keys)
+
+			print_variable_debug(out_files)
+
+			print_variable_debug("In files: ")
+			print_variables_debug(in_files)
+			print_variable_debug("Out files: ")
+			print_variables_debug(out_files)
+
+			if len(in_files) > 0 and len(out_files) > 0:
+				for i in range(len(in_files)):
+					if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
+						a_ok = False
+			# print_variables_debug([in_files[i].split('.')[0], out_files[i].split('.')[0], a_ok])
+
+			else:
+				a_ok = False
+
+			if a_ok:
+				print_variable_debug("There is an out for each in!")
+				weight = 100 / n_tests
+				benchmark = True
+				test_number = 0
+
+				for i in range(n_tests):
+					test_number += 1
+					form = CreateTestModelForm(request.POST or None, request.FILES or None)
+					# test = form.save(commit=False)
+					test = Test()
+					test.contest = contest
+					test.weight_pct = weight
+					path = __get_zip_file_path(zip_in) + "/in/" + str(in_files[i])
+					f = open(path)
+					test.input_file.save(in_files[i], File(f))
+					f.close()
+					path = __get_zip_file_path(zip_in) + "/out/" + str(out_files[i])
+					f = open(path)
+					print(out_files[i])
+					print(f)
+
+					test.output_file.save(out_files[i], File(f))
+					f.close()
+					if in_files[i].split('.')[1] == "in":
+						test.use_for_time_benchmark = False
+						test.use_for_memory_benchmark = False
+						test.mandatory = False
+						test.type_of_feedback = 1
+					elif in_files[i].split('.')[1] == "inh":
+						test.use_for_time_benchmark = False
+						test.use_for_memory_benchmark = False
+						test.mandatory = False
+						test.type_of_feedback = 2
+					elif in_files[i].split('.')[1] == "inm":
+
+						if not benchmark:
+							test.use_for_time_benchmark = False
+							test.use_for_memory_benchmark = False
+							test.mandatory = True
+						else:
+							test.use_for_time_benchmark = True
+							test.use_for_memory_benchmark = True
+							test.mandatory = True
+							benchmark = False
+
+						test.type_of_feedback = 1
+					elif in_files[i].split('.')[1] == "inmh":
+
+						if not benchmark:
+							test.use_for_time_benchmark = False
+							test.use_for_memory_benchmark = False
+							test.mandatory = True
+						else:
+							test.use_for_time_benchmark = True
+							test.use_for_memory_benchmark = True
+							test.mandatory = True
+							benchmark = False
+
+						test.type_of_feedback = 2
+
+					# print_variables_debug([
+					# 	"Test " + str(test_number) + " has:",
+					# 	test.contest,
+					# 	test.weight_pct,
+					# 	test.mandatory,
+					# 	test.use_for_memory_benchmark,
+					# 	test.use_for_time_benchmark
+					# ])
+
+					test.save()
+			# print_variable_debug("Test " + str(test_number) + " made!")
+			# print_variable_debug(i)
+		# print_variable_debug(obj)
+		# print_variable_debug(a_ok)
+		if a_ok:
+			# print_variable_debug("Returning \"contest.get_absolute_url()\"")
+			# print_variable_debug("Contest: " + str(contest))
+			# print_variable_debug("URL: " + str(contest.get_absolute_url()))
+			return redirect(contest.get_absolute_url())
+
+
+	###########################
+	context.update(getTestCreationContext(request, contest, form))
 	return render(request, template_name, context)
 
 

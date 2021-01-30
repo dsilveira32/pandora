@@ -347,6 +347,7 @@ def attempt_view(request, id, attempt_id):
     context.update({'n_general': n_general})
     context.update({'results': results})
     context.update({'title': "Atempt Detail"})
+    context.update({'min_grade': "9"})
     print_variables_debug([
         "Context: " + str(context),
     ])

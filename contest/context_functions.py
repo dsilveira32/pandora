@@ -155,3 +155,24 @@ def getContestFormContext(request, contest, form):
         }
     }
     return context
+
+# For constest_detail_tests.html
+# REQUIRED IN ALL VIEWS THAT EXTEND constest_detail_tests.html
+def getContestDetailTestsContext(request, contest, form):
+    context = {
+        'constest_detail_tests': {
+            'contest': contest,
+            'form': form
+        }
+    }
+    return context
+
+# For test_creation.html
+# REQUIRED IN ALL VIEWS THAT EXTEND test_creation.html
+def getTestCreationContext(request, contest, form):
+    return {
+        'test_creation': {
+            'contest': contest,
+            'form': form
+        }
+    }
