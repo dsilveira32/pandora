@@ -106,7 +106,7 @@ def contest_detail_view(request, id):
 # profile
 @login_required
 def profile_view(request):
-    template_name = 'contest/user_profile.html'
+    template_name = 'user_profile.html'
     context = {'user': request.user, 'title': "My Information"}
     return render(request, template_name, context)
 
