@@ -5,7 +5,8 @@
                 <div class="card-body text-center">
                     <h5 class="car-title mb-2 text-primary">Tests</h5>
                     <p class="card-text mb-auto">
-                        <table class="table">
+                    <div class="table-responsive">
+                        <table class="table" id="dataTable">
                             <thead>
                             <tr>
                                 <th>Test #</th>
@@ -57,14 +58,19 @@
                                                value="{{ t.type_of_feedback }}">
                                     </td>
                                     <td>
-                                        <button class="btn btn-warning" type="button">Edit</button>
-                                        <button class="btn btn-danger" type="button">Delete</button>
+                                        <button class="btn btn-sm btn-warning" type="button">
+                                            <i class="fa fa-pencil-alt"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" type="button">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
-                        <input type="submit" value="Save">
+                    </div>
+                    <input type="submit" value="Save">
                     </p>
                 </div>
             </div>
