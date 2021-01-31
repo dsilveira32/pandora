@@ -183,7 +183,6 @@ def getTeamSubmissionStatusContext(attempts):
        team_submission_status
     """
     context = {}
-    getTeamSubmissionStatusContext()
     if attempts:
         context.update({'number_of_submitions': attempts.count()})
         context.update({'last_classification': attempts.first().grade})
