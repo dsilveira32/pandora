@@ -64,7 +64,7 @@ def admin_choose_test(request, id):
 # admin creations
 @superuser_only
 def admin_contest_creation(request):
-	template_name = 'contest/contest_creation.html'
+	template_name = 'contest/contest_creation_form.html'
 
 	contest_form = CreateContestModelForm(request.POST or None, request.FILES or None)
 	print_form_info_debug(contest_form)
@@ -516,7 +516,7 @@ def admin_contest_detail_dashboard_view(request, id):
 	template_name = 'views/admin/contest_detail_home.html'
 	context = {}
 	contest = getContestByID(id)
-	context.update(getAdminContestDetailLayoutContext(request, contest))
+	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For team_list.html
 	teams = structureTeamsData(getContestTeams(contest))
@@ -532,7 +532,7 @@ def admin_contest_detail_tests_view(request, id):
 	contest = getContestByID(id)
 	contest_tests = getContestTests(contest)
 
-	context.update(getAdminContestDetailLayoutContext(request, contest))
+	context.update(getAdminContestDetailLayoutContext(contest))
 
 	context.update(getTestChooserContext(contest_tests))
 	form = TestForm(request.POST or None)
@@ -561,7 +561,7 @@ def admin_contest_detail_tests_view(request, id):
 		contest_tests = contest.test_set.all()
 		context.update(getTestChooserContext(contest_tests))
 		form = TestForm()
-		context.update(getContestDetailTestsContext(request, contest, form))
+		context.update(getContestDetailTestsContext(contest, form))
 	return render(request, template_name, context)
 
 # Admin create test view
@@ -569,7 +569,7 @@ def admin_contest_detail_tests_create_view(request, id):
 	template_name = 'views/admin/contest_detail_tests_create.html'
 	context = {}
 	contest = getContestByID(id)
-	context.update(getAdminContestDetailLayoutContext(request, contest))
+	context.update(getAdminContestDetailLayoutContext(contest))
 
 	form = CreateTestModelForm(request.POST or None, request.FILES or None)
 	# TODO A melhorar
@@ -704,7 +704,7 @@ def admin_contest_detail_tests_create_view(request, id):
 
 
 	###########################
-	context.update(getTestCreationContext(request, contest, form))
+	context.update(getTestCreationContext(contest, form))
 	return render(request, template_name, context)
 
 
@@ -715,7 +715,7 @@ def admin_contest_detail_teams_view(request, id):
 	template_name = 'views/admin/contest_detail_teams.html'
 	context = {}
 	contest = getContestByID(id)
-	context.update(getAdminContestDetailLayoutContext(request, contest))
+	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For team_list.html
 	teams = structureTeamsData(getContestTeams(contest))

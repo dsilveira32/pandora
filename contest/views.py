@@ -452,7 +452,7 @@ def contest_attempt_form_view(request, id):
     if submitted:
         return redirect(submittedForm.get_absolute_url())
     context.update(getContestDetailLayoutContext(request, contest))
-    context.update(getContestFormContext(request, contest, form))
+    context.update(getContestFormContext(contest, form))
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
 

@@ -4,7 +4,7 @@
         <div class="card border rounded shadow-sm mb-4 mt-4">
             <div class="card-body">
                 <h5 class="car-title mb-2 text-primary">{% if title %}{{ title }}{% endif %}</h5>
-                <form method='POST' action='{{ test_creation.contest.get_absolut_url }}' enctype='multipart/form-data'> {% csrf_token %}
+                <form method='POST' action='{% url 'manager_contests_detail_tests_create' test_creation.contest.id %}' enctype='multipart/form-data'> {% csrf_token %}
                     {{ test_creation.form|crispy }}
                     <button type="submit" class="btn btn-success">Create</button>
                 </form>
