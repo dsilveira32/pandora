@@ -1,0 +1,19 @@
+{% load crispy_forms_tags %}
+<div class="row justify-content-center align-items-center">
+	<div class="col-md-8">
+		<div class="card border rounded shadow-sm mb-4 mt-4">
+			<div class="card-body text-left">
+					{% if messages %}
+						{% for message in messages %}
+							<div class="alert alert-danger" role="alert">{{ message|safe }}</div>
+						{% endfor %}
+					{% endif %}	
+				<form method='POST' action='{{ contest_form.contest.get_absolute_url }}attempt/' enctype='multipart/form-data'> {% csrf_token %}
+					{{ contest_form.form|crispy }}
+   					<button type="submit"  class="btn btn-success">Submit</button>
+				</form> 
+			</div>
+		</div>
+	</div>	
+</div>
+

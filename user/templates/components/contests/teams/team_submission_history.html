@@ -1,0 +1,34 @@
+<div class="card border rounded shadow-sm mb-4">
+    <div class="card-body text-center">
+        <h5 class="car-title mb-2 text-primary">Submission History</h5>
+        <p class="card-text mb-auto">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Attempt #</th>
+                <th>User</th>
+                <th>When</th>
+                <th>Comment</th>
+                <th>Time [ms]</th>
+                <th>Mem [KBytes]</th>
+                <th>Grade</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for a in team_submission_history.attempts %}
+                <tr>
+                    <td><a class="btn btn-sm btn-outline-secondary"
+                           href="{{ a.get_absolute_url }}">{{ forloop.revcounter }}</a></td>
+                    <td>{{ a.user.username }}</td>
+                    <td>{{ a.date }}</td>
+                    <td>{{ a.comment }}</td>
+                    <td>{{ a.time_benchmark }}</td>
+                    <td>{{ a.memory_benchmark }}</td>
+                    <td>{{ a.grade }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </p>
+    </div>
+</div>

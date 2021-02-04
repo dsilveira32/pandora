@@ -1,0 +1,52 @@
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Contest list</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Contest</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Time Left</th>
+                    <th>Open</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>Contest</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Time Left</th>
+                    <th>Open</th>
+                    <th>Actions</th>
+                </tr>
+                </tfoot>
+                <tbody>
+                {% for o in admin_contest_list.contests %}
+                    <tr>
+                        <td>{{ o.short_name }}</td>
+                        <td>{{ o.start_date }}</td>
+                        <td>{{ o.end_date }}</td>
+                        <td>{{ o.end_date|timeuntil }}</td>
+                        <td>
+                            {% if o.is_open %}
+                                <h3><i class="fas fa-fw fa-check-circle text-success"></i></h3>
+                            {% else %}
+                                <h3><i class="fas fa-fw fa-cross text-danger" ></i></h3>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="{% url 'manager_contests_detail_dashboard' o.id %}">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

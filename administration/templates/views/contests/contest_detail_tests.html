@@ -1,0 +1,9 @@
+{% extends "layouts/contests/admin_contest_detail_layout.html" %}
+{% block contestDetailContent %}
+    <div>
+        <a class="btn btn-primary" type="button" href="{{ contest_detail_tests.contest.get_absolute_url }}create">Create Test</a>
+    </div>
+    <div class="col-12">
+        {% include "components/tests/test_chooser.html" %}
+    </div>
+{% endblock %}

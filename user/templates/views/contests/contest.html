@@ -1,0 +1,28 @@
+{% extends "layouts/contests/user_contest_detail_layout.html" %}
+{% block contestDetailContent %}
+    <div class="row">
+        <div class="offset-4 col-4">
+            <a class="btn btn-primary w-100 py-3"
+               href="{{ contest_detail_layout.contest.get_absolute_url }}attempt/">
+                <i class="fas fa-plus-circle"></i>
+                Submit new attempt
+            </a>
+        </div>
+
+        <div class="col-6">
+            {% include "components/general/contest_details.html" %}
+        </div>
+        <div class="col-6">
+            {% include "components/teams/team_submission_status.html" %}
+        </div>
+        <div class="col-6">
+            {% include "components/teams/team_members.html" %}
+        </div>
+        <div class="col-12">
+            {% include "components/general/contest_rankings.html" %}
+        </div>
+        <div class="col-12">
+            {% include "components/teams/team_submission_history.html" %}
+        </div>
+    </div>
+{% endblock %}

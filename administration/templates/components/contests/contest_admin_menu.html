@@ -1,0 +1,14 @@
+{% if user.is_superuser %}
+<nav class="navbar navbar-expand nav-pills">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser" aria-controls="navbarContestUser" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+    <div class="collapse navbar-collapse" id="navbarContestUser">
+      <a class="nav-link active" href="{% url 'manager_contests_create' %}">
+          <i class="fas fa-plus-circle"></i>
+        Create Contest
+      </a>
+    </div>
+  </nav>
+{% endif %}

@@ -1,0 +1,58 @@
+<div class="card border rounded shadow-sm mb-4 mt-4">
+    <div class="card-body text-center">
+        <h5 class="car-title mb-2 text-primary">Team List</h5>
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Active</th>
+                    <th>Grade</th>
+                    <th>Time</th>
+                    <th>Memory</th>
+                    <th>Member</th>
+                    <th>Atempts</th>
+                    <th>More</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for team in team_list.teams %}
+                    <tr>
+                        <td>{{ team.id }} </td>
+                        <td>{{ team.name }} </td>
+                        <td>{{ team.active }}</td>
+                        <td>{{ team.grade }}</td>
+                        <td>{{ team.time }} (ms)</td>
+                        <td>{{ team.memory }} (kiB)</td>
+                        <td>
+                            <table>
+                                {% for object in team.members %}
+                                    <tr>
+                                        <td>[{{ object.user.id }}] {{ object.user.profile.number }}
+                                            - {{ object.user.first_name }} {{ object.user.last_name }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                        <td>
+                            <table>
+                                {% for object in team.members %}
+                                    <tr>
+                                        <td>{{ object.nAtempts }}/{{ team.nAtempts }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                        <td>
+                            <a class="btn btn-secondary" href="https://REDIRECT_ME_TO_TEAM_DETAILS">
+                                More
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="card border rounded shadow-sm mb-4 mt-4">
+    <div class="card-body text-center">
+        <h5 class="car-title mb-2 text-primary">Team: {{ team_members.team.name }}</h5>
+        <p class="card-text mb-auto">
+        <table class="table">
+            <tbody>
+            {% for m in team_members.team.members %}
+                <tr>
+                    <td>{{ m.user.username }}</td>
+                    <td>{{ m.user.profile.number }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </p>
+    </div>
+</div>
