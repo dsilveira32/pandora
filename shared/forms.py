@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Atempt, Team, Contest, Test, get_contest_code_path, TeamMember, Profile
+from .models import Attempt, Team, Contest, Test, get_contest_code_path, TeamMember, Profile
 
 
 class DateInputWidget(forms.DateTimeInput):
@@ -11,7 +11,7 @@ class AttemptModelForm(forms.ModelForm):
 	comment = forms.CharField(required=False)
 
 	class Meta:
-		model = Atempt
+		model = Attempt
 		fields = ['file', 'comment']
 
 

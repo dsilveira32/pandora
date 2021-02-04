@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from shared.forms import TeamMemberForm, CreateContestModelForm, TestForm, CreateTestModelForm
-from shared.models import Contest, Test, get_tests_path, Atempt
+from shared.models import Contest, Test, get_tests_path, Attempt
 from contest.routines import *
 from django.db import transaction
 from .context_functions import *
@@ -440,7 +440,7 @@ def extract_grades(request, id):
 		"order by team_name desc"
 
 
-	grades = Atempt.objects.raw(query)
+	grades = Attempt.objects.raw(query)
 
 	writer = csv.writer(response, delimiter=";", dialect="excel")
 
@@ -463,8 +463,8 @@ def extract_grades(request, id):
 def extract_zip(request, id):
 	# get the contest
 	contest_obj = get_object_or_404(Contest, id=id)
-	qs = Atempt.objects.filter(contest=contest_obj).values('team_id').annotate(id = Max('id'))
-	qs2 = Atempt.objects.filter(id__in=qs.values('id'))
+	qs = Attempt.objects.filter(contest=contest_obj).values('team_id').annotate(id = Max('id'))
+	qs2 = Attempt.objects.filter(id__in=qs.values('id'))
 
 	zip_buffer = io.BytesIO()
 

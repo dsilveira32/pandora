@@ -16,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
 from shared.forms import CreateTestModelForm
-from shared.models import Classification, Team, TeamMember, Atempt, SafeExecError, Contest, UserContestDateException
+from shared.models import Classification, Team, TeamMember, Attempt, SafeExecError, Contest, UserContestDateException
 from .utils import *
 
 
@@ -539,11 +539,11 @@ def get_team_attempts(team):
     if not members_ids:
         return None
 
-    return Atempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
+    return Attempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
 
 
 def cleanup_past_attempts(team_obj, attempt_obj):
-    attempts_qs = Atempt.objects.filter(team=team_obj).exclude(id=attempt_obj.id).order_by('-date')
+    attempts_qs = Attempt.objects.filter(team=team_obj).exclude(id=attempt_obj.id).order_by('-date')
     for at in attempts_qs:
         results = at.classification_set.all()
         for res in results:
@@ -617,7 +617,7 @@ def getAllContestAttemptsRanking(contest):
             "                       cpu_time asc"
     # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
 
-    return Atempt.objects.raw(query)
+    return Attempt.objects.raw(query)
 
 
 def getContestTests(contest):

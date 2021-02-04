@@ -171,10 +171,10 @@ class Team(models.Model):
 #	members_ids = self.teammember_set.values_list('user__id', flat=True).distinct()
 #	if not members_ids:
 #		return None
-#	return Atempt.objects.filter(contest=self.contest, user__in=members_ids).order_by('-date')
+#	return Attempt.objects.filter(contest=self.contest, user__in=members_ids).order_by('-date')
 
 
-class Atempt(models.Model):
+class Attempt(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     user = models.ForeignKey(User, default=1, null=False, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, default=1, null=True,
@@ -203,7 +203,7 @@ class SafeExecError(models.Model):
 
 
 class Classification(models.Model):
-    attempt = models.ForeignKey(Atempt, default=1, null=False, on_delete=models.CASCADE)
+    attempt = models.ForeignKey(Attempt, default=1, null=False, on_delete=models.CASCADE)
     test = models.ForeignKey(Test, default=1, null=False, on_delete=models.CASCADE)
     passed = models.BooleanField(null=False, default=False)
     output = models.FileField(blank=True, null=True, max_length=512)
@@ -245,3 +245,6 @@ class ContestTestDataFile(models.Model):
     file_name = models.CharField(max_length=150, blank=False)
     unique_together = ('contest', 'file_name')
 
+class Group(models.Model):
+    name = models.TextField(max_length=50, blank=False)
+    users = models.ManyToManyField(User)

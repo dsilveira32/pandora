@@ -8,6 +8,7 @@ def about_page(request):
 	return render(request, "about.html", {"title": "About"})
 
 
+
 def manage(request):
     return render(request, 'manage.html')
 	

@@ -137,7 +137,7 @@ def ranking_view(request, id):
             "                       cpu_time asc"
     # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
 
-    atempts = Atempt.objects.raw(query)
+    atempts = Attempt.objects.raw(query)
 
     context.update({'atempts': atempts})
     context.update({'title': "Ranking"})
@@ -300,7 +300,7 @@ def attempt_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
     template_name = 'views/user/contest_attempt.html'
-    atempt_obj = get_object_or_404(Atempt, id=attempt_id)
+    atempt_obj = get_object_or_404(Attempt, id=attempt_id)
     contest = atempt_obj.contest
     context = getContestDetailLayoutContext(request, contest)
     team = atempt_obj.team
@@ -346,7 +346,7 @@ def attempt_view(request, id, attempt_id):
     context.update({'general_passed': general_passed})
     context.update({'n_general': n_general})
     context.update({'results': results})
-    context.update({'title': "Atempt Detail"})
+    context.update({'title': "Attempt Detail"})
     context.update({'min_grade': "9"})
     print_variables_debug([
         "Context: " + str(context),

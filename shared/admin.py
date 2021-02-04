@@ -3,16 +3,16 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
 from .models import (
-	Profile,
-	Contest,
-	Test,
-	Atempt,
-	Classification,
-	Team,
-	TeamMember,
-	SafeExecError,
-	UserContestDateException,
-	ContestTestDataFile
+    Profile,
+    Contest,
+    Test,
+    Attempt,
+    Classification,
+    Team,
+    TeamMember,
+    SafeExecError,
+    UserContestDateException,
+    ContestTestDataFile
 	)
 
 
@@ -53,7 +53,7 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Contest)
 admin.site.register(Test)
-admin.site.register(Atempt)
+admin.site.register(Attempt)
 admin.site.register(Classification)
 admin.site.register(Team)
 admin.site.register(TeamMember)

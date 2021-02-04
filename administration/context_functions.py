@@ -159,7 +159,7 @@ def getTeamSubmissionHistoryContext(attempts):
     REQUIRED IN ALL VIEWS THAT EXTEND team_submission_history.html
     Parameters
     ----------
-        attempts : list of Atempt
+        attempts : list of Attempt
     return
     ----------
         team_submission_history
@@ -177,7 +177,7 @@ def getTeamSubmissionStatusContext(attempts):
     REQUIRED IN ALL VIEWS THAT EXTEND team_submission_status.html
     Parameters
     ----------
-        attempts : list of Atempt
+        attempts : list of Attempt
     return
     ----------
        team_submission_status
@@ -209,7 +209,7 @@ def getContestRankingsContext(attempts):
     REQUIRED IN ALL VIEWS THAT EXTEND contest_rankings.html
     Parameters
     ----------
-        attempts : array of Atempt
+        attempts : array of Attempt
     return
     ----------
        contest_rankings
@@ -266,7 +266,7 @@ def getTeamSubmissionDetailsContext(request, contest, attempt):
     ----------
         request
         contest : Contest
-        attempt: Atempt
+        attempt: Attempt
     return
     ----------
         user_has_access
