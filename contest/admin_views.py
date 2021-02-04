@@ -7,8 +7,8 @@ from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import TeamMemberForm, CreateContestModelForm, TestForm
-from .models import Contest, Test, get_tests_path
+from shared.forms import TeamMemberForm, CreateContestModelForm, TestForm, CreateTestModelForm
+from shared.models import Contest, Test, get_tests_path, Atempt
 from .routines import *
 from django.db import transaction
 from .context_functions import *

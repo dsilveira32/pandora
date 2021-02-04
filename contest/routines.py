@@ -15,8 +15,8 @@ import diff_match_patch
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
-from .forms import CreateTestModelForm
-from .models import Classification, Team, TeamMember, Atempt, SafeExecError, Contest, UserContestDateException
+from shared.forms import CreateTestModelForm
+from shared.models import Classification, Team, TeamMember, Atempt, SafeExecError, Contest, UserContestDateException
 from .utils import *
 
 

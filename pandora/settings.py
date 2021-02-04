@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'contest',
+    'administration',
+    'shared',
     'social_django',
     'fontawesome-free'
 ]

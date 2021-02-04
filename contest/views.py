@@ -8,9 +8,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import smart_text
 
-from .forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
+from shared.forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
     ProfileEditForm, UserEditForm
-from .models import Contest, UserContestDateException
+from shared.models import Contest, UserContestDateException
 from .routines import *
 from .context_functions import *
 
