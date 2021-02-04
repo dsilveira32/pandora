@@ -504,7 +504,7 @@ def extract_zip(request, id):
 def admin_contest_home_view(request):
 	template_name = 'views/contests/contest_home.html'
 	context = {}
-	contests = getContests(request)
+	contests = getContestsForUser(request)
 
 
 	context.update(getAdminContestListContext(contests))

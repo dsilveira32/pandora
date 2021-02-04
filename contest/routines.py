@@ -16,7 +16,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
 from shared.forms import CreateTestModelForm
-from shared.models import Classification, Team, TeamMember, Attempt, SafeExecError, Contest, UserContestDateException
+from shared.models import Classification, Team, TeamMember, Attempt, SafeExecError, Contest, UserContestDateException, \
+    Group
 from .utils import *
 
 
@@ -31,7 +32,7 @@ def check_output(command, cwd):
         cwd=cwd
     )
     print("****** RUNING *******")
-    print(cwd+"/"+command)
+    print(cwd + "/" + command)
     print("*********************")
     output = process.communicate()
     ret_code = process.poll()
@@ -290,7 +291,7 @@ def compile(contest, paths):
     output = check_output(compile_cmd, paths['dir'])
     print(output)
     print(output[0][0])
-    if output[0][0] != '': #Output variable correction because the output is like (('', None), 0) not ('', None)
+    if output[0][0] != '':  # Output variable correction because the output is like (('', None), 0) not ('', None)
         return False, output[0]
 
     return True, "Compilation OK"
@@ -570,12 +571,14 @@ def getContestByID(id):
     return get_object_or_404(Contest, id=id)
 
 
-def getContests(request):
-    if checkIfUserIsSuperUser(request):
+def getContestsForUser(request):
+    return Contest.objects.filter(group__users__exact=request.user)
+
+def getContestsForAdmin(request):
+    if request.user.is_superuser:
         return Contest.objects.all()
     else:
-        return Contest.objects.filter(visible=True)
-
+        return getContestsForUser(request)
 
 def getTeamContests(request):
     return TeamMember.objects.select_related('team').filter(user=request.user)
@@ -605,15 +608,15 @@ def getUserTeamFromContest(request, contest):
 
 def getAllContestAttemptsRanking(contest):
     # TODO Make it better
-    query = "SELECT ca.*, maxs.atempts, maxs.team_id FROM (" \
+    query = "SELECT att.*, maxs.attempts, maxs.team_id FROM (" \
             "select max(id) as id," \
-            "count(id) as atempts," \
+            "count(id) as attempts," \
             "team_id from " \
-            "contest_atempt" \
+            "shared_attempt" \
             " where contest_id = " + str(contest.id) + \
             "   group by team_id)" \
-            "       maxs inner join contest_atempt ca on ca.id = maxs.id" \
-            "           order by grade desc, atempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
+            "       maxs inner join shared_attempt att on att.id = maxs.id" \
+            "           order by grade desc, attempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
             "                       cpu_time asc"
     # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
 
@@ -650,8 +653,6 @@ def structureTeamsData(teams):
         for m in t.members:
             m.nAtempts = t.atempts.filter(user=m.user).count()
     return teams
-
-
 
 
 def attemptFormSubmit(request, can_submit, form, contest, team):

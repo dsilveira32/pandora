@@ -124,20 +124,7 @@ def ranking_view(request, id):
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
 
-    # TODO Make it better
-    query = "SELECT ca.*, maxs.atempts, maxs.team_id FROM (" \
-            "select max(id) as id," \
-            "count(id) as atempts," \
-            "team_id from " \
-            "contest_atempt" \
-            " where contest_id = " + str(contest_obj.id) + \
-            "   group by team_id)" \
-            "       maxs inner join contest_atempt ca on ca.id = maxs.id" \
-            "           order by grade desc, atempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
-            "                       cpu_time asc"
-    # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
-
-    atempts = Attempt.objects.raw(query)
+    atempts = getAllContestAttemptsRanking(contest_obj)
 
     context.update({'atempts': atempts})
     context.update({'title': "Ranking"})
@@ -152,7 +139,7 @@ def team_create_view(request, id):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'contest/contest_form.html'
+    template_name = 'components/contests/contest_form.html'
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
 
@@ -194,7 +181,7 @@ def team_join_view(request, id):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'contest/team_join.html'
+    template_name = 'components/contests/teams/team_join.html'
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
 
@@ -466,7 +453,7 @@ def user_contest_home_view(request):
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
                }
-    contests = getContests(request)
+    contests = getContestsForUser(request)
     context.update(getContestListContext(contests))
 
     return render(request, template_name, context)

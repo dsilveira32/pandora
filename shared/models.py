@@ -248,3 +248,4 @@ class ContestTestDataFile(models.Model):
 class Group(models.Model):
     name = models.TextField(max_length=50, blank=False)
     users = models.ManyToManyField(User)
+    contests = models.ManyToManyField(Contest)
