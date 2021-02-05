@@ -107,6 +107,11 @@ class Contest(models.Model):
         return "/contests/%i/" % self.id
     # return f"/contests/{self.id}/"
 
+    def getTeams(self):
+        return Team.objects.filter(contest=self).all()
+
+    def getUserTeam(self, user):
+        return Team.objects.filter(contest=self, teammember__user=user).first()
 
 # def checkAttempts(self, request, attempts):
 #	if self.max_submitions > 0:
@@ -147,8 +152,12 @@ class Test(models.Model):
 class Team(models.Model):
     name = models.SlugField(max_length=50, blank=False)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-
+    join_code = models.SlugField(default=0, blank=False)
+    registration_open = models.BooleanField(null = False, default=False)
     # image  = models.ImageField(upload_to='images/', blank=True, null=True)
+
+    def getJoinCode(self):
+        return self.join_code
 
     def _get_active(self):
         "Returns True if the team is active"
@@ -163,6 +172,9 @@ class Team(models.Model):
 
     def get_absolute_url(self):
         return f"/teams/{self.id}/"
+
+    def getMembers(self):
+        return TeamMember.objects.filter(team=self).all()
 
 
 # TODO: Its possible to make this inside the Model?
@@ -246,6 +258,6 @@ class ContestTestDataFile(models.Model):
     unique_together = ('contest', 'file_name')
 
 class Group(models.Model):
-    name = models.TextField(max_length=50, blank=False)
+    name = models.CharField(max_length=50, blank=False)
     users = models.ManyToManyField(User)
     contests = models.ManyToManyField(Contest)

@@ -75,24 +75,22 @@ def getContestDetailsContext(contest):
 
 # For contest_detail_layout.html
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
-def getContestDetailLayoutContext(request, contest):
+def getContestDetailLayoutContext(contest):
     """Context for contest_detail_layout.html
     REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
     Parameters
     ----------
-        request
         contest : Contest
+
     return
     ----------
-        contest_details
+        contest_detail_layout
     """
     context = {
         'contest_detail_layout': {
-            'contest': contest,
-            'user_has_access': checkIfUserHasAccessToContest(request, contest),
+            'contest': contest
         }
     }
-    context.update(getContestClosedErrorContext(contest))
     return context
 
 
@@ -344,5 +342,47 @@ def getTestCreationContext(contest, form):
         'test_creation': {
             'contest': contest,
             'form': form
+        }
+    }
+
+
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_submit_attempt_button.html
+def getContestSubmitAttemptButton(contest, team):
+    """Context for test_creation.html
+    REQUIRED IN ALL VIEWS THAT EXTEND contest_submit_attempt_button.html
+    Parameters
+    ----------
+        contest : Contest
+        team: Team
+    return
+    ----------
+        contest_submit_attempt_button
+    """
+    return {
+        'contest_submit_attempt_button': {
+            'team': team,
+            'contest': contest
+        }
+    }
+
+
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_team_join.html
+def getContestTeamJoinContext(contest, teams, form):
+    """Context for contest_team_join.html
+    REQUIRED IN ALL VIEWS THAT EXTEND contest_team_join.html
+    Parameters
+    ----------
+        contest : Contest
+        teams: Teams
+        form: TeamMemberForm
+    return
+    ----------
+        contest_team_join
+    """
+    return {
+        'contest_team_join': {
+            'contest': contest,
+            'form': form,
+            'teams': teams
         }
     }

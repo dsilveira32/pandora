@@ -64,7 +64,7 @@ class TeamMemberApprovalForm(forms.Form):
 	team_remove = forms.CharField(required=False)
 
 
-class TeamMemberForm(forms.Form):
+class TeamJoinForm(forms.Form):
 	team_id = forms.CharField(required=True)
 
 

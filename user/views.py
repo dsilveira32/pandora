@@ -1,5 +1,6 @@
 import sys
 
+from coolname import generate_slug
 from django.contrib import messages
 from django.contrib.auth import logout  # last 2 imported
 from django.contrib.auth.decorators import login_required
@@ -8,8 +9,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import smart_text
 
-from shared.forms import AttemptModelForm, TeamModelForm, TeamMemberForm, TeamMemberApprovalForm, \
-    ProfileEditForm, UserEditForm
+from shared.forms import AttemptModelForm, TeamModelForm, TeamMemberApprovalForm, \
+    ProfileEditForm, UserEditForm, TeamJoinForm
 from shared.models import Contest, UserContestDateException
 from contest.routines import *
 from .context_functions import *
@@ -289,7 +290,7 @@ def attempt_view(request, id, attempt_id):
     template_name = 'views/contests/contest_attempt.html'
     atempt_obj = get_object_or_404(Attempt, id=attempt_id)
     contest = atempt_obj.contest
-    context = getContestDetailLayoutContext(request, contest)
+    context = getContestDetailLayoutContext(contest)
     team = atempt_obj.team
 
     # check if request.user is a member of atempt team OR admin
@@ -347,7 +348,7 @@ def team_detail_view(request, id):
     checkUserProfileInRequest(request)
     template_name = 'views/contests/teams/team.html'
     contest = getContestByID(id)
-    context = getContestDetailLayoutContext(request, contest)
+    context = getContestDetailLayoutContext(contest)
     # qs = TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
     team = getUserTeamFromContest(request, contest)
     if not team:
@@ -438,7 +439,7 @@ def contest_attempt_form_view(request, id):
     ])
     if submitted:
         return redirect(submittedForm.get_absolute_url())
-    context.update(getContestDetailLayoutContext(request, contest))
+    context.update(getContestDetailLayoutContext(contest))
     context.update(getContestFormContext(contest, form))
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
@@ -462,24 +463,91 @@ def user_contest_home_view(request):
 # CONTEST VIEW
 @login_required
 def user_contest_detail_dashboard_view(request, id):
-    checkUserProfileInRequest(request)
+    #checkUserProfileInRequest(request)
+    context = {}
     template_name = 'views/contests/contest.html'
 
     # Get required data
     contest = getContestByID(id)
-    has_access = checkIfUserHasAccessToContest(request, contest)
+    #has_access = checkIfUserHasAccessToContest(request, contest) # TODO: is necessary?
     team = getUserTeamFromContest(request, contest)
-    team_attempts = get_team_attempts(team)
-    ranked_attempts = getAllContestAttemptsRanking(contest)
+
+    if team:
+        team_attempts = get_team_attempts(team)
+        context.update(getTeamSubmissionStatusContext(team_attempts))
+        context.update(getTeamSubmissionHistoryContext(team_attempts))
+
+        ranked_attempts = getAllContestAttemptsRanking(contest)
+        context.update(getContestRankingsContext(ranked_attempts))
+
 
     # Update context
-    context = {
-        'user_has_access': has_access
-    }
-    context.update(getContestDetailLayoutContext(request, contest))
+    context.update(getContestDetailLayoutContext(contest))
     context.update(getTeamMembersContext(team))
-    context.update(getTeamSubmissionHistoryContext(team_attempts))
     context.update(getContestDetailsContext(contest))
-    context.update(getContestRankingsContext(ranked_attempts))
-    context.update(getTeamSubmissionStatusContext(team_attempts))
+    context.update(getContestSubmitAttemptButton(contest, team))
+    return render(request, template_name, context)
+
+# TEAM JOIN VIEW
+@login_required
+def user_contest_team_join_view(request, id):
+    #if not request.user.profile.number:
+    #    return redirect('complete_profile')
+    #if not request.user.profile.valid:
+    #    return redirect('not_active')
+
+    context = {}
+    template_name = 'views/contests/teams/team_join.html'
+
+    contest = getContestByID(id)
+    teams = contest.getTeams()
+    #generate_slug()
+    # TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
+
+    """
+    if team:
+    return redirect(os.path.join(contest.get_absolute_url(), 'my_team/'))
+    
+    # in case individual submition - Create a team with the username with only one member
+    if contest.max_team_members == 1:
+        t = Team(name=request.user.username, contest=contest)
+        t.save()
+        tm = TeamMember(team=t, user=request.user, approved=True)
+        tm.save()
+        return redirect(os.path.join(contest.get_absolute_url(), 'my_team/'))
+
+    # get all teams active in this contenst
+    teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
+
+    # set the members details and the amount of new member that can join
+    for obj in teams:
+        obj.members = TeamMember.objects.filter(team=obj)
+        obj.room_left = obj.contest.max_team_members - obj.members.count()
+
+    # update the contenxt to send to the team_join.html
+    context.update({'teams': teams})
+
+    # no idea what it does
+    form = TeamMemberForm(request.POST or None)
+
+    if form.is_valid():
+        team_id = form.cleaned_data.get("team_id")
+        team_member = TeamMember()
+
+        team = Team.objects.get(id=team_id)
+
+        qs = team.teammember_set.all()
+        if qs.count() > team.contest.max_team_members:
+            messages.error(request, "Error! This team can not accept new members")
+        else:
+            team_member.team = team
+            team_member.user = request.user
+            team_member.approved = False
+            team_member.save()
+            return redirect(os.path.join(contest.get_absolute_url(), 'my_team/'))
+        
+    """
+    form = TeamJoinForm()
+    context.update(getContestDetailLayoutContext(contest))
+    context.update(getContestTeamJoinContext(contest, teams, form))
     return render(request, template_name, context)

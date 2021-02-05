@@ -17,11 +17,9 @@
         </ol>
     </nav>
     <div class="container-fluid">
-        {% if contest_detail_layout.user_has_access %}
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h5>{{ contest_detail_layout.contest.short_name }}
-                    - {{ contest_detail_layout.contest.title }}</h5>
-            </div>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h5>{{ contest_detail_layout.contest.short_name }} - {{ contest_detail_layout.contest.title }}</h5>
+        </div>
             {% comment %}
         <!--
         <b>Contest Options</b>
@@ -55,11 +53,8 @@
         <hr>
         -->
         {% endcomment %}
-            {% block contestDetailContent %}
-            {% endblock %}
-        {% else %}
-            {% include "components/general/contest_closed_error.html" %}
-        {% endif %}
+        {% block contestDetailContent %}
+        {% endblock %}
     </div>
 
 {% endblock %}
