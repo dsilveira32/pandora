@@ -349,15 +349,16 @@ def admin_view_old(request, id):
 			m.nAtempts = t.atempts.filter(user = m.user).count()
 
 	context.update({'teams': teams})
-
+	"""
 	form = TeamMemberForm(request.POST or None)
 
 	if form.is_valid():
 		t_id = form.cleaned_data.get("team_id")
 		# verificar codigo team join e team status
 		return redirect(os.path.join(contest_obj.get_absolute_url(), 'admin-view/team/' + str(t_id) + '/status/'))
-
+	
 	context.update({'form': form})
+	"""
 	#
 	# bug = ["INFO IN THE HTML:", "***************TEAMS***********"]
 	#
@@ -382,9 +383,9 @@ def admin_view_teams_status(request, c_id, t_id):
 	contest_obj = get_object_or_404(Contest, id=c_id)
 	context = {'contest': contest_obj}
 
-	team_obj, members = get_team_members(request, contest_obj.id, t_id)
-
-	atempts = get_team_attempts(team_obj)
+	team_obj = contest_obj.getUserTeam(request.user)
+	members = team_obj.getUsers()
+	atempts = team_obj.getAttempts()
 
 	if atempts:
 		context.update({'number_of_submitions': atempts.count()})
@@ -519,7 +520,7 @@ def admin_contest_detail_dashboard_view(request, id):
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For admin_team_list.html
-	teams = structureTeamsData(getContestTeams(contest))
+	teams = structureTeamsData(contest.getTeams())
 	context.update(getTeamListContext(teams))
 
 	return render(request, template_name, context)
@@ -530,7 +531,7 @@ def admin_contest_detail_tests_view(request, id):
 	context = {}
 
 	contest = getContestByID(id)
-	contest_tests = getContestTests(contest)
+	contest_tests = contest.getTests()
 
 	context.update(getAdminContestDetailLayoutContext(contest))
 
@@ -718,7 +719,7 @@ def admin_contest_detail_teams_view(request, id):
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For admin_team_list.html
-	teams = structureTeamsData(getContestTeams(contest))
+	teams = structureTeamsData(contest.getTeams())
 	context.update(getTeamListContext(teams))
 
 	return render(request, template_name, context)
@@ -744,7 +745,7 @@ def admin_group_create_view(request):
 	template_name = 'views/groups/admin_groups_create.html'
 	context = {}
 	group_form = GroupCreateForm(request.POST or None)
-	if True:
+	if group_form.is_valid():
 		group_form.is_valid()
 		group = group_form.save(commit=False)
 		group.save()
