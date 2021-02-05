@@ -9,7 +9,6 @@ from .models import (
     Attempt,
     Classification,
     Team,
-    TeamMember,
     SafeExecError,
     UserContestDateException,
     ContestTestDataFile,
@@ -57,7 +56,6 @@ admin.site.register(Test)
 admin.site.register(Attempt)
 admin.site.register(Classification)
 admin.site.register(Team)
-admin.site.register(TeamMember)
 admin.site.register(SafeExecError)
 admin.site.register(UserContestDateException)
 admin.site.register(ContestTestDataFile)

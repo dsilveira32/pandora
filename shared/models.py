@@ -103,15 +103,33 @@ class Contest(models.Model):
 
     # objects = ContestManager()
 
-    def get_absolute_url(self):
-        return "/contests/%i/" % self.id
-    # return f"/contests/{self.id}/"
+    def getUserTeam(self, user):
+        return self.team_set.filter(contest=self, users__exact=user).first()
+
+    def getTestDetails(self):
+        return self.cpu, self.mem, self.space, self.minuid, self.maxuid, self.core, self.nproc, self.fsize, self.stack, self.clock
+
+    def getTests(self):
+        return self.test_set.all()
 
     def getTeams(self):
-        return Team.objects.filter(contest=self).all()
+        return self.team_set.all()
 
-    def getUserTeam(self, user):
-        return Team.objects.filter(contest=self, teammember__user=user).first()
+    def checkAttempts(self, user):
+        team = self.getUserTeam(user)
+        if not team:
+            return False
+        attempts = team.getAttempts()
+        if self.max_submitions > 0:
+            if attempts and attempts.count() >= self.max_submitions:
+                return False
+        return True
+
+    def userHasTeam(self, user):
+        team = self.getUserTeam(user)
+        return not not team
+
+
 
 # def checkAttempts(self, request, attempts):
 #	if self.max_submitions > 0:
@@ -143,39 +161,43 @@ class Test(models.Model):
     space = models.PositiveIntegerField(default=0)  # <kbytes>            Default: 0 kbyte(s)
     core = models.PositiveIntegerField(default=0)  # <kbytes>            Default: 0 kbyte(s)
     nproc = models.PositiveIntegerField(default=0)  # <number>            Default: 0 proccess(es)
-    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>            Default: 8192 kbyte(s)
+    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>            Dfault: 8192 kbyte(s)
     stack = models.PositiveIntegerField(default=8192)  # <kbytes>            Default: 8192 kbyte(s)
     clock = models.PositiveIntegerField(default=10)  # <seconds>           Wall clock timeout (default: 10)
     check_leak = models.BooleanField(null=False, default=False)
+
+    def getContest(self):
+        return self.contest
+
+    def getDetails(self):
+        # TODO: Check the minuid and maxuid
+        return self.cpu, self.mem, self.space, self.getContest().minuid, self.getContest().maxuid, self.core, self.nproc, self.fsize, self.stack, self.clock
 
 
 class Team(models.Model):
     name = models.SlugField(max_length=50, blank=False)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-    join_code = models.SlugField(default=0, blank=False)
-    registration_open = models.BooleanField(null = False, default=False)
+    join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True)
+    users = models.ManyToManyField(User)
     # image  = models.ImageField(upload_to='images/', blank=True, null=True)
+
+    def getName(self):
+        return self.name
+
+    def getContest(self):
+        return self.contest
+
+    def getUsers(self):
+        return self.users.all()
 
     def getJoinCode(self):
         return self.join_code
 
-    def _get_active(self):
-        "Returns True if the team is active"
-        n_members = self.teammember_set.filter(approved=True).count()
-        n_members_not_approved = self.teammember_set.filter(approved=False).count()
-        return n_members_not_approved == 0 and n_members >= self.contest.min_team_members and n_members <= self.contest.max_team_members
-
-    active = property(_get_active)
+    def getAttempts(self):
+        return Attempt.objects.filter(team=self).order_by('-date')
 
     class Meta:
         unique_together = ('name', 'contest')
-
-    def get_absolute_url(self):
-        return f"/teams/{self.id}/"
-
-    def getMembers(self):
-        return TeamMember.objects.filter(team=self).all()
-
 
 # TODO: Its possible to make this inside the Model?
 # get the team attempts
@@ -229,12 +251,14 @@ class Classification(models.Model):
     result = models.IntegerField(null=False, default=0)
     diff = models.TextField(default='')
 
-
+"""
 class TeamMember(models.Model):
     team = models.ForeignKey(Team, default=1, null=False, on_delete=models.CASCADE)
     user = models.ForeignKey(User, default=1, null=False, on_delete=models.CASCADE)
     approved = models.BooleanField(null=False, default=False, blank=True)
     unique_together = ('team', 'user')
+
+"""
 
 
 # class TeamManager(models.Manager):
@@ -261,3 +285,20 @@ class Group(models.Model):
     name = models.CharField(max_length=50, blank=False)
     users = models.ManyToManyField(User)
     contests = models.ManyToManyField(Contest)
+    join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True, default="replace_me")
+    registration_open = models.BooleanField(null=False, default=False)
+
+    def getName(self):
+        return self.name
+
+    def getUsers(self):
+        return self.users.all()
+
+    def getContests(self):
+        return self.contests.all()
+
+    def getJoinCode(self):
+        return self.join_code
+
+    def isRegistrationOpen(self):
+        return self.registration_open

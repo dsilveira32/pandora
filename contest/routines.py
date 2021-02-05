@@ -16,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
 from shared.forms import CreateTestModelForm
-from shared.models import Classification, Team, TeamMember, Attempt, SafeExecError, Contest, UserContestDateException, \
+from shared.models import Classification, Team, Attempt, SafeExecError, Contest, UserContestDateException, \
     Group, Profile
 from .utils import *
 
@@ -39,8 +39,6 @@ def check_output(command, cwd):
     return output, ret_code
 
 
-def get_test_contest_details(t_c):
-    return t_c.cpu, t_c.mem, t_c.space, t_c.minuid, t_c.maxuid, t_c.core, t_c.nproc, t_c.fsize, t_c.stack, t_c.clock
 
 
 # handle functions
@@ -300,9 +298,9 @@ def compile(contest, paths):
 # build the execution command
 def run_cmd(test, paths, data_files, test_idx):
     if test.override_exec_options:
-        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test)
+        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = test.getDetails()
     else:
-        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = get_test_contest_details(test.contest)
+        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = test.getContest().getTestDetails()
 
     if test.run_arguments:
         run_args = str(test.run_arguments)
@@ -503,46 +501,6 @@ def handle_uploaded_file(atempt, f, contest):
     cleanup_past_attempts(atempt.team, atempt)
 
 
-# get functions
-def get_team_members(request, contest_id, team_id):
-    print_variable_debug("Request: " + str(request))
-    qs = TeamMember.objects.filter(team__contest=contest_id).filter(user__teammember__team_id=team_id).first()
-
-    print_variables_debug(['qs:', qs])
-
-    if not qs:
-        return Team.objects.none(), TeamMember.objects.none()
-
-    team_obj = qs.team
-    members = team_obj.teammember_set.all()
-
-    return team_obj, members
-
-
-# get functions
-def get_user_team(request, contest_id):
-    qs = TeamMember.objects.filter(team__contest=contest_id, user=request.user).first()
-
-    # print_variables_debug(['qs:', qs])
-
-    if not qs:
-        return Team.objects.none(), TeamMember.objects.none()
-
-    team_obj = qs.team
-    members = team_obj.teammember_set.all()
-
-    return team_obj, members
-
-
-# get the team attempts
-def get_team_attempts(team):
-    members_ids = team.teammember_set.values_list('user__id', flat=True).distinct()
-    if not members_ids:
-        return None
-
-    return Attempt.objects.filter(contest=team.contest, user__in=members_ids).order_by('-date')
-
-
 def cleanup_past_attempts(team_obj, attempt_obj):
     attempts_qs = Attempt.objects.filter(team=team_obj).exclude(id=attempt_obj.id).order_by('-date')
     for at in attempts_qs:
@@ -582,10 +540,6 @@ def getContestsForAdmin(request):
         return getContestsForUser(request)
 
 
-def getTeamContests(request):
-    return TeamMember.objects.select_related('team').filter(user=request.user)
-
-
 def checkUserProfileInRequest(request):
     if not request.user.profile.number:
         return redirect('complete_profile')
@@ -600,12 +554,6 @@ def checkIfUserHasAccessToContest(request, contest):
         return False
     else:
         return True
-
-
-def getUserTeamFromContest(request, contest):
-    team, members = get_user_team(request, contest.id)
-    team.members = members
-    return team
 
 
 def getAllContestAttemptsRanking(contest):
@@ -625,12 +573,6 @@ def getAllContestAttemptsRanking(contest):
     return Attempt.objects.raw(query)
 
 
-def getContestTests(contest):
-    return contest.test_set.all()
-
-
-def getContestTeams(contest):
-    return contest.team_set.all()
 
 
 def structureTeamsData(teams):
@@ -675,33 +617,10 @@ def attemptFormSubmit(request, can_submit, form, contest, team):
     return False, None
 
 
-def checkContestAttempts(request, contest, attempts):
-    if contest.max_submitions > 0:
-        if attempts and attempts.count() >= contest.max_submitions:
-            messages.error(request, "You have reached the maximum number of submissions for this contest.")
-            return False
-    return True
 
 
-def checkIsContestOpen(request, contest):
-    if not contest.is_open:
-        messages.error(request, "This contest is not active.")
-        return False
-    return True
 
 
-def UserHaveTeam(user, contest, team):
-    if not team:
-        if contest.max_team_members == 1:
-            team = Team(name=user.username, contest=contest)
-            team.save()
-            tm = TeamMember(team=team, user=user, approved=True)
-            tm.save()
-            team.members = team.teammember_set.all()
-            return True
-        else:
-            return False
-    return True
 
 
 def checkUsersDateExceptions(request, contest):

@@ -470,10 +470,10 @@ def user_contest_detail_dashboard_view(request, id):
     # Get required data
     contest = getContestByID(id)
     #has_access = checkIfUserHasAccessToContest(request, contest) # TODO: is necessary?
-    team = getUserTeamFromContest(request, contest)
+    team = contest.getUserTeam(request.user)
 
     if team:
-        team_attempts = get_team_attempts(team)
+        team_attempts = team.getAttempts()
         context.update(getTeamSubmissionStatusContext(team_attempts))
         context.update(getTeamSubmissionHistoryContext(team_attempts))
 
