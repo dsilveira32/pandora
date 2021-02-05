@@ -221,10 +221,10 @@ def getContestRankingsContext(attempts):
     }
 
 
-# For test_chooser.html
+# For admin_test_chooser.html
 def getTestChooserContext(tests):
-    """Context for test_chooser.html
-    REQUIRED IN ALL VIEWS THAT EXTEND test_chooser.html
+    """Context for admin_test_chooser.html
+    REQUIRED IN ALL VIEWS THAT EXTEND admin_test_chooser.html
     Parameters
     ----------
         tests : array of Test
@@ -239,10 +239,10 @@ def getTestChooserContext(tests):
     }
 
 
-# For team_list.html
+# For admin_team_list.html
 def getTeamListContext(teams):
-    """Context for team_list.html
-    REQUIRED IN ALL VIEWS THAT EXTEND team_list.html
+    """Context for admin_team_list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND admin_team_list.html
     Parameters
     ----------
         teams : array of Team
@@ -327,11 +327,11 @@ def getContestDetailTestsContext(contest, form):
     return context
 
 
-# For test_creation.html
-# REQUIRED IN ALL VIEWS THAT EXTEND test_creation.html
+# For admin_test_creation.html
+# REQUIRED IN ALL VIEWS THAT EXTEND admin_test_creation.html
 def getTestCreationContext(contest, form):
-    """Context for test_creation.html
-    REQUIRED IN ALL VIEWS THAT EXTEND test_creation.html
+    """Context for admin_test_creation.html
+    REQUIRED IN ALL VIEWS THAT EXTEND admin_test_creation.html
     Parameters
     ----------
         contest : Contest
@@ -343,6 +343,58 @@ def getTestCreationContext(contest, form):
     return {
         'test_creation': {
             'contest': contest,
+            'form': form
+        }
+    }
+
+
+# For admin_group_detail_layout.html
+def getAdminGroupDetailLayoutContext(group):
+    """Context for admin_group_detail_layout.html
+       REQUIRED IN ALL VIEWS THAT INCLUDE admin_group_detail_layout.html
+       Parameters
+       ----------
+           group : Group
+       """
+    return {
+        'admin_group_detail_layout': {
+            'group': group
+        }
+    }
+
+
+# For admin_group_list.html
+def getAdminGroupListContext(groups):
+    """Context for admin_group_list.html
+       REQUIRED IN ALL VIEWS THAT INCLUDE admin_group_list.html
+       Parameters
+       ----------
+           group : list of Group
+       """
+    return {
+        'admin_group_list': {
+            'groups': groups
+        }
+    }
+
+# For admin_group_users_list.html
+def getAdminGroupUserListContext(user_profiles):
+    """Context for admin_group_users_list.html
+           REQUIRED IN ALL VIEWS THAT INCLUDE admin_group_users_list.html
+           Parameters
+           ----------
+               user_profiles : list of Profile
+           """
+    return {
+        'admin_group_users_list': {
+            'user_profiles': user_profiles
+        }
+    }
+
+# For admin_create_group_form.html
+def getAdminCreateGroupFormContext(form):
+    return {
+        'admin_create_group_form': {
             'form': form
         }
     }

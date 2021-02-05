@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Attempt, Team, Contest, Test, get_contest_code_path, TeamMember, Profile
+from .models import Attempt, Team, Contest, Test, get_contest_code_path, TeamMember, Profile, Group
 
 
 class DateInputWidget(forms.DateTimeInput):
@@ -78,3 +78,25 @@ class TeamModelForm(forms.ModelForm):
 
 class TestForm(forms.Form):
 	pass
+
+
+
+class GroupCreateForm(forms.ModelForm):
+	name = forms.CharField(required=True, label='Group Name')
+	# TODO: Find a way to make these checkbox selects scrollable
+	# contests = forms.ModelMultipleChoiceField(required=False, label='Contests', queryset=Contest.objects.all(), widget=forms.CheckboxSelectMultiple)
+
+	class Meta:
+		model = Group
+		fields = ['name']
+
+
+# CUSTOM FIELDS
+
+class ContestsModelChoiceField(forms.ModelChoiceField):
+	def label_from_instance(self, contest):
+		return contest.short_name
+
+class UsersModelChoiceField(forms.ModelChoiceField):
+	def label_from_instance(self, user):
+		return "" + user.first_name + " " + user.last_name
