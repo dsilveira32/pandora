@@ -638,13 +638,13 @@ def structureTeamsData(teams):
         #		t.members = TeamMember.objects.filter(team=t)
         t.members = t.teammember_set.all()
         t.nMembers = t.members.count()
-        t.atempts = t.atempt_set.all()
-        if t.atempts:
-            t.lastAtempt = t.atempts.latest('id')
+        t.attempts = t.attempt_set.all()
+        if t.attempts:
+            t.lastAtempt = t.attempts.latest('id')
             t.grade = t.lastAtempt.grade
             t.time = t.lastAtempt.time_benchmark
             t.memory = t.lastAtempt.memory_benchmark
-            t.nAtempts = t.atempts.count()
+            t.nAtempts = t.attempts.count()
         else:
             t.lastAtempt = None
             t.grade = 0
@@ -653,7 +653,7 @@ def structureTeamsData(teams):
             t.nAtempts = 0
 
         for m in t.members:
-            m.nAtempts = t.atempts.filter(user=m.user).count()
+            m.nAtempts = t.attempts.filter(user=m.user).count()
     return teams
 
 
