@@ -1,5 +1,5 @@
-{% if team %}
-    <a class="btn btn-primary w-100 py-3" href="">
+{% if contest_submit_attempt_button.team %}
+    <a class="btn btn-primary w-100 py-3" href="{% url 'contest_attempt_form_view' contest_submit_attempt_button.contest.id %}">
         <i class="fas fa-plus-circle"></i>
         Submit new attempt
     </a>

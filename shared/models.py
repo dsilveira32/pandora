@@ -94,11 +94,14 @@ class Contest(models.Model):
     clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
     chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
 
-    def is_open(self):
-        "Returns true if the contest is on going."
+    def isOpen(self):
+        print(1)
+        """Returns true if the contest is on going."""
         from django.utils import timezone
         if timezone.now() < self.end_date and timezone.now() > self.start_date:
+            print('true')
             return True
+        print('false')
         return False
 
     # objects = ContestManager()

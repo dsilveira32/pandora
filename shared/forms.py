@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+
+from contest.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, get_contest_code_path, Profile, Group
 
 
@@ -9,10 +11,27 @@ class DateInputWidget(forms.DateTimeInput):
 
 class AttemptModelForm(forms.ModelForm):
 	comment = forms.CharField(required=False)
-
 	class Meta:
 		model = Attempt
 		fields = ['file', 'comment']
+
+	def submit(self, user, can_submit, contest, team):
+		if can_submit and self.is_valid():
+			obj = self.save(commit=False)
+			obj.user = user
+			obj.contest = contest
+			obj.team = team
+			obj.save()
+			print_variables_debug([
+				"Object: " + str(obj),
+				"Object file: " + str(obj.file),
+				"Object file path: " + str(obj.file.path),
+				"Contest object: " + str(contest)
+			])
+			return True, obj
+		return False, None
+
+
 
 
 class CreateContestModelForm(forms.ModelForm):

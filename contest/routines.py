@@ -246,6 +246,82 @@ def check_out_files(f, contest, files_max_length):
     return []
 
 
+def handle_uploaded_file(atempt, f, contest):
+    paths = extract(f)
+    atempt.time_benchmark = 0
+    atempt.memory_benchmark = 0
+    atempt.cpu_time = 0
+    atempt.elapsed_time = 0
+    atempt.grade = 0
+
+    compile_error, atempt.error_description = compile(contest, paths)
+    atempt.compile_error = not compile_error
+    atempt.save()
+
+    if atempt.compile_error:
+        return  # if compilation errors or warnings dont bother with running the tests
+
+    atempt.static_analysis = static_analysis(paths)
+
+    test_set = contest.test_set.all()
+    n_tests = test_set.count()
+    mandatory_failed = False
+    pct = 0
+
+    timeouts = 0
+
+    # copy data files to the same path
+    data_files = contest.contesttestdatafile_set.all()
+    for dfile in data_files:
+        data_file_base = os.path.basename(dfile.data_file.path)
+        dfile.user_copy = os.path.join(paths['dir'], data_file_base)
+        copyfile(dfile.data_file.path, dfile.user_copy)
+
+    timeouts = 0
+    i = 0
+    for test in test_set:
+        record = Classification()
+        record.attempt = atempt
+        record.test = test
+        run_test(record, paths, data_files, i)
+        record.passed = record.result == 0
+        if not record.passed and test.mandatory:
+            mandatory_failed = True
+
+        if contest.automatic_weight:
+            test.weight_pct = round(100 / n_tests, 2)
+            test.save()
+
+        if record.result == 2:  # timeout
+            timeouts = timeouts + 1
+            if timeouts == 2:
+                record.result = 4
+                record.save()
+                break
+
+        if record.passed:
+            pct += test.weight_pct
+            atempt.time_benchmark += record.execution_time
+            atempt.memory_benchmark += record.memory_usage
+            atempt.cpu_time += record.execution_time
+            atempt.elapsed_time += record.execution_time
+
+        record.save()
+        i = i + 1
+
+    atempt.grade = (round(pct / 100 * contest.max_classification, 0), 0)[mandatory_failed]
+    atempt.save()
+
+    if os.path.isfile(os.path.join(paths['dir'], paths['obj'])):
+        os.remove(os.path.join(paths['dir'], paths['obj']))
+
+    # remove data files from user directory
+    for dfile in data_files:
+        if os.path.isfile(dfile.user_copy):
+            os.remove(dfile.user_copy)
+
+    cleanup_past_attempts(atempt.team, atempt)
+
 def create_test(request, in_files, out_files, contest):
     weight = int(len(in_files))
     benchmark = False
@@ -599,22 +675,7 @@ def structureTeamsData(teams):
     return teams
 
 
-def attemptFormSubmit(request, can_submit, form, contest, team):
-    if can_submit and form.is_valid():
-        obj = form.save(commit=False)
-        obj.user = request.user
-        obj.contest = contest
-        obj.team = team
-        obj.save()
-        print_variables_debug([
-            "Object: " + str(obj),
-            "Object file: " + str(obj.file),
-            "Object file path: " + str(obj.file.path),
-            "Contest object: " + str(contest)
-        ])
-        handle_uploaded_file(obj, obj.file, contest)
-        return True, obj
-    return False, None
+
 
 
 

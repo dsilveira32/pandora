@@ -282,66 +282,6 @@ def home_view_old(request):
 #         NEW VIEWS         #
 #############################
 
-# ATTEMPT PROCESS
-@login_required
-def attempt_view(request, id, attempt_id):
-    print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
-    checkUserProfileInRequest(request)
-    template_name = 'views/contests/contest_attempt.html'
-    atempt_obj = get_object_or_404(Attempt, id=attempt_id)
-    contest = atempt_obj.contest
-    context = getContestDetailLayoutContext(contest)
-    team = atempt_obj.team
-
-    # check if request.user is a member of atempt team OR admin
-    if not team.teammember_set.filter(user=request.user, approved=True) and not request.user.is_superuser:
-        raise Http404
-
-    results = atempt_obj.classification_set.all()
-    n_tests = contest.test_set.count()
-    n_mandatory = contest.test_set.filter(mandatory=True).count()
-    n_general = n_tests - n_mandatory
-    n_passed = atempt_obj.classification_set.filter(passed=True).count()
-    mandatory_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=True).count()
-    general_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=False).count()
-
-    #	print('number of results ' + str(results.count()))
-    #	print('number of tests ' + str(n_tests))
-    #	print('number of mandatory tests ' + str(n_mandatory))
-    #	print('number of general tests ' + str(n_general))
-    #	print('number of general passed tests ' + str(general_passed))
-    #	print('number of mandatory passed tests ' + str(mandatory_passed))
-
-    for res in results:
-        res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
-                                         errors='strict')
-        if res.output and os.path.isfile(res.output.path):
-            res.obtained_output = smart_text(res.output.read(), encoding='utf-8', strings_only=False, errors='strict')
-        else:
-            res.obtained_output = ''
-
-        res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
-                               errors='strict')
-    # res.diff = ' '.join(map(str, res.diff))
-    context.update({'team': team})
-    context.update({'team_members': team.teammember_set.all()})
-    context.update({'atempt': atempt_obj})
-    context.update({'maxsize': 2147483647})
-    context.update({'n_passed': n_passed})
-    context.update({'n_total': n_tests})
-    context.update({'mandatory_passed': mandatory_passed})
-    context.update({'mandatory_total': n_mandatory})
-    context.update({'general_passed': general_passed})
-    context.update({'n_general': n_general})
-    context.update({'results': results})
-    context.update({'title': "Attempt Detail"})
-    context.update({'min_grade': "9"})
-    print_variables_debug([
-        "Context: " + str(context),
-    ])
-    return render(request, template_name, context)
-
-
 # TEAM DETAIL
 @login_required
 def team_detail_view(request, id):
@@ -398,52 +338,100 @@ def team_detail_view(request, id):
 def contest_attempt_form_view(request, id):
     checkUserProfileInRequest(request)
     template_name = 'views/contests/contest_attempt.html'
-    context = {'title': 'Submit',
-               'description': 'PANDORA is an Automated Assessment Tool.',
-               # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
-               }
-
+    context = {}
     can_submit = True
 
     contest = getContestByID(id)
-    team = getUserTeamFromContest(request, contest)
-    attempts = get_team_attempts(team)
+
+    # Check team members when user doenst have team
+    if not contest.userHasTeam(request.user):
+        return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
+
+    team = contest.getUserTeam(request.user)
+    attempts = team.getAttempts()
 
     # this will allow specific users to submit outside the scheduled dates
     # example is a user that was sick
-    if not checkUsersDateExceptions(request, contest):
-        return redirect(os.path.join(contest.get_absolute_url()))
-
-    # Check team members when user doenst have team
-    if not UserHaveTeam(request.user, contest, team):
-        return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
+    #if not checkUsersDateExceptions(request, contest):
+    #    return redirect(os.path.join(contest.get_absolute_url()))
 
     # Check attempts
-    can_submit = checkContestAttempts(request, contest, attempts)
+    can_submit = contest.checkAttempts(request.user)
 
     # Check contest
-    can_submit = checkIsContestOpen(request, contest)
+    can_submit = contest.isOpen()
 
     # Check team
-    if not team.active or not team.members.filter(user=request.user).first().approved or not request.user.profile.valid:
-        messages.error(request,
-                       "You need to be an Active member and approved member of an active team to make submitions")
-        can_submit = False
+    can_submit = team.getUsers().count() > 0
 
     # Form Submit
     form = AttemptModelForm(request.POST or None, request.FILES or None)
-    submitted, submittedForm = attemptFormSubmit(request, can_submit, form, contest, team)
-    print_variables_debug([
-        "submitted: " + str(submitted),
-        "submittedForm: " + str(submittedForm)
-    ])
+    submitted, attempt = form.submit(request.user, can_submit, contest, team)
     if submitted:
-        return redirect(submittedForm.get_absolute_url())
+        handle_uploaded_file(attempt, attempt.file, contest)
+        return redirect('contest_attempt_view', id, attempt.id)
+
     context.update(getContestDetailLayoutContext(contest))
     context.update(getContestFormContext(contest, form))
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
 
+def contest_attempt_view(request, id, attempt_id):
+    print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
+    checkUserProfileInRequest(request)
+    template_name = 'views/contests/contest_attempt.html'
+    atempt_obj = get_object_or_404(Attempt, id=attempt_id)
+    contest = atempt_obj.contest
+    context = getContestDetailLayoutContext(contest)
+    team = atempt_obj.team
+
+    # check if request.user is a member of atempt team OR admin
+    if not team.teammember_set.filter(user=request.user, approved=True) and not request.user.is_superuser:
+        raise Http404
+
+    results = atempt_obj.classification_set.all()
+    n_tests = contest.test_set.count()
+    n_mandatory = contest.test_set.filter(mandatory=True).count()
+    n_general = n_tests - n_mandatory
+    n_passed = atempt_obj.classification_set.filter(passed=True).count()
+    mandatory_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=True).count()
+    general_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=False).count()
+
+    #	print('number of results ' + str(results.count()))
+    #	print('number of tests ' + str(n_tests))
+    #	print('number of mandatory tests ' + str(n_mandatory))
+    #	print('number of general tests ' + str(n_general))
+    #	print('number of general passed tests ' + str(general_passed))
+    #	print('number of mandatory passed tests ' + str(mandatory_passed))
+
+    for res in results:
+        res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
+                                         errors='strict')
+        if res.output and os.path.isfile(res.output.path):
+            res.obtained_output = smart_text(res.output.read(), encoding='utf-8', strings_only=False, errors='strict')
+        else:
+            res.obtained_output = ''
+
+        res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
+                               errors='strict')
+    # res.diff = ' '.join(map(str, res.diff))
+    context.update({'team': team})
+    context.update({'team_members': team.teammember_set.all()})
+    context.update({'atempt': atempt_obj})
+    context.update({'maxsize': 2147483647})
+    context.update({'n_passed': n_passed})
+    context.update({'n_total': n_tests})
+    context.update({'mandatory_passed': mandatory_passed})
+    context.update({'mandatory_total': n_mandatory})
+    context.update({'general_passed': general_passed})
+    context.update({'n_general': n_general})
+    context.update({'results': results})
+    context.update({'title': "Attempt Detail"})
+    context.update({'min_grade': "9"})
+    print_variables_debug([
+        "Context: " + str(context),
+    ])
+    return render(request, template_name, context)
 
 # HOME VIEW
 @login_required
@@ -456,9 +444,7 @@ def user_contest_home_view(request):
                }
     contests = getContestsForUser(request)
     context.update(getContestListContext(contests))
-
     return render(request, template_name, context)
-
 
 # CONTEST VIEW
 @login_required
@@ -482,6 +468,7 @@ def user_contest_detail_dashboard_view(request, id):
 
 
     # Update context
+    print_variable_debug(team)
     context.update(getContestDetailLayoutContext(contest))
     context.update(getTeamMembersContext(team))
     context.update(getContestDetailsContext(contest))

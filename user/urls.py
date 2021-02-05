@@ -9,13 +9,13 @@ from .views import (
     team_create_view,
     team_join_view,
     team_detail_view,
-    attempt_view,
     attempt_list_view,
     ranking_view,
     profile_view,
     nonactive_view,
     complete_profile_view,
-    user_contest_home_view
+    user_contest_home_view,
+    contest_attempt_view
 )
 
 urlpatterns = [
@@ -26,14 +26,13 @@ urlpatterns = [
     path('contests/<int:id>/team/join/', user_contest_team_join_view, name='user_contest_team_join_view'),
     # TODO: Create general home view
     path('', user_contest_home_view, name='home'),
-
+    path('contests/<int:id>/attempt/', contest_attempt_form_view, name='contest_attempt_form_view'),
+    path('contests/<int:id>/attempt/<int:attempt_id>/', contest_attempt_view, name='contest_attempt_view'),
 
     # Old
-    path('contests/<int:id>/attempt/', contest_attempt_form_view),
     path('contests/<int:id>/team/', team_create_view),
-
     path('contests/<int:id>/my_team/', team_detail_view),
-    path('contests/<int:id>/attempt/<int:attempt_id>/', attempt_view),
+
     path('contests/<int:id>/status/', attempt_list_view),
     path('contests/<int:id>/ranking/', ranking_view),
 
