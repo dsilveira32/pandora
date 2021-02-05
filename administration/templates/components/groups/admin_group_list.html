@@ -1,0 +1,37 @@
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Group list</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>Member Count</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>Group</th>
+                    <th>Member Count</th>
+                    <th>Actions</th>
+                </tr>
+                </tfoot>
+                <tbody>
+                {% for o in admin_group_list.groups %}
+                    <tr>
+                        <td>{{ o.name }}</td>
+                        <td>{{ o.users.count }}</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="{% url 'admin_group_detail_dashboard' o.id %}">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

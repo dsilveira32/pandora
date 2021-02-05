@@ -17,7 +17,7 @@ from django.utils import timezone
 
 from shared.forms import CreateTestModelForm
 from shared.models import Classification, Team, TeamMember, Attempt, SafeExecError, Contest, UserContestDateException, \
-    Group
+    Group, Profile
 from .utils import *
 
 
@@ -574,11 +574,13 @@ def getContestByID(id):
 def getContestsForUser(request):
     return Contest.objects.filter(group__users__exact=request.user)
 
+
 def getContestsForAdmin(request):
     if request.user.is_superuser:
         return Contest.objects.all()
     else:
         return getContestsForUser(request)
+
 
 def getTeamContests(request):
     return TeamMember.objects.select_related('team').filter(user=request.user)
@@ -726,3 +728,28 @@ def checkUsersDateExceptions(request, contest):
             # contest is not opened
             return False
     return True
+
+
+
+##########
+# GROUPS #
+##########
+
+def getGroupsForUser(request):
+    return Group.objects.filter(users__exact=request.user)
+
+
+def getGroupsForAdmin(request):
+    if request.user.is_superuser:
+        return Group.objects.all()
+    else:
+        return getGroupsForUser(request)
+
+def getGroupByID(id):
+    return get_object_or_404(Group, id=id)
+
+
+def getUserProfilesFromGroup(group):
+    # TODO: Probably a better way to do this and save reading the users
+    users = group.users.all()
+    return Profile.objects.filter(user__in=users)

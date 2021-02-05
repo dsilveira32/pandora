@@ -2,12 +2,12 @@
 {% block pageContent %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Contests</li>
+            <li class="breadcrumb-item">Groups</li>
         </ol>
     </nav>
     <div class="container-fluid">
-        {% include "components/general/contest_admin_menu.html" %}
+        {% include "components/groups/admin_group_menu.html" %}
         <hr>
-        {% include "components/general/admin_contest_list.html" %}
+        {% include "components/groups/admin_group_list.html" %}
     </div>
 {% endblock %}

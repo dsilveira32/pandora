@@ -1,0 +1,11 @@
+{% extends "layouts/admin_area_layout.html" %}
+{% block pageContent %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Groups</li>
+        </ol>
+    </nav>
+    <div class="container-fluid">
+        {% include "components/groups/admin_create_group_form.html" %}
+    </div>
+{% endblock %}

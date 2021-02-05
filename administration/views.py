@@ -7,7 +7,7 @@ from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from shared.forms import TeamMemberForm, CreateContestModelForm, TestForm, CreateTestModelForm
+from shared.forms import TeamMemberForm, CreateContestModelForm, TestForm, CreateTestModelForm, GroupCreateForm
 from shared.models import Contest, Test, get_tests_path, Attempt
 from contest.routines import *
 from django.db import transaction
@@ -26,7 +26,7 @@ def superuser_only(function):
 
 @superuser_only
 def admin_choose_test(request, id):
-	template_name = 'components/tests/test_chooser.html'
+	template_name = 'components/tests/admin_test_chooser.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 	contest_tests = contest_obj.test_set.all()
@@ -64,7 +64,7 @@ def admin_choose_test(request, id):
 # admin creations
 @superuser_only
 def admin_contest_creation(request):
-	template_name = 'contest/contest_creation_form.html'
+	template_name = 'contest/admin_contest_creation_form.html'
 
 	contest_form = CreateContestModelForm(request.POST or None, request.FILES or None)
 	print_form_info_debug(contest_form)
@@ -251,7 +251,7 @@ def admin_test_creation_old(request):
 # admin test editor
 @superuser_only
 def admin_test_editor(request, id, t_id):
-	template_name = 'contest/test_edition.html'
+	template_name = 'contest/admin_test_edition.html'
 
 	contest_obj = get_object_or_404(Contest, id=id)
 
@@ -319,7 +319,7 @@ def admin_test_editor(request, id, t_id):
 # admin view
 @superuser_only
 def admin_view_old(request, id):
-	template_name = 'contest/team_list.html'
+	template_name = 'contest/admin_team_list.html'
 
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
@@ -502,9 +502,9 @@ def extract_zip(request, id):
 # Admin contest general view (list of contests)
 @superuser_only
 def admin_contest_home_view(request):
-	template_name = 'views/contests/contest_home.html'
+	template_name = 'views/contests/admin_contests_home.html'
 	context = {}
-	contests = getContestsForUser(request)
+	contests = getContestsForAdmin(request)
 
 
 	context.update(getAdminContestListContext(contests))
@@ -513,12 +513,12 @@ def admin_contest_home_view(request):
 # Admin detail contest home view
 @superuser_only
 def admin_contest_detail_dashboard_view(request, id):
-	template_name = 'views/contests/contest_detail_home.html'
+	template_name = 'views/contests/admin_contest_detail_dashboard.html'
 	context = {}
 	contest = getContestByID(id)
 	context.update(getAdminContestDetailLayoutContext(contest))
 
-	# For team_list.html
+	# For admin_team_list.html
 	teams = structureTeamsData(getContestTeams(contest))
 	context.update(getTeamListContext(teams))
 
@@ -526,7 +526,7 @@ def admin_contest_detail_dashboard_view(request, id):
 
 @superuser_only
 def admin_contest_detail_tests_view(request, id):
-	template_name = 'views/contests/contest_detail_tests.html'
+	template_name = 'views/contests/admin_contest_detail_tests.html'
 	context = {}
 
 	contest = getContestByID(id)
@@ -566,7 +566,7 @@ def admin_contest_detail_tests_view(request, id):
 
 # Admin create test view
 def admin_contest_detail_tests_create_view(request, id):
-	template_name = 'views/contests/contest_detail_tests_create.html'
+	template_name = 'views/contests/admin_contest_detail_tests_create.html'
 	context = {}
 	contest = getContestByID(id)
 	context.update(getAdminContestDetailLayoutContext(contest))
@@ -712,13 +712,55 @@ def admin_contest_detail_tests_create_view(request, id):
 # Admin teams view
 @superuser_only
 def admin_contest_detail_teams_view(request, id):
-	template_name = 'views/contests/contest_detail_teams.html'
+	template_name = 'views/contests/admin_contest_detail_teams.html'
 	context = {}
 	contest = getContestByID(id)
 	context.update(getAdminContestDetailLayoutContext(contest))
 
-	# For team_list.html
+	# For admin_team_list.html
 	teams = structureTeamsData(getContestTeams(contest))
 	context.update(getTeamListContext(teams))
+
+	return render(request, template_name, context)
+
+
+
+####################
+# 	   GROUPS	   #
+####################
+
+# Admin Groups
+@superuser_only
+def admin_group_home_view(request):
+	template_name = 'views/groups/admin_groups_home.html'
+	context = {}
+	groups = getGroupsForAdmin(request)
+	context.update(getAdminGroupListContext(groups))
+	return render(request, template_name, context)
+
+# Admin Groups Create
+@superuser_only
+def admin_group_create_view(request):
+	template_name = 'views/groups/admin_groups_create.html'
+	context = {}
+	group_form = GroupCreateForm(request.POST or None)
+	if True:
+		group = group_form.save(commit=False)
+		group.save()
+	groups = getGroupsForAdmin(request)
+	context.update(getAdminCreateGroupFormContext(group_form))
+	context.update(getAdminGroupListContext(groups))
+
+	return render(request, template_name, context)
+
+# Admin Groups Detail
+@superuser_only
+def admin_group_detail_dashboard_view(request, id):
+	template_name = 'views/groups/admin_group_detail_dashboard.html'
+	context = {}
+	group = getGroupByID(id)
+	user_profiles = getUserProfilesFromGroup(group)
+	context.update(getAdminGroupDetailLayoutContext(group))
+	context.update(getAdminGroupUserListContext(user_profiles))
 
 	return render(request, template_name, context)

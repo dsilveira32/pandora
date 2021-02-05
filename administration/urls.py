@@ -9,10 +9,13 @@ from .views import (
     extract_grades,
     extract_zip, admin_contest_detail_tests_view, admin_contest_detail_teams_view, admin_contest_detail_dashboard_view,
     admin_contest_home_view, admin_contest_detail_tests_create_view,
+    admin_group_home_view, admin_group_detail_dashboard_view, admin_group_create_view
 )
 
 urlpatterns = [
     # New urls / views
+
+    # CONTESTS
 
     path('contests/', admin_contest_home_view, name='manager_contests_home'),
     # TODO: make a create view and replace below
@@ -22,6 +25,11 @@ urlpatterns = [
     path('contests/<int:id>/tests/', admin_contest_detail_tests_view, name='manager_contests_detail_tests'),
     path('contests/<int:id>/tests/create', admin_contest_detail_tests_create_view, name='manager_contests_detail_tests_create'),
     path('contests/<int:id>/teams/', admin_contest_detail_teams_view, name='manager_contests_detail_teams'),
+
+    # GROUPS
+    path('groups/', admin_group_home_view, name="admin_groups_home"),
+    path('groups/create', admin_group_create_view, name='admin_group_create'),
+    path('groups/<int:id>/', admin_group_detail_dashboard_view, name='admin_group_detail_dashboard'),
 
     # Old
 
