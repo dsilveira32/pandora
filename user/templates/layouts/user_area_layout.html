@@ -35,6 +35,15 @@
                 </a>
             </li>
 
+            <!-- Nav Item - Contests -->
+            <li class="nav-item {% if '/groups' in request.path %}active{% endif %}">
+                <a class="nav-link"
+                   href="{% url 'user_groups_home' %}">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Groups</span>
+                </a>
+            </li>
+
             <!-- Nav Item - My Info -->
             <li class="nav-item {% if '/profile' in request.path %}active{% endif %}">
                 <a class="nav-link"

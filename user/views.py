@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.encoding import smart_text
 
 from shared.forms import AttemptModelForm, TeamModelForm, TeamMemberApprovalForm, \
-    ProfileEditForm, UserEditForm, TeamJoinForm
+    ProfileEditForm, UserEditForm, TeamJoinForm, GroupJoinForm
 from shared.models import Contest, UserContestDateException
 from contest.routines import *
 from .context_functions import *
@@ -363,6 +363,7 @@ def contest_attempt_form_view(request, id):
 
     # Check team
     can_submit = team.getUsers().count() > 0
+
     # Form Submit
     form = AttemptModelForm(request.POST or None, request.FILES or None)
     submitted, attempt = form.submit(request.user, can_submit, contest, team)
@@ -520,6 +521,49 @@ def user_contest_team_join_view(request, id):
     form = TeamJoinForm()
     context.update(getContestDetailLayoutContext(contest))
     context.update(getContestTeamJoinContext(contest, teams, form))
+    return render(request, template_name, context)
+
+
+
+##########
+# GROUPS #
+##########
+
+@login_required
+def user_group_home_view(request):
+    template_name = 'views/groups/user_group_home.html'
+
+    context = {}
+    groups = getGroupsForUser(request)
+
+    context.update(getUserGroupListContext(groups))
+    return render(request, template_name, context)
+
+
+@login_required
+def user_group_join_view(request):
+    template_name = 'views/groups/user_group_join.html'
+
+    context = {}
+    form = GroupJoinForm(request.POST or None)
+    if request.POST:
+        if form.is_valid():
+            print('form is valid')
+            if form.submit(request.user):
+                return redirect(user_group_home_view)
+        else:
+            print('not valid')
+            print(form.errors)
+
+    context.update(getUserGroupJoinFormContext(form))
+    return render(request, template_name, context)
+
+
+@login_required
+def user_group_detail_dashboard_view(request):
+    template_name = 'views/groups/teams/team_join.html'
+
+    context = {}
     return render(request, template_name, context)
 
 @login_required

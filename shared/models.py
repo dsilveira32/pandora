@@ -330,3 +330,6 @@ class Group(models.Model):
 
     def isRegistrationOpen(self):
         return self.registration_open
+
+    def hasUser(self, user):
+        return self.users.filter(id=user.id).exists()

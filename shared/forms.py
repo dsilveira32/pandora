@@ -102,12 +102,35 @@ class TestForm(forms.Form):
 
 class GroupCreateForm(forms.ModelForm):
 	name = forms.CharField(required=True, label='Group Name')
+	join_code = forms.SlugField(required=True, label='Join code')
+	registration_open = forms.BooleanField(required=False, label='Open registration?')
 	# TODO: Find a way to make these checkbox selects scrollable
 	# contests = forms.ModelMultipleChoiceField(required=False, label='Contests', queryset=Contest.objects.all(), widget=forms.CheckboxSelectMultiple)
 
 	class Meta:
 		model = Group
-		fields = ['name']
+		fields = ['name', 'join_code', 'registration_open']
+
+
+class GroupJoinForm(forms.Form):
+	join_code = forms.SlugField(required=True, label='Code')
+
+	def submit(self, user):
+		if not self.is_valid():
+			return False
+		group = Group.objects.filter(join_code=self.data['join_code']).first()
+		if not group:
+			self.add_error('join_code', 'There is no group with this join_code.')
+			return False
+		if not group.registration_open:
+			self.add_error('join_code', 'Registration for this group is closed.')
+			return False
+		if group.hasUser(user):
+			self.add_error('join_code', 'You already belong to this group.')
+			return False
+		group.users.add(user)
+		group.save()
+		return True
 
 
 # CUSTOM FIELDS
