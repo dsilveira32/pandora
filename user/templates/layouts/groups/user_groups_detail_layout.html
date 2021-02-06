@@ -1,0 +1,24 @@
+{% extends "layouts/user_area_layout.html" %}
+{% block pageContent %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_groups_home' %}">Groups</a>
+            </li>
+            {% if user_group_detail_layout.group %}
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_groups_detail_dashboard' user_group_detail_layout.group.id %}">{{ user_group_detail_layout.group.short_name }}</a>
+            </li>
+            {% endif %}
+            {% if user_group_detail_layout.subpage %}
+            <li class="breadcrumb-item " aria-current="page">{{ user_group_detail_layout.subpage }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+    <div class="container-fluid">
+        {% block groupDetailContent %}
+        {% endblock %}
+    </div>
+
+{% endblock %}

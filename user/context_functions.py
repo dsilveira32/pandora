@@ -386,3 +386,72 @@ def getContestTeamJoinContext(contest, teams, form):
             'teams': teams
         }
     }
+
+# REQUIRED IN ALL VIEWS THAT EXTEND user_group_list.html
+def getUserGroupListContext(groups):
+    """Context for user_group_list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND user_group_list.html
+    Parameters
+    ----------
+        groups: list of Group
+    return
+    ----------
+        context
+    """
+    return {
+        'user_group_list': {
+            'groups': groups
+        }
+    }
+
+# REQUIRED IN ALL VIEWS THAT EXTEND user_group_detail_layout.html
+def getUserGroupDetailLayout(group):
+    """Context for user_group_detail_layout.html
+    REQUIRED IN ALL VIEWS THAT EXTEND user_group_detail_layout.html
+    Parameters
+    ----------
+        group: Group
+    return
+    ----------
+        context
+    """
+    return {
+        'user_group_detail_layout': {
+            'group': group
+        }
+    }
+
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_view_sow_button.html
+def getContestViewSowButtonContext(contest):
+    """Context for contest_view_sow_button.html
+    REQUIRED IN ALL VIEWS THAT EXTEND contest_view_sow_button.html
+    Parameters
+    ----------
+        contest: Contest
+    return
+    ----------
+        context
+    """
+    return {
+        'contest_view_sow_button': {
+            'contest': contest
+        }
+    }
+
+
+# REQUIRED IN ALL VIEWS THAT EXTEND user_group_join_form.html
+def getUserGroupJoinFormContext(form):
+        """Context for user_group_join_form.html
+        REQUIRED IN ALL VIEWS THAT EXTEND user_group_join_form.html
+        Parameters
+        ----------
+            form: GroupJoinForm
+        return
+        ----------
+            context
+        """
+        return {
+            'user_group_join_form': {
+                'form': form
+            }
+        }

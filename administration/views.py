@@ -746,9 +746,9 @@ def admin_group_create_view(request):
 	context = {}
 	group_form = GroupCreateForm(request.POST or None)
 	if group_form.is_valid():
-		group_form.is_valid()
 		group = group_form.save(commit=False)
 		group.save()
+		return redirect(admin_group_home_view)
 	groups = getGroupsForAdmin(request)
 	context.update(getAdminCreateGroupFormContext(group_form))
 	context.update(getAdminGroupListContext(groups))

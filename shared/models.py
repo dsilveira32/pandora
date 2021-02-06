@@ -285,7 +285,7 @@ class ContestTestDataFile(models.Model):
     unique_together = ('contest', 'file_name')
 
 class Group(models.Model):
-    name = models.CharField(max_length=50, blank=False)
+    name = models.CharField(max_length=50, blank=False, unique=True)
     users = models.ManyToManyField(User)
     contests = models.ManyToManyField(Contest)
     join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True, default="replace_me")
@@ -305,3 +305,6 @@ class Group(models.Model):
 
     def isRegistrationOpen(self):
         return self.registration_open
+
+    def hasUser(self, user):
+        return self.users.filter(id=user.id).exists()

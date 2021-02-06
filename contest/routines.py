@@ -606,7 +606,7 @@ def getContestByID(id):
 
 
 def getContestsForUser(request):
-    return Contest.objects.filter(group__users__exact=request.user)
+    return Contest.objects.filter(group__users__exact=request.user).distinct()
 
 
 def getContestsForAdmin(request):

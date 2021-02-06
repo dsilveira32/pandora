@@ -1,0 +1,15 @@
+{% extends "layouts/user_area_layout.html" %}
+{% block pageContent %}
+    <h3>Groups</h3>
+    <hr>
+    <div class="row">
+        <div class="offset-4 col-4 pt-3 pb-5">
+            <a href="{% url 'user_group_join' %}" class="btn btn-primary w-100 py-3" >
+                 Join a group
+            </a>
+        </div>
+        <div class="col-6">
+            {% include "components/groups/user_group_list.html" %}
+        </div>
+    </div>
+{% endblock %}

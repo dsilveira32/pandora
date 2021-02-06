@@ -9,6 +9,7 @@
                 <thead>
                 <tr>
                     <th>Group</th>
+                    <th>Join Code</th>
                     <th>Member Count</th>
                     <th>Actions</th>
                 </tr>
@@ -16,6 +17,7 @@
                 <tfoot>
                 <tr>
                     <th>Group</th>
+                    <th>Join Code</th>
                     <th>Member Count</th>
                     <th>Actions</th>
                 </tr>
@@ -24,6 +26,7 @@
                 {% for o in admin_group_list.groups %}
                     <tr>
                         <td>{{ o.name }}</td>
+                        <td>{{ o.join_code }}</td>
                         <td>{{ o.users.count }}</td>
                         <td>
                             <a class="btn btn-primary btn-sm" href="{% url 'admin_group_detail_dashboard' o.id %}">View</a>
