@@ -255,30 +255,6 @@ def getTeamListContext(teams):
     }
 
 
-# For team_submission_details.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
-def getTeamSubmissionDetailsContext(request, contest, attempt):
-    """Context for team_submission_details.html
-    REQUIRED IN ALL VIEWS THAT EXTEND team_submission_details.html
-    Parameters
-    ----------
-        request
-        contest : Contest
-        attempt: Attempt
-    return
-    ----------
-        user_has_access
-        team_submission_details
-    """
-    context = {
-        'user_has_access': checkIfUserHasAccessToContest(request, contest),
-        'team_submission_details': {
-            'attempt': attempt
-        }
-    }
-    return context
-
-
 # For contest_form.html
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
 def getContestFormContext(contest, form):
@@ -384,5 +360,27 @@ def getContestTeamJoinContext(contest, teams, form):
             'contest': contest,
             'form': form,
             'teams': teams
+        }
+    }
+
+# For team_submission_details.html
+# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+def getTeamSubmissionDetailsContext(contest, user, team, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, min_passed_grade):
+    return {
+        'team_submission_details': {
+            'contest': contest,
+            'user': user,
+            'team': team,
+            'team_members': team.getUsers(),
+            'attempt': attempt,
+            'maxsize': 2147483647,
+            'n_passed': n_passed,
+            'n_total': n_tests,
+            'mandatory_passed': mandatory_passed,
+            'mandatory_total': n_mandatory,
+            'general_passed': passed_diff,
+            'n_general': n_diff,
+            'results': results,
+            'min_grade': min_passed_grade
         }
     }

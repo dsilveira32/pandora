@@ -25,10 +25,8 @@ from .views import (
     manage,
 )
 
-from .views import about_page
 urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
-    re_path(r'^about/$', about_page, name='about'),
     path('admin-django/', admin.site.urls),
     path('admin/', include('administration.urls')),
     path('', include('user.urls')),

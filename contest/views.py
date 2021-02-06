@@ -406,7 +406,7 @@ def team_detail_view(request, id):
     return render(request, template_name, context)
 
 # SUMISSION VIEW
-@login_required
+"""@login_required
 def contest_attempt_form_view(request, id):
     checkUserProfileInRequest(request)
     template_name = 'views/user/contest_attempt.html'
@@ -455,7 +455,7 @@ def contest_attempt_form_view(request, id):
     context.update(getContestFormContext(contest, form))
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
-
+"""
 
 # HOME VIEW
 @login_required

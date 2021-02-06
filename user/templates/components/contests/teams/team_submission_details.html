@@ -4,56 +4,65 @@
     <div class="col-md-6">
         <div class="card border rounded shadow-sm mb-4 mt-4">
             <div class="card-body">
-                <h5 class="car-title mb-2 text-primary">Results summary for attempt #{{ atempt.id }}</h5>
+                <h5 class="car-title mb-2 text-primary">Results summary for attempt #{{ team_submission_details.attempt.id }}</h5>
                 <p class="card-text mb-auto">
                 <table class="table">
                     <tbody>
                     <tr>
                         <td>Compilation</td>
-                        <td>{% if atempt.compile_error %}0/1{% else %}1/1{% endif %}</td>
+                        <td>{% if team_submission_details.attempt.compile_error %}0/1{% else %}1/1{% endif %}</td>
                         <td>
-                            <h5 class="m-0 p-0 text-{% if atempt.compile_error %}danger{% else %}success{% endif %}"><i
-                                    class="fas fa-{% if atempt.compile_error %}times-circle{% else %}check-circle{% endif %}"></i>
+                            <h5 class="m-0 p-0 text-{% if team_submission_details.attempt.compile_error %}danger{% else %}success{% endif %}"><i
+                                    class="fas fa-{% if team_submission_details.attempt.compile_error %}times-circle{% else %}check-circle{% endif %}"></i>
                             </h5>
                             {# TODO: Delete the below if prof approves #}
-                            {% if atempt.compile_error %}
-                                <!-- <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-compilation"><span class="oi oi-x"></span></button> -->
+                            {% if team_submission_details.attempt.compile_error %}
+                                <!--  -->
                             {% else %}
                                 <!-- <span class="oi oi-check text-success"></span> -->
                             {% endif %}
                         </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-compilation">Open</button>
+                        </td>
                     </tr>
                     <tr>
                         <td>Mandatory Tests</td>
-                        <td>{{ mandatory_passed }}/{{ mandatory_total }}</td>
+                        <td>{{ team_submission_details.mandatory_passed }}/{{ team_submission_details.mandatory_total }}</td>
                         <td>
-                            <h5 class="m-0 p-0 text-{% if mandatory_passed < mandatory_total %}danger{% else %}success{% endif %}">
-                                <i class="fas fa-{% if mandatory_passed < mandatory_total %}times-circle{% else %}check-circle{% endif %}"></i>
+                            <h5 class="m-0 p-0 text-{% if team_submission_details.mandatory_passed < team_submission_details.mandatory_total %}danger{% else %}success{% endif %}">
+                                <i class="fas fa-{% if team_submission_details.mandatory_passed < team_submission_details.mandatory_total %}times-circle{% else %}check-circle{% endif %}"></i>
                             </h5>
                         </td>
+                    <td></td>
                     </tr>
                     <tr>
                         <td>General Tests</td>
-                        <td>{{ n_passed }}/{{ n_total }}</td>
+                        <td>{{ team_submission_details.n_passed }}/{{ team_submission_details.n_total }}</td>
+
                         <td>
-                            <h5 class="m-0 p-0 text-{% if n_passed < n_total %}danger{% else %}success{% endif %}">
-                                <i class="fas fa-{% if n_passed < n_total %}times-circle{% else %}check-circle{% endif %}"></i>
+                            <h5 class="m-0 p-0 text-{% if team_submission_details.n_passed < n_total %}danger{% else %}success{% endif %}">
+                                <i class="fas fa-{% if team_submission_details.n_passed < n_total %}times-circle{% else %}check-circle{% endif %}"></i>
                             </h5>
                         </td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>Classification</td>
-                        <td>{{ atempt.grade }}</td>
+                        <td>{{ team_submission_details.attempt.grade }}</td>
                         <td>
-                            <h5 class="m-0 p-0 text-{% if atempt.grade < 10 %}danger{% elif atempt.grade < 10 and atempt.grade > min_grade %}warning{% else %}success{% endif %}">
-                                <i class="fas fa-{% if atempt.grade < 10 %}times-circle{% elif atempt.grade < 10 and atempt.grade > min_grade %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+                            <h5 class="m-0 p-0 text-{% if team_submission_details.attempt.grade < 10 %}danger{% elif team_submission_details.attempt.grade < 10 and team_submission_details.attempt.grade > min_grade %}warning{% else %}success{% endif %}">
+                                <i class="fas fa-{% if team_submission_details.attempt.grade < 10 %}times-circle{% elif team_submission_details.attempt.grade < 10 and team_submission_details.attempt.grade > min_grade %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
                             </h5>
                         </td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>Static Analysis</td>
-                        <td colspan="2">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                     data-target="#modal-analysis">Open
                             </button>
                         </td>
@@ -87,7 +96,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for r in results %}
+                    {% for r in team_submission_details.results %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ r.test.weight_pct|floatformat }} &#37;</td>
@@ -96,13 +105,13 @@
                             <td>{% if r.passed %}<span class="oi oi-check text-success"></span>{% else %}
                                 <span class="oi oi-x text-danger"></span>{% endif %}</td>
                             <td>
-                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                         data-target="#modal-error{{ forloop.counter }}">More
                                 </button>
                             </td>
                             <td>
                                 {% if r.test.type_of_feedback == 1 %}
-                                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                             data-target="#modal-cmd{{ forloop.counter }}">Args
                                     </button>
                                 {% elif user.is_superuser %}
@@ -113,7 +122,7 @@
                             </td>
                             <td>
                                 {% if r.test.type_of_feedback == 1 %}
-                                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                             data-target="#modal-input{{ forloop.counter }}">Input
                                     </button>
                                 {% elif user.is_superuser %}
@@ -124,7 +133,7 @@
                             </td>
                             <td>
                                 {% if r.test.type_of_feedback <= 2 %}
-                                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                             data-target="#modal-expected{{ forloop.counter }}">Open
                                     </button>
                                 {% elif user.is_superuser %}
@@ -153,7 +162,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <pre>{{ atempt.error_description }}</pre>
+                <pre>{{ team_submission_details.attempt.error_description }}</pre>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -161,7 +170,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="modal fade bd-example-modal-xl" id="modal-analysis" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -173,7 +181,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <pre>{{ atempt.static_analysis }}</pre>
+                <pre>{{ team_submission_details.attempt.static_analysis }}</pre>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -182,8 +190,8 @@
     </div>
 </div>
 
-{% for r in results %}
-    {% if r.test.type_of_feedback == 1 or user.is_superuser %}
+{% for r in team_submission_details.results %}
+    {% if r.test.type_of_feedback == 1 or team_submission_details.user.is_superuser %}
         <div class="modal fade bd-example-modal-xl" id="modal-input{{ forloop.counter }}" tabindex="-1" role="dialog"
              aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
@@ -227,7 +235,7 @@
         </div>
     {% endif %}
 
-    {% if r.test.type_of_feedback <= 2 or user.is_superuser %}
+    {% if r.test.type_of_feedback <= 2 or team_submission_details.user.is_superuser %}
         <div class="modal fade bd-example-modal-xl" id="modal-expected{{ forloop.counter }}" tabindex="-1" role="dialog"
              aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">

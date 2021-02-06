@@ -132,7 +132,11 @@ class Contest(models.Model):
         team = self.getUserTeam(user)
         return not not team
 
-
+    def getTestsCount(self):
+        n = self.getTests().count()
+        mandatory = self.getTests().filter(mandatory=True).count()
+        diff = n - mandatory
+        return n, mandatory, diff
 
 # def checkAttempts(self, request, attempts):
 #	if self.max_submitions > 0:
@@ -193,6 +197,11 @@ class Team(models.Model):
     def getUsers(self):
         return self.users.all()
 
+    def hasUser(self, user):
+        if self.users.filter(user=user):
+            return True
+        return False
+
     def getJoinCode(self):
         return self.join_code
 
@@ -230,6 +239,22 @@ class Attempt(models.Model):
     elapsed_time = models.IntegerField(blank=True, null=True, default=0)
     cpu_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
     static_analysis = models.TextField(blank=True, null=True)
+
+    def getContest(self):
+        return self.contest
+
+    def getTeam(self):
+        return self.team
+
+    def getClassifications(self):
+        return self.classification_set.all()
+
+    def getPassedTestsCount(self):
+        n = self.getClassifications().filter(passed=True).count()
+        mandatory = self.getClassifications().filter(passed=True, test__mandatory=True).count()
+        diff = self.getClassifications().filter(passed=True, test__mandatory=False).count()
+        return n, mandatory, diff
+
 
     def get_absolute_url(self):
         return "/contests/%i/attempt/%i/" % (self.contest.id, self.id)
@@ -285,9 +310,9 @@ class ContestTestDataFile(models.Model):
     unique_together = ('contest', 'file_name')
 
 class Group(models.Model):
-    name = models.CharField(max_length=50, blank=False)
-    users = models.ManyToManyField(User)
-    contests = models.ManyToManyField(Contest)
+    name = models.CharField(max_length=50, blank=False, unique=True)
+    users = models.ManyToManyField(User, blank=True)
+    contests = models.ManyToManyField(Contest, blank=True)
     join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True, default="replace_me")
     registration_open = models.BooleanField(null=False, default=False)
 

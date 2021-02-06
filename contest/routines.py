@@ -31,12 +31,14 @@ def check_output(command, cwd):
         universal_newlines=True,
         cwd=cwd
     )
+    stdout, stderr = process.communicate()
     print("****** RUNING *******")
     print(cwd + "/" + command)
+    print("Output: ", stdout)
     print("*********************")
-    output = process.communicate()
+
     ret_code = process.poll()
-    return output, ret_code
+    return stdout, ret_code
 
 
 
@@ -254,7 +256,9 @@ def handle_uploaded_file(atempt, f, contest):
     atempt.elapsed_time = 0
     atempt.grade = 0
 
-    compile_error, atempt.error_description = compile(contest, paths)
+    compile_error, error_description = compile(contest, paths)
+    print("error_description: "+error_description)
+    atempt.error_description = error_description
     atempt.compile_error = not compile_error
     atempt.save()
 
@@ -364,8 +368,8 @@ def compile(contest, paths):
     print('compilation: ' + compile_cmd)
     output = check_output(compile_cmd, paths['dir'])
     print(output)
-    print(output[0][0])
-    if output[0][0] != '':  # Output variable correction because the output is like (('', None), 0) not ('', None)
+    print(output[0])
+    if output[0] != '':  # Output variable correction because the output is like (('', None), 0) not ('', None)
         return False, output[0]
 
     return True, "Compilation OK"
@@ -508,7 +512,9 @@ def handle_uploaded_file(atempt, f, contest):
     atempt.elapsed_time = 0
     atempt.grade = 0
 
-    compile_error, atempt.error_description = compile(contest, paths)
+    compile_error, error_description = compile(contest, paths)
+    print("error_description: ", error_description)
+    atempt.error_description = error_description
     atempt.compile_error = not compile_error
     atempt.save()
 
@@ -603,6 +609,9 @@ def checkIfUserIsSuperUser(request):
 
 def getContestByID(id):
     return get_object_or_404(Contest, id=id)
+
+def getAttemptByID(id):
+    return get_object_or_404(Attempt, id=id)
 
 
 def getContestsForUser(request):

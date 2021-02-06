@@ -363,11 +363,11 @@ def contest_attempt_form_view(request, id):
 
     # Check team
     can_submit = team.getUsers().count() > 0
-
     # Form Submit
     form = AttemptModelForm(request.POST or None, request.FILES or None)
     submitted, attempt = form.submit(request.user, can_submit, contest, team)
-    if submitted:
+    print_variable_debug(attempt)
+    if submitted and attempt:
         handle_uploaded_file(attempt, attempt.file, contest)
         return redirect('contest_attempt_view', id, attempt.id)
 
@@ -380,29 +380,24 @@ def contest_attempt_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
     template_name = 'views/contests/contest_attempt.html'
-    atempt_obj = get_object_or_404(Attempt, id=attempt_id)
-    contest = atempt_obj.contest
-    context = getContestDetailLayoutContext(contest)
-    team = atempt_obj.team
+    context={}
 
-    # check if request.user is a member of atempt team OR admin
-    if not team.teammember_set.filter(user=request.user, approved=True) and not request.user.is_superuser:
+    attempt = getAttemptByID(attempt_id)
+    contest = getContestByID(id)
+
+    # check if the url contest id is the same of the attempt contest id
+    if not contest.id == attempt.getContest().id:
         raise Http404
 
-    results = atempt_obj.classification_set.all()
-    n_tests = contest.test_set.count()
-    n_mandatory = contest.test_set.filter(mandatory=True).count()
-    n_general = n_tests - n_mandatory
-    n_passed = atempt_obj.classification_set.filter(passed=True).count()
-    mandatory_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=True).count()
-    general_passed = atempt_obj.classification_set.filter(passed=True, test__mandatory=False).count()
+    team = attempt.getTeam()
+    # check if request.user is a member of atempt team OR admin
+    if not request.user.is_superuser:
+        if not team.hasUser(request.user):
+            raise Http404
 
-    #	print('number of results ' + str(results.count()))
-    #	print('number of tests ' + str(n_tests))
-    #	print('number of mandatory tests ' + str(n_mandatory))
-    #	print('number of general tests ' + str(n_general))
-    #	print('number of general passed tests ' + str(general_passed))
-    #	print('number of mandatory passed tests ' + str(mandatory_passed))
+    results = attempt.getClassifications()
+    n_tests, n_mandatory, n_diff = contest.getTestsCount()
+    n_passed, mandatory_passed, passed_diff = attempt.getPassedTestsCount()
 
     for res in results:
         res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
@@ -414,23 +409,11 @@ def contest_attempt_view(request, id, attempt_id):
 
         res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
                                errors='strict')
+
     # res.diff = ' '.join(map(str, res.diff))
-    context.update({'team': team})
-    context.update({'team_members': team.teammember_set.all()})
-    context.update({'atempt': atempt_obj})
-    context.update({'maxsize': 2147483647})
-    context.update({'n_passed': n_passed})
-    context.update({'n_total': n_tests})
-    context.update({'mandatory_passed': mandatory_passed})
-    context.update({'mandatory_total': n_mandatory})
-    context.update({'general_passed': general_passed})
-    context.update({'n_general': n_general})
-    context.update({'results': results})
-    context.update({'title': "Attempt Detail"})
-    context.update({'min_grade': "9"})
-    print_variables_debug([
-        "Context: " + str(context),
-    ])
+    context.update(getTeamSubmissionDetailsContext(contest, request.user, team, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, "9"))
+    context.update(getContestDetailLayoutContext(contest))
+    context.update(getTeamSubmissionHistoryContext(team.getAttempts()))
     return render(request, template_name, context)
 
 # HOME VIEW
@@ -538,3 +521,7 @@ def user_contest_team_join_view(request, id):
     context.update(getContestDetailLayoutContext(contest))
     context.update(getContestTeamJoinContext(contest, teams, form))
     return render(request, template_name, context)
+
+@login_required
+def about_page(request):
+    return render(request, "views/about.html", {"title": "About"})

@@ -4,10 +4,10 @@
         <p class="card-text mb-auto">
         <table class="table">
             <tbody>
-            {% for m in team_members.team.members %}
+            {% for m in team_members.team.getUsers %}
                 <tr>
-                    <td>{{ m.user.username }}</td>
-                    <td>{{ m.user.profile.number }}</td>
+                    <td>{{ m.username }}</td>
+                    <td>{{ m.profile.number }}</td>
                 </tr>
             {% endfor %}
             </tbody>
