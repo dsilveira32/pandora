@@ -84,7 +84,23 @@ class TeamMemberApprovalForm(forms.Form):
 
 
 class TeamJoinForm(forms.Form):
-	team_id = forms.CharField(required=True)
+	join_code = forms.SlugField(required=True, label='Code')
+
+	def submit(self, user, contest):
+		if not self.is_valid():
+			return False
+		team = Team.objects.filter(join_code=self.data['join_code'], contest=contest).first()
+		if not team:
+			self.add_error('join_code', 'There is no team with this join_code in this contest.')
+			return False
+		if team.hasUser(user):
+			self.add_error('join_code', 'You already belong to this team.')
+			return False
+		if team.isFull():
+			self.add_error('join_code', 'This team is full.')
+		team.users.add(user)
+		team.save()
+		return True
 
 
 class TeamModelForm(forms.ModelForm):

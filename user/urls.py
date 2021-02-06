@@ -35,7 +35,7 @@ urlpatterns = [
     path('', user_contest_home_view, name='home'),
     path('contests/<int:id>/attempt/', contest_attempt_form_view, name='contest_attempt_form_view'),
     path('contests/<int:id>/attempt/<int:attempt_id>/', contest_attempt_view, name='contest_attempt_view'),
-    re_path(r'^about/$', about_page, name='about'),
+    path('about/', about_page, name='about'),
 
     # Groups
     path('groups/', user_group_home_view, name='user_groups_home'),

@@ -462,65 +462,18 @@ def user_contest_detail_dashboard_view(request, id):
 # TEAM JOIN VIEW
 @login_required
 def user_contest_team_join_view(request, id):
-    #if not request.user.profile.number:
-    #    return redirect('complete_profile')
-    #if not request.user.profile.valid:
-    #    return redirect('not_active')
-
     context = {}
     template_name = 'views/contests/teams/team_join.html'
 
     contest = getContestByID(id)
-    teams = contest.getTeams()
-    #generate_slug()
-    # TeamMember.objects.select_related('team').filter(team__contest = contest_obj.id, user = request.user).first()
-
-    """
-    if team:
-    return redirect(os.path.join(contest.get_absolute_url(), 'my_team/'))
-    
-    # in case individual submition - Create a team with the username with only one member
-    if contest.max_team_members == 1:
-        t = Team(name=request.user.username, contest=contest)
-        t.save()
-        tm = TeamMember(team=t, user=request.user, approved=True)
-        tm.save()
-        return redirect(os.path.join(contest.get_absolute_url(), 'my_team/'))
-
-    # get all teams active in this contenst
-    teams = Team.objects.filter(contest__id=id)  # get all teams associated with this contest
-
-    # set the members details and the amount of new member that can join
-    for obj in teams:
-        obj.members = TeamMember.objects.filter(team=obj)
-        obj.room_left = obj.contest.max_team_members - obj.members.count()
-
-    # update the contenxt to send to the team_join.html
-    context.update({'teams': teams})
-
-    # no idea what it does
-    form = TeamMemberForm(request.POST or None)
-
+    form = TeamJoinForm(request.POST or None)
     if form.is_valid():
-        team_id = form.cleaned_data.get("team_id")
-        team_member = TeamMember()
+        if form.submit(request.user, contest):
+            return redirect(user_contest_detail_dashboard_view, id)
 
-        team = Team.objects.get(id=team_id)
 
-        qs = team.teammember_set.all()
-        if qs.count() > team.contest.max_team_members:
-            messages.error(request, "Error! This team can not accept new members")
-        else:
-            team_member.team = team
-            team_member.user = request.user
-            team_member.approved = False
-            team_member.save()
-            return redirect(os.path.join(contest.get_absolute_url(), 'my_team/'))
-        
-    """
-    form = TeamJoinForm()
     context.update(getContestDetailLayoutContext(contest))
-    context.update(getContestTeamJoinContext(contest, teams, form))
+    context.update(getTeamJoinFormContext(form))
     return render(request, template_name, context)
 
 

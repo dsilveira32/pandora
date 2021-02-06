@@ -188,6 +188,9 @@ class Team(models.Model):
     users = models.ManyToManyField(User)
     # image  = models.ImageField(upload_to='images/', blank=True, null=True)
 
+    class Meta:
+        unique_together = (('contest', 'join_code'), ('contest', 'name'))
+
     def getName(self):
         return self.name
 
@@ -198,9 +201,7 @@ class Team(models.Model):
         return self.users.all()
 
     def hasUser(self, user):
-        if self.users.filter(user=user):
-            return True
-        return False
+        return self.users.filter(id=user.id).exists()
 
     def getJoinCode(self):
         return self.join_code
@@ -208,8 +209,9 @@ class Team(models.Model):
     def getAttempts(self):
         return Attempt.objects.filter(team=self).order_by('-date')
 
-    class Meta:
-        unique_together = ('name', 'contest')
+    def isFull(self):
+        return self.users.count() >= self.contest.max_team_members
+
 
 # TODO: Its possible to make this inside the Model?
 # get the team attempts
