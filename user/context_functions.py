@@ -472,3 +472,22 @@ def getTeamJoinFormContext(create_form,join_form):
                 'join_form': join_form
             }
         }
+
+# REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
+def getUserGradesDasboardContext(labels, datasets):
+        """Context for user_grades_dashboard.html
+        REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
+        Parameters
+        ----------
+            labels: List
+            datasets: List
+        return
+        ----------
+            context
+        """
+        return {
+            'user_grades_dashboard': {
+                'labels': labels,
+                'datasets': datasets
+            }
+        }

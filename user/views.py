@@ -533,5 +533,22 @@ def about_page(request):
 def user_dashboard_view(request):
     template_name = 'views/user_dashboard.html'
     context = {}
+    contests = getContestsForUser(request)
+    labels = []
+    data = []
+    bgcolors = []
+    for contest in contests:
+        labels.append(contest.getName())
+        team = contest.getUserTeam(request.user)
+        data.append(team.getGreatestGradeAttempt().getGrade())
+        bgcolors.append('rgba(54, 162, 235, 0.5)')
 
+    context.update(getUserGradesDasboardContext(labels, [
+        {
+            'label': 'Nota',
+            'data': data,
+            'backgroundColor': bgcolors,
+            'maxBarThickness': '100'
+        }
+    ]))
     return render(request, template_name, context)

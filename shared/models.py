@@ -138,6 +138,8 @@ class Contest(models.Model):
         diff = n - mandatory
         return n, mandatory, diff
 
+    def getName(self):
+        return self.title
 # def checkAttempts(self, request, attempts):
 #	if self.max_submitions > 0:
 #		if attempts and attempts.count() >= self.max_submitions:
@@ -209,6 +211,9 @@ class Team(models.Model):
     def getAttempts(self):
         return Attempt.objects.filter(team=self).order_by('-date')
 
+    def getGreatestGradeAttempt(self):
+        return Attempt.objects.filter(team=self).order_by('-grade').first()
+
     def isFull(self):
         return self.users.count() >= self.contest.max_team_members
 
@@ -257,6 +262,8 @@ class Attempt(models.Model):
         diff = self.getClassifications().filter(passed=True, test__mandatory=False).count()
         return n, mandatory, diff
 
+    def getGrade(self):
+        return self.grade
 
     def get_absolute_url(self):
         return "/contests/%i/attempt/%i/" % (self.contest.id, self.id)
