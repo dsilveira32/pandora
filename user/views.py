@@ -9,8 +9,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import smart_text
 
-from shared.forms import AttemptModelForm, TeamModelForm, TeamMemberApprovalForm, \
-    ProfileEditForm, UserEditForm, TeamJoinForm, GroupJoinForm
+from shared.forms import AttemptModelForm, TeamMemberApprovalForm, \
+    ProfileEditForm, UserEditForm, TeamJoinForm, GroupJoinForm, TeamCreateForm
 from shared.models import Contest, UserContestDateException
 from contest.routines import *
 from .context_functions import *
@@ -377,7 +377,7 @@ def contest_attempt_form_view(request, id):
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
 
-def contest_attempt_view(request, id, attempt_id):
+def contest_attempt_details_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
     template_name = 'views/contests/contest_attempt.html'
@@ -466,14 +466,20 @@ def user_contest_team_join_view(request, id):
     template_name = 'views/contests/teams/team_join.html'
 
     contest = getContestByID(id)
-    form = TeamJoinForm(request.POST or None)
-    if form.is_valid():
-        if form.submit(request.user, contest):
+
+    join_form = TeamJoinForm(request.POST or None if 'submit_join_form' in request.POST else None)
+    if join_form.is_valid():
+        if join_form.submit(request.user, contest):
             return redirect(user_contest_detail_dashboard_view, id)
 
 
+    create_form = TeamCreateForm(request.POST or None if 'submit_create_form' in request.POST else None)
+    if create_form.is_valid():
+        if create_form.submit(request.user, contest):
+            return redirect(user_contest_detail_dashboard_view, id)
+
     context.update(getContestDetailLayoutContext(contest))
-    context.update(getTeamJoinFormContext(form))
+    context.update(getTeamJoinFormContext(create_form, join_form))
     return render(request, template_name, context)
 
 
@@ -521,4 +527,11 @@ def user_group_detail_dashboard_view(request):
 
 @login_required
 def about_page(request):
-    return render(request, "views/about.html", {"title": "About"})
+    return render(request, "views/user_about.html", {"title": "About"})
+
+@login_required
+def user_dashboard_view(request):
+    template_name = 'views/user_dashboard.html'
+    context = {}
+
+    return render(request, template_name, context)

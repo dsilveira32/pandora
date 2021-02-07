@@ -103,18 +103,37 @@ class TeamJoinForm(forms.Form):
 		return True
 
 
-class TeamModelForm(forms.ModelForm):
+class TeamCreateForm(forms.ModelForm):
 	name = forms.CharField(required=True, label='Team Name')
-
+	join_code = forms.SlugField(required=True, label='Join code')
 	class Meta:
 		model = Team
-		fields = ['name']
+		fields = ['name', 'join_code']
+
+	def submit(self, user, contest):
+		if not self.is_valid():
+			return False
+
+		# Check if the team name is already in use
+		team = Team.objects.filter(name=self.data['name'], contest=contest).exists()
+		if team:
+			self.add_error('name', 'The name you entered is already in use by other team')
+			return False
+		# Check if the team join code is already in use
+		team = Team.objects.filter(join_code=self.data['join_code'], contest=contest).exists()
+		if team:
+			self.add_error('join_code', 'The code you entered is already in use by other team.')
+			return False
+		team = self.save(commit=False)
+		team.contest = contest
+		team.save()
+		team.users.add(user)
+		return True
+
 
 
 class TestForm(forms.Form):
 	pass
-
-
 
 class GroupCreateForm(forms.ModelForm):
 	name = forms.CharField(required=True, label='Group Name')
@@ -126,7 +145,6 @@ class GroupCreateForm(forms.ModelForm):
 	class Meta:
 		model = Group
 		fields = ['name', 'join_code', 'registration_open']
-
 
 class GroupJoinForm(forms.Form):
 	join_code = forms.SlugField(required=True, label='Code')

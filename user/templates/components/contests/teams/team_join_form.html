@@ -7,10 +7,17 @@
         </div>
     </div>
     <div class="offset-4 col-4">
-        <a class="btn btn-primary w-100 py-3" href="">
-            <i class="fas fa-plus-circle"></i>
-            Create a new Team
-        </a>
+        <form method="POST" action=""> {% csrf_token %}
+            <div class="pb-3">
+                {{ team_join_form.create_form | crispy }}
+            </div>
+            <div>
+                <button class="btn btn-primary btn-block py-3" type="submit" name="submit_create_form" >
+                    <i class="fas fa-plus-circle"></i>
+                    Create a team
+                </button>
+            </div>
+        </form>
     </div>
     <div class="offset-4 col-4">
         <div class="row">
@@ -27,10 +34,11 @@
     <div class="offset-4 col-4">
         <form method="POST" action=""> {% csrf_token %}
             <div class="pb-3">
-                {{ team_join_form.form | crispy }}
+                {{ team_join_form.join_form | crispy }}
             </div>
+            <input type="hidden" name="join_form_submit" value="1">
             <div>
-                <button class="btn btn-primary btn-block py-3" type="submit">
+                <button class="btn btn-primary btn-block py-3" type="submit" name="submit_join_form">
                     <i class="fas fa-sign-in"></i>
                     Join a team
                 </button>

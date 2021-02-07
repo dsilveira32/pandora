@@ -41,8 +41,8 @@
                         <td>{{ team_submission_details.n_passed }}/{{ team_submission_details.n_total }}</td>
 
                         <td>
-                            <h5 class="m-0 p-0 text-{% if team_submission_details.n_passed < n_total %}danger{% else %}success{% endif %}">
-                                <i class="fas fa-{% if team_submission_details.n_passed < n_total %}times-circle{% else %}check-circle{% endif %}"></i>
+                            <h5 class="m-0 p-0 text-{% if team_submission_details.n_passed < team_submission_details.n_total %}danger{% else %}success{% endif %}">
+                                <i class="fas fa-{% if team_submission_details.n_passed < team_submission_details.n_total %}times-circle{% else %}check-circle{% endif %}"></i>
                             </h5>
                         </td>
                         <td></td>

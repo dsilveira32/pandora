@@ -455,18 +455,20 @@ def getUserGroupJoinFormContext(form):
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND team_join_form.html
-def getTeamJoinFormContext(form):
+def getTeamJoinFormContext(create_form,join_form):
         """Context for team_join_form.html
         REQUIRED IN ALL VIEWS THAT EXTEND team_join_form.html
         Parameters
         ----------
-            form: TeamJoinForm
+            create_form: TeamCreateForm
+            join_form: TeamJoinForm
         return
         ----------
             context
         """
         return {
             'team_join_form': {
-                'form': form
+                'create_form': create_form,
+                'join_form': join_form
             }
         }
