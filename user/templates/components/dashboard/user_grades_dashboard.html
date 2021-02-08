@@ -1,6 +1,13 @@
-<canvas id="myChart"></canvas>
+<div class="card">
+    <div class="card-header">
+        Grade by contest
+    </div>
+    <div class="card-body">
+        <canvas id="grade_by_contest"></canvas>
+    </div>
+</div>
 <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
+    var ctx = document.getElementById('grade_by_contest').getContext('2d');
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
