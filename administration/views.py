@@ -26,7 +26,7 @@ def superuser_only(function):
 
 @superuser_only
 def admin_choose_test(request, id):
-	template_name = 'components/tests/admin_test_chooser.html'
+	template_name = 'components/tests/admin_test_list.html'
 	contest_obj = get_object_or_404(Contest, id=id)
 	context = {'contest': contest_obj}
 	contest_tests = contest_obj.test_set.all()
@@ -521,7 +521,7 @@ def admin_contest_detail_dashboard_view(request, id):
 
 	# For admin_team_list.html
 	teams = structureTeamsData(contest.getTeams())
-	context.update(getTeamListContext(teams))
+	context.update(getAdminTeamListContext(teams))
 
 	return render(request, template_name, context)
 
@@ -535,7 +535,7 @@ def admin_contest_detail_tests_view(request, id):
 
 	context.update(getAdminContestDetailLayoutContext(contest))
 
-	context.update(getTestChooserContext(contest_tests))
+	context.update(getAdminTestListContext(contest_tests))
 	form = TestForm(request.POST or None)
 	if form.is_valid():
 		with transaction.atomic():
@@ -560,9 +560,7 @@ def admin_contest_detail_tests_view(request, id):
 				t.save()
 
 		contest_tests = contest.test_set.all()
-		context.update(getTestChooserContext(contest_tests))
 		form = TestForm()
-		context.update(getContestDetailTestsContext(contest, form))
 	return render(request, template_name, context)
 
 # Admin create test view
@@ -573,57 +571,29 @@ def admin_contest_detail_tests_create_view(request, id):
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	form = CreateTestModelForm(request.POST or None, request.FILES or None)
+
 	# TODO A melhorar
-	print_form_info_debug(form)
-	# test_form = CreateTestModelForm(request.POST or None)
-	# print("-----------------------------------The form for the test is: " + str(test_form) +
-	#       "-----------------------------------")
-	# print("-----------------------------------The form for the test is valid: " + str(test_form.is_valid()) +
-	#       "-----------------------------------")
 	if form.is_valid():
 		obj = form.save(commit=False)
 		zip_in = obj.input_file
 		zip_out = obj.output_file
-		# start debug
-		print_variable_debug(contest.short_name)
-		print_variable_debug(contest)
 		a_ok = True
-		# end debug
 		if '.zip' in str(zip_in) and '.zip' in str(zip_out):
-			print_variable_debug("The files: \n" + str(zip_in).split('.')[0] + "\n" + str(zip_out).split('.')[0] +
-								 "\nare zip files!")
-
 			in_files = check_in_files(zip_in, contest)
 			in_files.sort(key=natural_keys)
-			print_variable_debug(in_files)
-			print_variable_debug(zip_in)
 			n_tests = len(in_files)
-			print_variable_debug(n_tests)
-			print_variable_debug(zip_out)
-
-			# out_files = set_test_in_order(check_out_files(zip_out, contest, n_tests))
 
 			out_files = check_out_files(zip_out, contest, n_tests)
 			out_files.sort(key=natural_keys)
-
-			print_variable_debug(out_files)
-
-			print_variable_debug("In files: ")
-			print_variables_debug(in_files)
-			print_variable_debug("Out files: ")
-			print_variables_debug(out_files)
 
 			if len(in_files) > 0 and len(out_files) > 0:
 				for i in range(len(in_files)):
 					if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
 						a_ok = False
-			# print_variables_debug([in_files[i].split('.')[0], out_files[i].split('.')[0], a_ok])
-
 			else:
 				a_ok = False
 
 			if a_ok:
-				print_variable_debug("There is an out for each in!")
 				weight = 100 / n_tests
 				benchmark = True
 				test_number = 0
@@ -641,8 +611,6 @@ def admin_contest_detail_tests_create_view(request, id):
 					f.close()
 					path = __get_zip_file_path(zip_in) + "/out/" + str(out_files[i])
 					f = open(path)
-					print(out_files[i])
-					print(f)
 
 					test.output_file.save(out_files[i], File(f))
 					f.close()
@@ -682,33 +650,57 @@ def admin_contest_detail_tests_create_view(request, id):
 							benchmark = False
 
 						test.type_of_feedback = 2
-
-					# print_variables_debug([
-					# 	"Test " + str(test_number) + " has:",
-					# 	test.contest,
-					# 	test.weight_pct,
-					# 	test.mandatory,
-					# 	test.use_for_memory_benchmark,
-					# 	test.use_for_time_benchmark
-					# ])
-
 					test.save()
-			# print_variable_debug("Test " + str(test_number) + " made!")
-			# print_variable_debug(i)
-		# print_variable_debug(obj)
-		# print_variable_debug(a_ok)
 		if a_ok:
-			# print_variable_debug("Returning \"contest.get_absolute_url()\"")
-			# print_variable_debug("Contest: " + str(contest))
-			# print_variable_debug("URL: " + str(contest.get_absolute_url()))
-			return redirect(contest.get_absolute_url())
+			return redirect(admin_contest_detail_tests_view, contest.id)
 
 
 	###########################
-	context.update(getTestCreationContext(contest, form))
+	context.update(getAdminTestCreationContext(contest, form))
 	return render(request, template_name, context)
 
 
+# Admin create test view
+def admin_contest_detail_tests_edit_view(request, id, tid):
+	template_name = 'views/contests/admin_contest_detail_tests_edit.html'
+	context = {}
+	contest = getContestByID(id)
+	context.update(getAdminContestDetailLayoutContext(contest))
+
+	test = Test.objects.get(contest_id=id, id=tid)
+	context.update(getAdminTestEditionContext(test))
+
+	form = TestForm(request.POST or None)
+
+	if form.is_valid():
+		if 'on' in request.POST.getlist('override'):
+			test_override = True
+		else:
+			test_override = False
+		test_cpu = request.POST.getlist('cpu')[0]
+		test_mem = request.POST.getlist('mem')[0]
+		test_space = request.POST.getlist('space')[0]
+		test_core = request.POST.getlist('core')[0]
+		test_nproc = request.POST.getlist('nproc')[0]
+		test_fsize = request.POST.getlist('fsize')[0]
+		test_stack = request.POST.getlist('stack')[0]
+		test_clock = request.POST.getlist('clock')[0]
+
+		test.override_exec_options = test_override
+		test.cpu = test_cpu
+		test.mem = test_mem
+		test.space = test_space
+		test.core = test_core
+		test.nproc = test_nproc
+		test.fsize = test_fsize
+		test.stack = test_stack
+		test.clock = test_clock
+		test.save()
+		return redirect(admin_contest_detail_tests_view, id)
+
+
+	###########################
+	return render(request, template_name, context)
 
 # Admin teams view
 @superuser_only
@@ -720,11 +712,15 @@ def admin_contest_detail_teams_view(request, id):
 
 	# For admin_team_list.html
 	teams = structureTeamsData(contest.getTeams())
-	context.update(getTeamListContext(teams))
+	context.update(getAdminTeamListContext(teams))
 
 	return render(request, template_name, context)
 
-
+# Admin edit team view
+@superuser_only
+def admin_contest_detail_team_edit_view(request, id, teamid):
+	template_name = 'views/contests/admin_contest_detail_team_edit.html'
+	context = {}
 
 ####################
 # 	   GROUPS	   #
