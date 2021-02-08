@@ -27,15 +27,15 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarContestUser">
                 <a class="nav-link mr-2 {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
-                   href="/manager/contests/{{ admin_contest_detail_layout.contest.id }}">
+                   href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">
                     Dashboard
                 </a>
                 <a class="nav-link mr-2 {% if '/tests' in request.path %}active{% endif %}"
-                   href="/manager/contests/{{ admin_contest_detail_layout.contest.id }}/tests">
+                   href="{% url 'manager_contests_detail_tests' admin_contest_detail_layout.contest.id %}">
                     Tests
                 </a>
                 <a class="nav-link mr-2 {% if '/teams' in request.path %}active{% endif %}"
-                   href="/manager/contests/{{ admin_contest_detail_layout.contest.id }}/teams">
+                   href="{% url 'manager_contests_detail_teams' admin_contest_detail_layout.contest.id %}">
                     Teams
                 </a>
             </div>

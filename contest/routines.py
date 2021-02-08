@@ -660,8 +660,8 @@ def getAllContestAttemptsRanking(contest):
 
 def structureTeamsData(teams):
     for t in teams:
-        #		t.members = TeamMember.objects.filter(team=t)
-        t.members = t.teammember_set.all()
+        t.members = t.getUsers()
+        print(1)
         t.nMembers = t.members.count()
         t.attempts = t.attempt_set.all()
         if t.attempts:
@@ -678,7 +678,7 @@ def structureTeamsData(teams):
             t.nAtempts = 0
 
         for m in t.members:
-            m.nAtempts = t.attempts.filter(user=m.user).count()
+            m.nAtempts = t.attempts.filter(user=m).count()
     return teams
 
 

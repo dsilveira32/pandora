@@ -1,9 +1,9 @@
 {% extends "layouts/contests/admin_contest_detail_layout.html" %}
 {% block contestDetailContent %}
     <div>
-        <a class="btn btn-primary" type="button" href="{{ contest_detail_tests.contest.get_absolute_url }}create">Create Test</a>
+        <a class="btn btn-primary" type="button" href="{% url 'manager_contests_detail_tests_create'  admin_contest_detail_layout.contest.id %}">Create Test</a>
     </div>
     <div class="col-12">
-        {% include "components/tests/test_chooser.html" %}
+        {% include "components/contests/tests/admin_test_list.html" %}
     </div>
 {% endblock %}

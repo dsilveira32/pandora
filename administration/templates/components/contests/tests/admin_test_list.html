@@ -20,7 +20,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for t in test_chooser.tests %}
+                            {% for t in admin_test_list.tests %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ t.id }}</td>
@@ -58,9 +58,9 @@
                                                value="{{ t.type_of_feedback }}">
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-warning" type="button">
+                                        <a class="btn btn-sm btn-warning" href="{% url 'manager_contests_detail_tests_edit' t.contest.id t.id%}">
                                             <i class="fa fa-pencil-alt"></i>
-                                        </button>
+                                        </a>
                                         <button class="btn btn-sm btn-danger" type="button">
                                             <i class="fa fa-trash"></i>
                                         </button>
