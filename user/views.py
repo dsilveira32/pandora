@@ -541,14 +541,15 @@ def user_dashboard_view(request):
         labels.append(contest.getName())
         team = contest.getUserTeam(request.user)
         data.append(team.getGreatestGradeAttempt().getGrade())
-        bgcolors.append('rgba(54, 162, 235, 0.5)')
+        bgcolors.append('#4e73df')
 
     context.update(getUserGradesDasboardContext(labels, [
         {
             'label': 'Nota',
             'data': data,
             'backgroundColor': bgcolors,
-            'maxBarThickness': '100'
+            'hoverBackgroundColor': "#2e59d9",
+            'borderColor': "#4e73df"
         }
     ]))
     return render(request, template_name, context)
