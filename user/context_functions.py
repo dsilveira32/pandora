@@ -491,3 +491,39 @@ def getUserGradesDasboardContext(labels, datasets):
                 'datasets': datasets
             }
         }
+
+# REQUIRED IN ALL VIEWS THAT EXTEND user_profile_form.html
+def getUserProfileFormContext(userForm, profileForm):
+        """Context for user_profile_form.html
+        REQUIRED IN ALL VIEWS THAT EXTEND user_profile_form.html
+        Parameters
+        ----------
+            userForm: ModelForm
+            profileForm: ModelForm
+        return
+        ----------
+            context
+        """
+        return {
+            'user_profile_form': {
+                'userForm': userForm,
+                'profileForm': profileForm
+            }
+        }
+
+# REQUIRED IN ALL VIEWS THAT EXTEND user_contests_number_card.html
+def getUserContestsNumberCardContext(activeContestsNumber):
+        """Context for user_contests_number_card.html
+        REQUIRED IN ALL VIEWS THAT EXTEND user_contests_number_card.html
+        Parameters
+        ----------
+            activeContestsNumber: int
+        return
+        ----------
+            context
+        """
+        return {
+            'user_contests_number_card': {
+                'active_contests': activeContestsNumber
+            }
+        }

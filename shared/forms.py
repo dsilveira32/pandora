@@ -66,7 +66,7 @@ class CreateTestModelForm(forms.ModelForm):
 class UserEditForm(forms.ModelForm):
 	class Meta:
 		model = User
-		fields = ['email','first_name','last_name']
+		fields = ['first_name', 'last_name', 'email']
 
 class ProfileEditForm(forms.ModelForm):
 	number = forms.IntegerField(required=True, label='Student Number')
@@ -74,7 +74,7 @@ class ProfileEditForm(forms.ModelForm):
 							  label='Agree to share my information (name, email, number, username, grade) with the authors and other users of this application')
 	class Meta:
 		model = Profile
-		fields = ['number','gprd']
+		fields = ['number', 'gprd']
 
 
 class TeamMemberApprovalForm(forms.Form):

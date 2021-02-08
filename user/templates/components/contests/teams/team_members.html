@@ -1,6 +1,15 @@
 <div class="card border rounded shadow-sm mb-4 mt-4">
     <div class="card-body text-center">
-        <h5 class="car-title mb-2 text-primary">Team: {{ team_members.team.name }}</h5>
+        <div class="row p-3">
+            <div class="offset-4 col-4 pt-1">
+                <h5 class="car-title mb-2 text-primary ">Team: {{ team_members.team.name }}</h5>
+            </div>
+            <div class="col-4">
+                <button class="btn btn-sm btn-info" id="teamJoinCode" data-placement="top" title="" code="{{ team_members.team.join_code }}">Copy
+                    join code
+                </button>
+            </div>
+        </div>
         <p class="card-text mb-auto">
         <table class="table">
             <tbody>
@@ -15,3 +24,31 @@
         </p>
     </div>
 </div>
+<script>
+    function copyToClipboard(textToCopy, callback) {
+        try{
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(textToCopy).select();
+            document.execCommand("copy");
+            $temp.remove();
+            callback(true);
+        }catch (e) {
+            callback(false);
+        }
+    }
+
+    $(function () {
+        $("#teamJoinCode").on("click", function (e) {
+            e.preventDefault()
+            $(this).tooltip("hide")
+            copyToClipboard($(this).attr("code"), function (done) {
+                if(done){
+                    $("#teamJoinCode").attr("title", "Join code copied to clipboard!").tooltip("show");
+                }else{
+                    $("#teamJoinCode").tooltip("hide")
+                }
+            })
+        })
+    })
+</script>

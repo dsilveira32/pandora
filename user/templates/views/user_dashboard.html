@@ -3,8 +3,12 @@
     <h3>Dashboard</h3>
     <hr>
     <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            {% include 'components/dashboard/user_contests_number_card.html' %}
+        </div>
+        <div class="col-12"></div>
         <div class="col-6">
-            {% include 'components/dashboard/user_grades_dashboard.html' %}
+            {% include 'components/dashboard/user_grades_graph.html' %}
         </div>
     </div>
 {% endblock %}

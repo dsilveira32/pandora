@@ -20,7 +20,7 @@ from .views import (
     user_group_detail_dashboard_view,
     user_group_home_view,
     user_group_join_view,
-    user_dashboard_view
+    user_dashboard_view, user_profile_view
 )
 
 urlpatterns = [
@@ -42,6 +42,9 @@ urlpatterns = [
     path('groups/join', user_group_join_view, name='user_group_join'),
     path('groups/<int:id>/', user_group_detail_dashboard_view, name='user_groups_detail_dashboard'),
 
+    # Profile
+    path('profile/', user_profile_view, name='user_profile_view'),
+
     # Old
     path('contests/<int:id>/team/', team_create_view),
     path('contests/<int:id>/my_team/', team_detail_view),
@@ -52,5 +55,5 @@ urlpatterns = [
 
     path('complete_profile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
-    path('profile/', profile_view, name='profile')
+
 ]

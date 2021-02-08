@@ -155,6 +155,7 @@ class Contest(models.Model):
 
 
 class Test(models.Model):
+    name = models.CharField(max_length=512, null=False, blank=True)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
     output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)

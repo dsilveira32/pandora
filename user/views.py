@@ -333,6 +333,7 @@ def team_detail_view(request, id):
     ])
     return render(request, template_name, context)
 
+
 # SUMISSION VIEW
 @login_required
 def contest_attempt_form_view(request, id):
@@ -377,6 +378,7 @@ def contest_attempt_form_view(request, id):
     context.update(getTeamSubmissionHistoryContext(attempts))
     return render(request, template_name, context)
 
+@login_required
 def contest_attempt_details_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
@@ -421,7 +423,7 @@ def contest_attempt_details_view(request, id, attempt_id):
 @login_required
 def user_contest_home_view(request):
     checkUserProfileInRequest(request)
-    template_name = 'views/contests/home.html'
+    template_name = 'views/contests/user_contest_home.html'
     context = {'title': 'Contests',
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
@@ -435,7 +437,7 @@ def user_contest_home_view(request):
 def user_contest_detail_dashboard_view(request, id):
     #checkUserProfileInRequest(request)
     context = {}
-    template_name = 'views/contests/contest.html'
+    template_name = 'views/contests/user_contest_detail_dashboard.html'
 
     # Get required data
     contest = getContestByID(id)
@@ -463,7 +465,7 @@ def user_contest_detail_dashboard_view(request, id):
 @login_required
 def user_contest_team_join_view(request, id):
     context = {}
-    template_name = 'views/contests/teams/team_join.html'
+    template_name = 'views/contests/teams/user_contest_team_join.html'
 
     contest = getContestByID(id)
 
@@ -481,8 +483,6 @@ def user_contest_team_join_view(request, id):
     context.update(getContestDetailLayoutContext(contest))
     context.update(getTeamJoinFormContext(create_form, join_form))
     return render(request, template_name, context)
-
-
 
 ##########
 # GROUPS #
@@ -517,7 +517,6 @@ def user_group_join_view(request):
     context.update(getUserGroupJoinFormContext(form))
     return render(request, template_name, context)
 
-
 @login_required
 def user_group_detail_dashboard_view(request):
     template_name = 'views/groups/teams/team_join.html'
@@ -543,6 +542,11 @@ def user_dashboard_view(request):
         data.append(team.getGreatestGradeAttempt().getGrade())
         bgcolors.append('#4e73df')
 
+    numberOpenedContests = 0
+    for contest in getContestsForUser(request):
+        if (contest.isOpen()):
+            numberOpenedContests += 1
+
     context.update(getUserGradesDasboardContext(labels, [
         {
             'label': 'Nota',
@@ -552,4 +556,20 @@ def user_dashboard_view(request):
             'borderColor': "#4e73df"
         }
     ]))
+
+    context.update(getUserContestsNumberCardContext(numberOpenedContests))
+    return render(request, template_name, context)
+
+@login_required
+def user_profile_view(request):
+    template_name = 'views/user_profile.html'
+    context = {}
+    profile_form = ProfileEditForm(request.POST or None, instance=request.user.profile)
+    user_form = UserEditForm(request.POST or None, instance=request.user)
+
+    if all((profile_form.is_valid(), user_form.is_valid())):
+        profile_form.save()
+        user_form.save()
+
+    context.update(getUserProfileFormContext(user_form, profile_form))
     return render(request, template_name, context)
