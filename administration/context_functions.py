@@ -72,6 +72,24 @@ def getAdminTeamListContext(teams):
         }
     }
 
+
+# For admin_team_detail.html
+def getAdminTeamDetailContext(team):
+    """Context for admin_team_detail.html
+    REQUIRED IN ALL VIEWS THAT EXTEND admin_team_detail.html
+    Parameters
+    ----------
+        team : Team
+    return
+    ----------
+       team_list
+    """
+    return {
+        'admin_team_detail': {
+            'team': team,
+        }
+    }
+
 # For admin_test_creation.html
 # REQUIRED IN ALL VIEWS THAT EXTEND admin_test_creation.html
 def getAdminTestCreationContext(contest, form):

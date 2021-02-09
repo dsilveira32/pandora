@@ -721,6 +721,14 @@ def admin_contest_detail_teams_view(request, id):
 def admin_contest_detail_team_edit_view(request, id, teamid):
 	template_name = 'views/contests/admin_contest_detail_team_edit.html'
 	context = {}
+	contest = getContestByID(id)
+	context.update(getAdminContestDetailLayoutContext(contest))
+	team = Team.objects.filter(id=teamid).first()
+	context.update(getAdminTeamDetailContext(team))
+
+
+	return render(request, template_name, context)
+
 
 ####################
 # 	   GROUPS	   #
