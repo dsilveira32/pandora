@@ -12,8 +12,8 @@ from .models import (
     SafeExecError,
     UserContestDateException,
     ContestTestDataFile,
-    Group
-	)
+    Group, C_Specification
+)
 
 
 class ProfileInline(admin.StackedInline):
@@ -59,4 +59,5 @@ admin.site.register(Team)
 admin.site.register(SafeExecError)
 admin.site.register(UserContestDateException)
 admin.site.register(ContestTestDataFile)
+admin.site.register(C_Specification)
 admin.site.register(Group)

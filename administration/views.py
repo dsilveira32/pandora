@@ -638,22 +638,15 @@ def admin_contest_detail_tests_create_view(request, id):
 
 						test.type_of_feedback = 1
 					elif in_files[i].split('.')[1] == "inmh":
-
-						if not benchmark:
-							test.use_for_time_benchmark = False
-							test.use_for_memory_benchmark = False
-							test.mandatory = True
-						else:
-							test.use_for_time_benchmark = True
-							test.use_for_memory_benchmark = True
-							test.mandatory = True
-							benchmark = False
+						test.use_for_time_benchmark = not not benchmark
+						test.use_for_memory_benchmark = not not benchmark
+						test.mandatory = not benchmark
+						benchmark = not benchmark
 
 						test.type_of_feedback = 2
 					test.save()
 		if a_ok:
 			return redirect(admin_contest_detail_tests_view, contest.id)
-
 
 	###########################
 	context.update(getAdminTestCreationContext(contest, form))

@@ -62,40 +62,39 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
 
+
+class Specification(models.Model):
+    cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
+    mem = models.PositiveIntegerField(default=32768)  # <kbytes>		Default: 32768 kbyte(s)
+    run_arguments = models.CharField(max_length=512, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
 class Contest(models.Model):
     title = models.CharField(max_length=128)
     short_name = models.CharField(max_length=16, blank=False, unique=True)
     description = models.TextField(null=True, blank=True)
-    #	sow = models.FileField(upload_to=get_contest_detail_path, blank=True, null=True, max_length=512)
     sow = models.URLField(max_length=200, blank=True)
-
+    # TODO: Obrigar a que o reference_code seja um ZIP
     reference_code = models.FileField(upload_to=get_contest_code_path, blank=True, null=True)
-
     start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     min_team_members = models.PositiveSmallIntegerField(default=1)
     max_team_members = models.PositiveSmallIntegerField(default=3)
-    compile_flags = models.CharField(max_length=120)
-    linkage_flags = models.CharField(max_length=120)
     max_classification = models.IntegerField(default=20)
     visible = models.BooleanField(null=False, default=True, blank=False)
     automatic_weight = models.BooleanField(null=False, default=True, blank=False)
     max_submitions = models.PositiveIntegerField(default=0)
-    # safexec options
-    cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
-    mem = models.PositiveIntegerField(default=32768)  # <kbytes>		Default: 32768 kbyte(s)
-    space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
-    maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
-    core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
-    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-    stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-    clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
-    chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
+    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C')])
+
+    def getSpecifications(self):
+        if self.language == 'C':
+            return self.c_specifications
+        else:
+            return None
 
     def isOpen(self):
-        print(1)
         """Returns true if the contest is on going."""
         from django.utils import timezone
         if timezone.now() < self.end_date and timezone.now() > self.start_date:
@@ -140,6 +139,70 @@ class Contest(models.Model):
 
     def getName(self):
         return self.title
+
+class Test(models.Model):
+    name = models.CharField(max_length=512, null=False, blank=True)
+    contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
+    input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
+    output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
+    mandatory = models.BooleanField(null=False, default=False)
+    weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
+    # TODO: Ver com o prof o que fazer com esta merda xD
+    type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
+
+    def getSpecifications(self):
+        if self.contest.language == 'C':
+            return self.c_specifications
+        else:
+            return None
+
+
+    def getContest(self):
+        return self.contest
+
+    def getDetails(self):
+        # TODO: Check the minuid and maxuid
+        specs = self.getSpecifications()
+        return specs.cpu, specs.mem, specs.space, specs.minuid, specs.maxuid, specs.core, specs.nproc, specs.fsize, specs.stack, specs.clock
+
+
+
+
+
+class C_Specification(Specification):
+
+    contest = models.OneToOneField(Contest, null=True, blank=True,  on_delete=models.CASCADE, related_name='c_specifications')
+    test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='c_specifications')
+
+    compile_flags = models.CharField(max_length=120)
+    linkage_flags = models.CharField(max_length=120)
+
+    space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
+    minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
+    maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
+    core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
+    nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
+    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+    stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+    clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
+    chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
+    check_leak = models.BooleanField(null=False, default=False)
+
+    class Meta:
+        constraints = [
+            # This constraint checks if exactly one of either contest or test
+            # is filled. Rejects if both are or if none are.
+            models.CheckConstraint(
+                name="c_specifications_contest_test_one_only_constraint",
+                check=models.Q(contest__isnull=False)&models.Q(test__isnull=True)|models.Q(contest__isnull=True)&models.Q(test__isnull=False)
+            )
+        ]
+#models.Q(
+ #                   contest__isnull=False and test__isnull=True
+ #                                     or
+  #                  contest__isnull=True and test_isnull=False
+  #              ),
+
 # def checkAttempts(self, request, attempts):
 #	if self.max_submitions > 0:
 #		if attempts and attempts.count() >= self.max_submitions:
@@ -152,36 +215,6 @@ class Contest(models.Model):
 #		messages.error(request, "This contest is not active.")
 #		return False
 #	return True
-
-
-class Test(models.Model):
-    name = models.CharField(max_length=512, null=False, blank=True)
-    contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-    input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
-    output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
-
-    mandatory = models.BooleanField(null=False, default=False)
-    weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
-    run_arguments = models.CharField(max_length=512, null=True, blank=True)
-    type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
-    # test specific options
-    override_exec_options = models.BooleanField(null=False, default=False)
-    cpu = models.PositiveIntegerField(default=1)  # <seconds>           Default: 1 second(s)
-    mem = models.PositiveIntegerField(default=32768)  # <kbytes>            Default: 32768 kbyte(s)
-    space = models.PositiveIntegerField(default=0)  # <kbytes>            Default: 0 kbyte(s)
-    core = models.PositiveIntegerField(default=0)  # <kbytes>            Default: 0 kbyte(s)
-    nproc = models.PositiveIntegerField(default=0)  # <number>            Default: 0 proccess(es)
-    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>            Dfault: 8192 kbyte(s)
-    stack = models.PositiveIntegerField(default=8192)  # <kbytes>            Default: 8192 kbyte(s)
-    clock = models.PositiveIntegerField(default=10)  # <seconds>           Wall clock timeout (default: 10)
-    check_leak = models.BooleanField(null=False, default=False)
-
-    def getContest(self):
-        return self.contest
-
-    def getDetails(self):
-        # TODO: Check the minuid and maxuid
-        return self.cpu, self.mem, self.space, self.getContest().minuid, self.getContest().maxuid, self.core, self.nproc, self.fsize, self.stack, self.clock
 
 
 class Team(models.Model):
@@ -312,7 +345,7 @@ class UserContestDateException(models.Model):
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     unique_together = ('contest', 'user')
 
-
+# TODO: Falar com o prof. esta classe e utilizada?
 class ContestTestDataFile(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     data_file = models.FileField(upload_to=get_contest_data_path, blank=False, null=False, max_length=512)
@@ -343,3 +376,4 @@ class Group(models.Model):
 
     def hasUser(self, user):
         return self.users.filter(id=user.id).exists()
+
