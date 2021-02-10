@@ -61,8 +61,6 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
     instance.profile.save()
 
-
-
 class Specification(models.Model):
     cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
     mem = models.PositiveIntegerField(default=32768)  # <kbytes>		Default: 32768 kbyte(s)

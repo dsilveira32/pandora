@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.admin import widgets as django_widgets
 
 from contest.utils import print_variables_debug
-from .models import Attempt, Team, Contest, Test, get_contest_code_path, Profile, Group
+from .models import Attempt, Team, Contest, Test, get_contest_code_path, Profile, Group, C_Specification
 
 
 class DateInputWidget(forms.DateTimeInput):
@@ -33,40 +34,63 @@ class AttemptModelForm(forms.ModelForm):
 
 
 
-
 class CreateContestModelForm(forms.ModelForm):
-
 	class Meta:
 		model = Contest
-		# widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
+		#widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
 		fields = "__all__"
+
+
+	def submit(self):
+		if self.is_valid():
+			self.save()
+			return True
+		return False
+
+
 
 
 class CreateTestModelForm(forms.ModelForm):
+	override_default_specifications = forms.BooleanField(required=False, initial=False, label='Override contest programming language specifications?')
 
 	class Meta:
 		model = Test
-		fields = "__all__"
+		exclude = ['contest']
 
-	def changed_input_file(self, *args, **kwargs):
-		input_file = self.changed_data.get('input_file')
+	def submit(self, contest):
+		"""
+			returns (formSaved, overrideSpecs)
+			If override specs is true redirect to the specs creation page
+		"""
+		if self.is_valid():
+			test = self.save(commit=False)
+			test.contest = contest
+			test.save()
+			return True, not not self.data['override_default_specifications']
+		return False, False
 
-		print("****************************************" + str(input_file) + "****************************************")
+class C_SpecificationCreateForm(forms.ModelForm):
+	class Meta:
+		model = C_Specification
+		exclude = ['contest', 'test']
+		#fields = "__all__"
 
-		return input_file
-
-	def changed_output_file(self, *args, **kwargs):
-		output_file = self.changed_data.get('output_file')
-
-		print("***************************************" + str(output_file) + "****************************************")
-
-		return output_file
-
-
+	def submit(self, obj):
+		if not self.is_valid() or not obj:
+			return False
+		if type(obj) == Contest:
+			self.contest = obj
+		elif type(obj) == Test:
+			self.test = obj
+		else:
+			return False
+		spec = self.save(commit=False)
+		spec.save()
+		return True
 class UserEditForm(forms.ModelForm):
 	class Meta:
 		model = User
-		fields = ['first_name', 'last_name', 'email']
+		fields = ['first_name', 'last_name']
 
 class ProfileEditForm(forms.ModelForm):
 	number = forms.IntegerField(required=True, label='Student Number')

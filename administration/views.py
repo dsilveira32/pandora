@@ -763,3 +763,15 @@ def admin_group_detail_dashboard_view(request, id):
 	context.update(getAdminGroupUserListContext(user_profiles))
 
 	return render(request, template_name, context)
+
+# Admin Contest Create
+@superuser_only
+def admin_contest_create_view(request):
+	template_name = 'views/contests/admin_contest_create.html'
+	context = {}
+	form = CreateContestModelForm(request.POST or None)
+	if form.is_valid():
+		if form.submit():
+			return redirect(admin_contest_home_view)
+	context.update(getAdminCreateContestFormContext(form))
+	return render(request, template_name, context)

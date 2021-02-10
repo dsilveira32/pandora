@@ -1,0 +1,11 @@
+{% extends "layouts/admin_area_layout.html" %}
+{% block pageContent %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Contests</li>
+        </ol>
+    </nav>
+    <div class="offset-2 col-8">
+        {% include "components/contests/admin_contest_create_form.html" %}
+    </div>
+{% endblock %}

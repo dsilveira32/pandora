@@ -187,3 +187,13 @@ def getAdminCreateGroupFormContext(form):
             'form': form
         }
     }
+
+
+
+# For admin_contest_create_form.html
+def getAdminCreateContestFormContext(form):
+    return {
+        'admin_contest_create_form': {
+            'form': form
+        }
+    }
