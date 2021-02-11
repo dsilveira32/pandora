@@ -11,19 +11,21 @@
                             <tr>
                                 <th>Test #</th>
                                 <th>Test ID</th>
+                                <th>Test Name</th>
                                 <th>Mandatory</th>
                                 <th>Weight</th>
-                                <th>run_arguments</th>
-                                <th>check_leak</th>
+                                <th>Run arguments</th>
+                                <th>Check leak</th>
                                 <th>Type of feedback</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="text-center">
                             {% for t in admin_test_list.tests %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ t.id }}</td>
+                                    <td>{{ t.name }}</td>
                                     <td>
                                         {% if t.mandatory == True %}
                                             <input type="checkbox" value='{{ t.id }}' id="mandatory"
@@ -35,15 +37,15 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <input type="number" name="weight_pct" value="{{ t.weight_pct }}">
+                                        <input type="number" class="form-control" name="weight_pct" value="{{ t.weight_pct }}">
                                     </td>
                                     <td>
-                                        <input type="text" name="run_arguments"
+                                        <input type="text" class="form-control" name="run_arguments"
                                                value="{{ t.run_arguments|default_if_none:'' }}">
                                     </td>
                                     <td>
                                         {% if t.check_leak == True %}
-                                            <input type="checkbox" value='{{ t.id }}' id="check_leak"
+                                            <input type="checkbox" class="form-control" value='{{ t.id }}' id="check_leak"
                                                    name="check_leak"
                                                    checked>
 
@@ -54,7 +56,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="number" name="type_of_feedback"
+                                        <input type="number" class="form-control" name="type_of_feedback"
                                                value="{{ t.type_of_feedback }}">
                                     </td>
                                     <td>
