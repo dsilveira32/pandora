@@ -428,7 +428,7 @@ def user_contest_home_view(request):
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
                }
-    contests = getContestsForUser(request)
+    contests = Contest.getContestsForUser(request)
     context.update(getContestListContext(contests))
     return render(request, template_name, context)
 

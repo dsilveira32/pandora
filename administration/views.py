@@ -7,7 +7,8 @@ from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from shared.forms import CreateContestModelForm, TestForm, CreateTestModelForm, GroupCreateForm
+from shared.forms import CreateContestModelForm, TestForm, CreateTestModelForm, GroupCreateForm, \
+	C_SpecificationCreateForm
 from shared.models import Contest, Test, get_tests_path, Attempt
 from contest.routines import *
 from django.db import transaction
@@ -513,10 +514,10 @@ def admin_contest_home_view(request):
 
 # Admin detail contest home view
 @superuser_only
-def admin_contest_detail_dashboard_view(request, id):
+def admin_contest_detail_dashboard_view(request, contest_id):
 	template_name = 'views/contests/admin_contest_detail_dashboard.html'
 	context = {}
-	contest = getContestByID(id)
+	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For admin_team_list.html
@@ -526,11 +527,11 @@ def admin_contest_detail_dashboard_view(request, id):
 	return render(request, template_name, context)
 
 @superuser_only
-def admin_contest_detail_tests_view(request, id):
+def admin_contest_detail_tests_view(request, contest_id):
 	template_name = 'views/contests/admin_contest_detail_tests.html'
 	context = {}
 
-	contest = getContestByID(id)
+	contest = getContestByID(contest_id)
 	contest_tests = contest.getTests()
 
 	context.update(getAdminContestDetailLayoutContext(contest))
@@ -564,13 +565,15 @@ def admin_contest_detail_tests_view(request, id):
 	return render(request, template_name, context)
 
 # Admin create test view
-def admin_contest_detail_tests_create_view(request, id):
+def admin_contest_detail_tests_create_view(request, contest_id):
 	template_name = 'views/contests/admin_contest_detail_tests_create.html'
 	context = {}
-	contest = getContestByID(id)
+	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	form = CreateTestModelForm(request.POST or None, request.FILES or None)
+	# Delete this function when json tests are added
+	test_id = 0
 
 	# TODO A melhorar
 	if form.is_valid():
@@ -582,7 +585,6 @@ def admin_contest_detail_tests_create_view(request, id):
 			in_files = check_in_files(zip_in, contest)
 			in_files.sort(key=natural_keys)
 			n_tests = len(in_files)
-
 			out_files = check_out_files(zip_out, contest, n_tests)
 			out_files.sort(key=natural_keys)
 
@@ -645,62 +647,51 @@ def admin_contest_detail_tests_create_view(request, id):
 
 						test.type_of_feedback = 2
 					test.save()
+					test_id = test.id
 		if a_ok:
-			return redirect(admin_contest_detail_tests_view, contest.id)
+			if request.POST.get('override_default_specifications', False):
+				return redirect(admin_contest_detail_test_detail_specification_view, contest.id, test_id)
+			return redirect(admin_contest_detail_test_detail_view, contest.id, test_id)
 
 	###########################
-	context.update(getAdminTestCreationContext(contest, form))
+	context.update(getAdminTestFormContext(contest, form))
 	return render(request, template_name, context)
 
 
 # Admin create test view
-def admin_contest_detail_tests_edit_view(request, id, tid):
-	template_name = 'views/contests/admin_contest_detail_tests_edit.html'
+def admin_contest_detail_test_detail_view(request, contest_id, test_id):
+	template_name = 'views/contests/admin_contest_detail_test_detail.html'
 	context = {}
-	contest = getContestByID(id)
+	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
 
-	test = Test.objects.get(contest_id=id, id=tid)
-	context.update(getAdminTestEditionContext(test))
+	test = Test.objects.get(contest_id=contest_id, id=test_id)
 
-	form = TestForm(request.POST or None)
+	return render(request, template_name, context)
+
+# Admin create test view
+def admin_contest_detail_test_detail_edit_view(request, contest_id, test_id):
+	template_name = 'views/contests/admin_contest_detail_test_detail_edit.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	context.update(getAdminContestDetailLayoutContext(contest))
+
+	test = Test.objects.get(contest_id=contest_id, id=test_id)
+	form = CreateTestModelForm(request.POST or None, instance=test)
 
 	if form.is_valid():
-		if 'on' in request.POST.getlist('override'):
-			test_override = True
-		else:
-			test_override = False
-		test_cpu = request.POST.getlist('cpu')[0]
-		test_mem = request.POST.getlist('mem')[0]
-		test_space = request.POST.getlist('space')[0]
-		test_core = request.POST.getlist('core')[0]
-		test_nproc = request.POST.getlist('nproc')[0]
-		test_fsize = request.POST.getlist('fsize')[0]
-		test_stack = request.POST.getlist('stack')[0]
-		test_clock = request.POST.getlist('clock')[0]
+		if form.submit(contest):
+			return redirect(admin_contest_detail_test_detail_view, contest_id, test_id)
 
-		test.override_exec_options = test_override
-		test.cpu = test_cpu
-		test.mem = test_mem
-		test.space = test_space
-		test.core = test_core
-		test.nproc = test_nproc
-		test.fsize = test_fsize
-		test.stack = test_stack
-		test.clock = test_clock
-		test.save()
-		return redirect(admin_contest_detail_tests_view, id)
-
-
-	###########################
+	context.update(getAdminTestFormContext(contest, form))
 	return render(request, template_name, context)
 
 # Admin teams view
 @superuser_only
-def admin_contest_detail_teams_view(request, id):
+def admin_contest_detail_teams_view(request, contest_id):
 	template_name = 'views/contests/admin_contest_detail_teams.html'
 	context = {}
-	contest = getContestByID(id)
+	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For admin_team_list.html
@@ -711,12 +702,12 @@ def admin_contest_detail_teams_view(request, id):
 
 # Admin edit team view
 @superuser_only
-def admin_contest_detail_team_edit_view(request, id, teamid):
+def admin_contest_detail_team_edit_view(request, contest_id, team_id):
 	template_name = 'views/contests/admin_contest_detail_team_edit.html'
 	context = {}
-	contest = getContestByID(id)
+	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
-	team = Team.objects.filter(id=teamid).first()
+	team = Team.objects.filter(id=team_id).first()
 	context.update(getAdminTeamDetailContext(team))
 
 
@@ -754,10 +745,10 @@ def admin_group_create_view(request):
 
 # Admin Groups Detail
 @superuser_only
-def admin_group_detail_dashboard_view(request, id):
+def admin_group_detail_dashboard_view(request, group_id):
 	template_name = 'views/groups/admin_group_detail_dashboard.html'
 	context = {}
-	group = getGroupByID(id)
+	group = getGroupByID(group_id)
 	user_profiles = getUserProfilesFromGroup(group)
 	context.update(getAdminGroupDetailLayoutContext(group))
 	context.update(getAdminGroupUserListContext(user_profiles))
@@ -771,7 +762,50 @@ def admin_contest_create_view(request):
 	context = {}
 	form = CreateContestModelForm(request.POST or None)
 	if form.is_valid():
-		if form.submit():
+		if form.submit(request):
 			return redirect(admin_contest_home_view)
 	context.update(getAdminCreateContestFormContext(form))
+	return render(request, template_name, context)
+
+
+# Admin Contest Specification
+@superuser_only
+def admin_contest_detail_specification_view(request, contest_id):
+	template_name = 'views/contests/admin_contest_detail_specification.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	context.update(getAdminContestDetailLayoutContext(contest))
+	specs = contest.getSpecifications()
+	form_type = contest.getSpecificationFormType()
+	if specs:
+		print(1)
+		form = form_type(request.POST or None, instance=specs)
+	else:
+		print(2)
+		form = form_type(request.POST or None)
+	if form.is_valid():
+		if form.submit(contest):
+			return redirect(admin_contest_detail_dashboard_view, contest_id)
+	context.update(getAdminSpecificationFormContext(form))
+	return render(request, template_name, context)
+
+
+# Admin Test Specification
+@superuser_only
+def admin_contest_detail_test_detail_specification_view(request, contest_id, test_id):
+	template_name = 'views/contests/admin_contest_detail_test_detail_specification.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	context.update(getAdminContestDetailLayoutContext(contest))
+	test = Test.objects.get(id=test_id)
+	specs = test.getSpecifications()
+	form_type = test.getSpecificationFormType()
+	if specs:
+		form = form_type(request.POST or None, instance=specs)
+	else:
+		form = form_type(request.POST or None)
+	if form.is_valid():
+		if form.submit(test):
+			return redirect(admin_contest_detail_test_detail_view, contest_id, test_id)
+	context.update(getAdminSpecificationFormContext(form))
 	return render(request, template_name, context)

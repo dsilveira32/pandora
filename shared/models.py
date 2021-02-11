@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+import shared
+
 from .validators import validate_file_extension
 
 
@@ -86,9 +89,28 @@ class Contest(models.Model):
     max_submitions = models.PositiveIntegerField(default=0)
     language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C')])
 
+    @classmethod
+    def getContestsForUser(cls, request):
+        return cls.objects.filter(group__users__exact=request.user).distinct()
+
     def getSpecifications(self):
+        try:
+            if self.language == 'C':
+                return self.c_specifications
+        # Catches RelatedObjectNotFound exception
+        except Exception:
+            return None
+
+    def getSpecificationType(self):
+        form_type = self.getSpecificationFormType()
+        if form_type:
+            return form_type.Meta.model
+
+    def getSpecificationFormType(self):
+        # Importing here avoids circular import
+        from shared.forms import C_SpecificationCreateForm
         if self.language == 'C':
-            return self.c_specifications
+            return C_SpecificationCreateForm
         else:
             return None
 
@@ -148,12 +170,27 @@ class Test(models.Model):
     # TODO: Ver com o prof o que fazer com esta merda xD
     type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 
-    def getSpecifications(self):
-        if self.contest.language == 'C':
-            return self.c_specifications
-        else:
+    def getContestSpecifications(self):
+        try:
+            if self.contest.language == 'C':
+                return self.contest.c_specifications
+        # Catches RelatedObjectNotFound exception
+        except Exception:
             return None
 
+    def getSpecifications(self):
+        try:
+            if self.contest.language == 'C':
+                return self.c_specifications
+        # Catches RelatedObjectNotFound exception
+        except Exception:
+            return None
+
+    def getSpecificationType(self):
+        return self.contest.getSpecificationType()
+
+    def getSpecificationFormType(self):
+        return self.contest.getSpecificationFormType()
 
     def getContest(self):
         return self.contest
@@ -172,8 +209,8 @@ class C_Specification(Specification):
     contest = models.OneToOneField(Contest, null=True, blank=True,  on_delete=models.CASCADE, related_name='c_specifications')
     test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='c_specifications')
 
-    compile_flags = models.CharField(max_length=120)
-    linkage_flags = models.CharField(max_length=120)
+    compile_flags = models.CharField(max_length=120, blank=True, default="-Wall")
+    linkage_flags = models.CharField(max_length=120, blank=True, default="-lt")
 
     space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
     minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
@@ -374,4 +411,8 @@ class Group(models.Model):
 
     def hasUser(self, user):
         return self.users.filter(id=user.id).exists()
+
+    @classmethod
+    def getGroupsForUser(cls, request):
+        return cls.objects.filter(users__exact=request.user)
 

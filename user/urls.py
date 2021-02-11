@@ -27,12 +27,10 @@ urlpatterns = [
     # New urls / views
 
     # Contests
-    path('', user_dashboard_view, name='user_dashboard_view'),
+    path('', user_dashboard_view, name='user_dashboard'),
     path('contests/', user_contest_home_view, name='user_contests_home'),
     path('contests/<int:id>/', user_contest_detail_dashboard_view, name='user_contests_detail_dashboard'),
     path('contests/<int:id>/team/join/', user_contest_team_join_view, name='user_contest_team_join_view'),
-    # TODO: Create general home view
-    path('', user_contest_home_view, name='home'),
     path('contests/<int:id>/attempt/', contest_attempt_form_view, name='contest_attempt_form_view'),
     path('contests/<int:id>/attempt/<int:attempt_id>/', contest_attempt_details_view, name='contest_attempt_view'),
     path('about/', about_page, name='about'),

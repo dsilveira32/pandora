@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.admin import widgets as django_widgets
 
+from contest.routines import check_in_files, check_out_files
 from contest.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, get_contest_code_path, Profile, Group, C_Specification
 
@@ -34,19 +35,6 @@ class AttemptModelForm(forms.ModelForm):
 
 
 
-class CreateContestModelForm(forms.ModelForm):
-	class Meta:
-		model = Contest
-		#widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
-		fields = "__all__"
-
-
-	def submit(self):
-		if self.is_valid():
-			self.save()
-			return True
-		return False
-
 
 
 
@@ -75,18 +63,51 @@ class C_SpecificationCreateForm(forms.ModelForm):
 		exclude = ['contest', 'test']
 		#fields = "__all__"
 
+	def sayHello(self):
+		print('hello!')
+
 	def submit(self, obj):
+		print('im in submit')
+
 		if not self.is_valid() or not obj:
+			print(9)
 			return False
+
+		spec = self.save(commit=False)
+		#spec.contest = None
+		#spec.test = None
 		if type(obj) == Contest:
-			self.contest = obj
+			spec.contest = obj
 		elif type(obj) == Test:
-			self.test = obj
+			spec.test = obj
 		else:
 			return False
-		spec = self.save(commit=False)
 		spec.save()
 		return True
+
+
+class CreateContestModelForm(forms.ModelForm):
+	class Meta:
+		model = Contest
+		#widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
+		fields = "__all__"
+
+
+	def submit(self, request):
+		if self.is_valid():
+			# Saves the contest and creates a new default
+			# specification for the contest.
+			# TODO: Maybe make this atomic
+			contest = self.save(commit=False)
+			contest.save()
+			c = Contest.objects.get(id=contest.id)
+			spec_type = c.getSpecificationType()
+			specs = spec_type()
+			specs.contest = c
+			specs.save()
+			return True
+		return False
+
 class UserEditForm(forms.ModelForm):
 	class Meta:
 		model = User

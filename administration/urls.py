@@ -10,7 +10,9 @@ from .views import (
     extract_zip, admin_contest_detail_tests_view, admin_contest_detail_teams_view, admin_contest_detail_dashboard_view,
     admin_contest_home_view, admin_contest_detail_tests_create_view,
     admin_group_home_view, admin_group_detail_dashboard_view, admin_group_create_view,
-    admin_contest_detail_tests_edit_view, admin_contest_detail_team_edit_view, admin_contest_create_view
+    admin_contest_detail_test_detail_view, admin_contest_detail_team_edit_view, admin_contest_create_view,
+    admin_contest_detail_specification_view,
+    admin_contest_detail_test_detail_specification_view, admin_contest_detail_test_detail_edit_view
 )
 
 urlpatterns = [
@@ -22,14 +24,17 @@ urlpatterns = [
     # TODO: make a create view and replace below
     path('contests/create/', admin_contest_create_view, name='manager_contests_create'),
 
-    path('contests/<int:id>/', admin_contest_detail_dashboard_view, name='manager_contests_detail_dashboard'),
-    path('contests/<int:id>/tests/', admin_contest_detail_tests_view, name='manager_contests_detail_tests'),
-    path('contests/<int:id>/tests/create', admin_contest_detail_tests_create_view, name='manager_contests_detail_tests_create'),
-    path('contests/<int:id>/tests/<int:tid>', admin_contest_detail_tests_edit_view, name='manager_contests_detail_tests_edit'),
-    path('contests/<int:id>/teams/', admin_contest_detail_teams_view, name='manager_contests_detail_teams'),
-    path('contests/<int:id>/teams/<int:teamid>', admin_contest_detail_team_edit_view, name='manager_contests_detail_team_edit'),
-
-
+    path('contests/<int:contest_id>/', admin_contest_detail_dashboard_view, name='manager_contests_detail_dashboard'),
+    path('contests/<int:contest_id>/tests/', admin_contest_detail_tests_view, name='manager_contests_detail_tests'),
+    path('contests/<int:contest_id>/tests/create', admin_contest_detail_tests_create_view, name='manager_contests_detail_tests_create'),
+    path('contests/<int:contest_id>/tests/<int:test_id>', admin_contest_detail_test_detail_view, name='manager_contests_detail_tests_edit'),
+    path('contests/<int:contest_id>/tests/<int:test_id>/specification',
+         admin_contest_detail_test_detail_specification_view, name='manager_contest_detail_test_detail_specification'),
+    path('contests/<int:contest_id>/tests/<int:test_id>/edit',
+         admin_contest_detail_test_detail_edit_view, name='manager_contest_detail_test_detail_edit'),
+    path('contests/<int:contest_id>/teams/', admin_contest_detail_teams_view, name='manager_contests_detail_teams'),
+    path('contests/<int:contest_id>/teams/<int:team_id>', admin_contest_detail_team_edit_view, name='manager_contests_detail_team_edit'),
+    path('contests/<int:contest_id>/specification', admin_contest_detail_specification_view, name="manager_contest_detail_specification"),
     # GROUPS
     path('groups/', admin_group_home_view, name="admin_groups_home"),
     path('groups/create', admin_group_create_view, name='admin_group_create'),

@@ -15,7 +15,6 @@ import diff_match_patch
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
-from shared.forms import CreateTestModelForm
 from shared.models import Classification, Team, Attempt, SafeExecError, Contest, UserContestDateException, \
     Group, Profile
 from .utils import *
@@ -155,7 +154,6 @@ def deleting_previous_unzips(extract_dir):
     if os.path.exists(path_to_dir_to_remove):
         os.rmdir(path_to_dir_to_remove)
 
-
 # unzip zip file
 def unzip_zip_file(zip_path, f, in_out):
     extract_dir = os.path.dirname(zip_path) + '/temp' + str(in_out)
@@ -175,7 +173,6 @@ def unzip_zip_file(zip_path, f, in_out):
     print_variable_debug("File " + str(file_name) + " unzipped")
 
     return
-
 
 # check in files
 def check_in_files(f, contest):
@@ -246,34 +243,6 @@ def check_out_files(f, contest, files_max_length):
     print_variable_debug("Leaving!")
     # if the files have some problem, return an empty list
     return []
-
-
-def create_test(request, in_files, out_files, contest):
-    weight = int(len(in_files))
-    benchmark = False
-
-    form = CreateTestModelForm(request.POST or None)
-    print("Form of the test is: " + str(form.is_valid()))
-    if form.is_valid():
-        for i in range(len(in_files) - 1):
-            obj = form.save(commit=False)
-            obj.contest = contest
-            obj.weight_pct = weight
-            obj.input_file = in_files[i]
-            obj.output_file = out_files[i]
-            if not benchmark:
-                obj.use_for_time_benchmark = False
-                obj.use_for_memory_benchmark = False
-                obj.mandatory = False
-            else:
-                obj.use_for_time_benchmark = True
-                obj.use_for_memory_benchmark = True
-                obj.mandatory = True
-                benchmark = False
-
-            obj.save()
-    return
-
 
 # compile the program
 def compile(contest, paths):

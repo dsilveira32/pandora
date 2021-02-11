@@ -90,45 +90,24 @@ def getAdminTeamDetailContext(team):
         }
     }
 
-# For admin_test_creation.html
-# REQUIRED IN ALL VIEWS THAT EXTEND admin_test_creation.html
-def getAdminTestCreationContext(contest, form):
-    """Context for admin_test_creation.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_test_creation.html
+# For admin_test_form.html
+def getAdminTestFormContext(contest, form):
+    """Context for admin_test_form.html
+    REQUIRED IN ALL VIEWS THAT EXTEND admin_test_form.html
     Parameters
     ----------
         contest : Contest
         form
     return
     ----------
-        test_creation
+        admin_test_form
     """
     return {
-        'admin_test_creation': {
+        'admin_test_form': {
             'contest': contest,
             'form': form
         }
     }
-
-# For admin_test_edition.html
-# REQUIRED IN ALL VIEWS THAT EXTEND admin_test_creation.html
-def getAdminTestEditionContext(test):
-    """Context for admin_test_edition.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_test_edition.html
-    Parameters
-    ----------
-        contest : Contest
-        form
-    return
-    ----------
-        test_creation
-    """
-    return {
-        'admin_test_edition': {
-            'test': test
-        }
-    }
-
 
 def getAdminTestListContext(tests):
     return {
@@ -194,6 +173,15 @@ def getAdminCreateGroupFormContext(form):
 def getAdminCreateContestFormContext(form):
     return {
         'admin_contest_create_form': {
+            'form': form
+        }
+    }
+
+
+# For admin_test_specification_form.html
+def getAdminSpecificationFormContext(form):
+    return {
+        'admin_test_specification_form': {
             'form': form
         }
     }
