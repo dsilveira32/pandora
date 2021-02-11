@@ -1,0 +1,50 @@
+{% extends "admin/layouts/base_layout.html" %}
+{% block pageContent %}
+     <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'admin_groups_home' %}">Groups</a>
+            </li>
+            {% if admin_group_detail_layout.group %}
+            <li class="breadcrumb-item active">
+                <a href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">{{ admin_group_detail_layout.group.name }}</a>
+            </li>
+            {% endif %}
+            {% if admin_group_detail_layout.subpage %}
+            <li class="breadcrumb-item " aria-current="page">{{ admin_group_detail_layout.subpage }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+    <div class="container-fluid">
+        {% comment %}
+        #### Probably not needed
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h5>{{ admin_group_detail_layout.group.name }}</h5>
+        </div>
+        <nav class="navbar navbar-expand nav-pills">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarGroupUser"
+                    aria-controls="navbarGroupUser" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarGroupUser">
+                <a class="nav-link mr-2 {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
+                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}">
+                    Dashboard
+                </a>
+                <a class="nav-link mr-2 {% if '/tests' in request.path %}active{% endif %}"
+                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}/tests">
+                    Tests
+                </a>
+                <a class="nav-link mr-2 {% if '/teams' in request.path %}active{% endif %}"
+                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}/teams">
+                    Teams
+                </a>
+            </div>
+        </nav>
+        {% endcomment %}
+        <hr>
+        {% block groupDetailContent %}
+        {% endblock %}
+    </div>
+
+{% endblock %}

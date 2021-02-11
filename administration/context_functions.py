@@ -19,10 +19,10 @@ from contest.routines import *
 #       team_join
 #       test_edition
 
-# For admin_contest_list.html
+# For list.html
 def getAdminContestListContext(contests):
-    """Context for admin_contest_list.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_contest_list.html
+    """Context for list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND list.html
     Parameters
     ----------
         contests : list of Contest
@@ -36,11 +36,11 @@ def getAdminContestListContext(contests):
         }
     }
 
-# For admin_contest_detail_layout.html
+# For detail_layout.html
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
 def getAdminContestDetailLayoutContext(contest):
     """Context for contest_detail_layout.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_contest_detail_layout.html
+    REQUIRED IN ALL VIEWS THAT EXTEND detail_layout.html
     Parameters
     ----------
         contest : Contest
@@ -55,10 +55,10 @@ def getAdminContestDetailLayoutContext(contest):
     }
     return context
 
-# For admin_team_list.html
+# For list.html
 def getAdminTeamListContext(teams):
-    """Context for admin_team_list.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_team_list.html
+    """Context for list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND list.html
     Parameters
     ----------
         teams : array of Team
@@ -73,10 +73,10 @@ def getAdminTeamListContext(teams):
     }
 
 
-# For admin_team_detail.html
+# For detail.html
 def getAdminTeamDetailContext(team):
-    """Context for admin_team_detail.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_team_detail.html
+    """Context for detail.html
+    REQUIRED IN ALL VIEWS THAT EXTEND detail.html
     Parameters
     ----------
         team : Team
@@ -90,10 +90,10 @@ def getAdminTeamDetailContext(team):
         }
     }
 
-# For admin_test_form.html
+# For form.html
 def getAdminTestFormContext(contest, form):
-    """Context for admin_test_form.html
-    REQUIRED IN ALL VIEWS THAT EXTEND admin_test_form.html
+    """Context for form.html
+    REQUIRED IN ALL VIEWS THAT EXTEND form.html
     Parameters
     ----------
         contest : Contest
@@ -116,10 +116,10 @@ def getAdminTestListContext(tests):
         }
     }
 
-# For admin_group_detail_layout.html
+# For detail_layout.html
 def getAdminGroupDetailLayoutContext(group):
-    """Context for admin_group_detail_layout.html
-       REQUIRED IN ALL VIEWS THAT INCLUDE admin_group_detail_layout.html
+    """Context for detail_layout.html
+       REQUIRED IN ALL VIEWS THAT INCLUDE detail_layout.html
        Parameters
        ----------
            group : Group
@@ -131,10 +131,10 @@ def getAdminGroupDetailLayoutContext(group):
     }
 
 
-# For admin_group_list.html
+# For list.html
 def getAdminGroupListContext(groups):
-    """Context for admin_group_list.html
-       REQUIRED IN ALL VIEWS THAT INCLUDE admin_group_list.html
+    """Context for list.html
+       REQUIRED IN ALL VIEWS THAT INCLUDE list.html
        Parameters
        ----------
            group : list of Group
@@ -145,10 +145,10 @@ def getAdminGroupListContext(groups):
         }
     }
 
-# For admin_group_users_list.html
+# For list.html
 def getAdminGroupUserListContext(user_profiles):
-    """Context for admin_group_users_list.html
-           REQUIRED IN ALL VIEWS THAT INCLUDE admin_group_users_list.html
+    """Context for list.html
+           REQUIRED IN ALL VIEWS THAT INCLUDE list.html
            Parameters
            ----------
                user_profiles : list of Profile
@@ -159,7 +159,7 @@ def getAdminGroupUserListContext(user_profiles):
         }
     }
 
-# For admin_create_group_form.html
+# For form.html
 def getAdminCreateGroupFormContext(form):
     return {
         'admin_create_group_form': {
@@ -169,7 +169,7 @@ def getAdminCreateGroupFormContext(form):
 
 
 
-# For admin_contest_create_form.html
+# For form.html
 def getAdminCreateContestFormContext(form):
     return {
         'admin_contest_create_form': {

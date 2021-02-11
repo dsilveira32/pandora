@@ -1,0 +1,9 @@
+{% extends "admin/layouts/contests/detail_layout.html" %}
+{% block contestDetailContent %}
+    <div>
+        <button class="btn btn-primary" type="button">Create Team (?)</button>
+    </div>
+    <div class="col-12">
+        {% include "admin/components/contests/teams/list.html" %}
+    </div>
+{% endblock %}
