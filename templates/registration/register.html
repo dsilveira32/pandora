@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static from staticfiles %}
+{% block content %}
+    <div class="signup-form">
+        <div class="row">
+            <div class="offset-5 col-2">
+                <div class="text-center">
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+
+                    <img class="mb-4" src="{% static 'logo3.png' %}" alt="Pandora logo" id="logo">
+                    <h1 class="h3 mb-3 font-weight-normal">Please sign up</h1>
+                </div>
+
+                <form class="form-signin" action="" method="POST"> {% csrf_token %}
+                    {{ userForm|crispy }}
+                    {{ profileForm|crispy }}
+                    <hr>
+                    <button class="btn btn-md btn-primary btn-block" type="submit">Login</button>
+                    <a class="btn btn-md btn-block btn-secondary" href="{% url 'social:begin' 'github' %}">
+                        <i class="fab fa-github"></i> Sign in with GitHub
+                    </a>
+                    <!-- <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p> -->
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
