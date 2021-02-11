@@ -1,0 +1,42 @@
+<div class="row justify-content-center align-items-center">
+    <div class="col-md-12">
+        <button class="btn btn-danger btn-sm" name="team_delete" type='submit' value="{{ team.id }}">
+            Delete Team
+        </button>
+        <div class="card border rounded shadow-sm mb-4 mt-4">
+            <div class="card-body text-center">
+                <h5 class="car-title mb-2 text-primary">
+                    {{ admin_team_detail.team.contest.short_name }} / {{ admin_team_detail.team.name }}
+                </h5>
+                <form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
+                    <p class="card-text mb-auto">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Member</th>
+                            <th scope="col">Number</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for object in admin_team_detail.team.getUsers %}
+                        <tr>
+                            <td>{{ object.username }}</td>
+                            <td>{{ object.profile.number }}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" name="member_id_remove" type='submit'
+                                        value="{{ object.id }}">Remove
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
