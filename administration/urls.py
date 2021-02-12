@@ -1,7 +1,12 @@
 from django.urls import path
 
-from .views import contest_views, group_views
+from .views import contest_views, group_views, user_views
 from .views.contests import team_views, test_views
+
+
+def users_views(args):
+    pass
+
 
 urlpatterns = [
     # New urls / views
@@ -32,6 +37,9 @@ urlpatterns = [
     path('groups/', group_views.dashboard_view, name="admin_groups_home"),
     path('groups/create', group_views.create_view, name='admin_group_create'),
     path('groups/<int:group_id>/', group_views.detail_dashboard_view, name='admin_group_detail_dashboard'),
+
+    # USERS
+    path('users/', user_views.dashboard_view, name="admin_users_home")
 
     # Old
 

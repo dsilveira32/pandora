@@ -185,3 +185,11 @@ def getAdminSpecificationFormContext(form):
             'form': form
         }
     }
+
+# For admin_test_specification_form.html
+def getAdminUsersListContext(users):
+    return {
+        'admin_users_list': {
+            'users': users
+        }
+    }

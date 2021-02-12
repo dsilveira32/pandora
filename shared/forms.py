@@ -284,3 +284,7 @@ class ProfileRegisterForm(forms.ModelForm):
         profile = self.save(commit=False)
         profile.save()
         return True
+
+
+class TeamMemberForm(object):
+    pass

@@ -1,0 +1,43 @@
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Group list</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Is Valid</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Is Valid</th>
+                    <th>Actions</th>
+                </tr>
+                </tfoot>
+                <tbody>
+                {% for user in admin_users_list.users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.get_full_name }}</td>
+                        <td>{{ user.number }}</td>
+                        <td>{{ user.valid }}</td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href=""><i class="fas fa-pen"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
