@@ -1,0 +1,59 @@
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render
+
+from shared.forms import ProfileEditForm, UserEditForm
+from user.context_functions import *
+
+
+@login_required
+def dashboard_view(request):
+    template_name = 'user/views/dashboard.html'
+    context = {}
+    contests = getContestsForUser(request)
+    labels = []
+    data = []
+    bgcolors = []
+    for contest in contests:
+        labels.append(contest.getName())
+        team = contest.getUserTeam(request.user)
+        data.append(team.getGreatestGradeAttempt().getGrade())
+        bgcolors.append('#4e73df')
+
+    numberOpenedContests = 0
+    for contest in getContestsForUser(request):
+        if (contest.isOpen()):
+            numberOpenedContests += 1
+
+    context.update(getUserGradesDasboardContext(labels, [
+        {
+            'label': 'Nota',
+            'data': data,
+            'backgroundColor': bgcolors,
+            'hoverBackgroundColor': "#2e59d9",
+            'borderColor': "#4e73df"
+        }
+    ]))
+
+    context.update(getUserContestsNumberCardContext(numberOpenedContests))
+    return render(request, template_name, context)
+
+
+@login_required
+def profile_view(request):
+    template_name = 'user/views/profile.html'
+    context = {}
+    profile_form = ProfileEditForm(request.POST or None, instance=request.user.profile)
+    user_form = UserEditForm(request.POST or None, instance=request.user)
+
+    if all((profile_form.is_valid(), user_form.is_valid())):
+        profile_form.save()
+        user_form.save()
+
+    context.update(getUserProfileFormContext(user_form, profile_form))
+    return render(request, template_name, context)
+
+
+@login_required
+def about_view(request):
+    return render(request, "user/views/about.html", {"title": "About"})

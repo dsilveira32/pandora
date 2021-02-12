@@ -21,7 +21,7 @@
                     {{ contest_detail_layout.contest.short_name }} / {{ team.name }}
                     ({% if team.active %} Active {% else %} Waiting for Admin Activation {% endif %})
                 </h5>
-                <form method='POST' action='.' enctype='multipart/form-data'> {% csrf_token %}
+                <form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
                     <p class="card-text mb-auto">
                     <table class="table">
                         <thead>

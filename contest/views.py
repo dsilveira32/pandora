@@ -106,7 +106,7 @@ def contest_detail_view(request, id):
 # profile
 @login_required
 def profile_view(request):
-    template_name = 'user_profile.html'
+    template_name = 'profile.html'
     context = {'user': request.user, 'title': "My Information"}
     return render(request, template_name, context)
 
@@ -119,7 +119,7 @@ def ranking_view(request, id):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'contest/contest_rankings.html'
+    template_name = 'contest/rankings.html'
 
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
@@ -152,7 +152,7 @@ def team_create_view(request, id):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'contest/contest_form.html'
+    template_name = 'contest/form.html'
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
 
@@ -299,7 +299,7 @@ def home_view_old(request):
 def attempt_view(request, id, attempt_id):
     print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
     checkUserProfileInRequest(request)
-    template_name = 'views/user/contest_attempt.html'
+    template_name = 'views/user/attempt.html'
     atempt_obj = get_object_or_404(Attempt, id=attempt_id)
     contest = atempt_obj.contest
     context = getContestDetailLayoutContext(request, contest)
@@ -409,7 +409,7 @@ def team_detail_view(request, id):
 """@login_required
 def contest_attempt_form_view(request, id):
     checkUserProfileInRequest(request)
-    template_name = 'views/user/contest_attempt.html'
+    template_name = 'views/user/attempt.html'
     context = {'title': 'Submit',
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),

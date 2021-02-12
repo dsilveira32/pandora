@@ -1,4 +1,4 @@
-{% extends "layouts/user_area_layout.html" %}
+{% extends "user/layouts/area_layout.html" %}
 {% block pageContent %}
     <h3>Groups</h3>
     <hr>
@@ -9,7 +9,7 @@
             </a>
         </div>
         <div class="offset-4 col-4">
-            {% include "components/groups/user_group_list.html" %}
+            {% include "user/components/groups/list.html" %}
         </div>
     </div>
 {% endblock %}
