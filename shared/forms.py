@@ -123,6 +123,20 @@ class ProfileEditForm(forms.ModelForm):
         model = Profile
         fields = ['number', 'gprd']
 
+class AdminUserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name']
+
+
+class AdminUserProfileEditForm(forms.ModelForm):
+    number = forms.IntegerField(required=True, label='Student Number')
+    gprd = forms.BooleanField(required=True, initial=False,
+                              label='Agree to share my information (name, email, number, username, grade) with the authors and other users of this application')
+
+    class Meta:
+        model = Profile
+        fields = ['number', 'gprd']
 
 class TeamMemberApprovalForm(forms.Form):
     member_id = forms.CharField(required=False)
@@ -245,7 +259,6 @@ class UserRegisterForm(forms.ModelForm):
 
         # Checks if there is no user with same username
         if User.objects.filter(username=self.data["email"]).exists():
-            print("Nao passou!!")
             self.add_error('email', 'There is already a user with this email.')
             return False, None
 

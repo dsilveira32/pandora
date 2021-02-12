@@ -1,13 +1,37 @@
 <!-- DataTales Example -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Group list</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Users list</h6>
     </div>
     <div class="card-body">
-        <div class="table-responsive">
+        <button class="btn btn-primary btn-sm is-checkbox-select-btn submit-btn" disabled value="validate"><i class="fas fa-check"></i> Validate selected</button>
+        <button class="btn btn-primary btn-sm is-checkbox-select-btn submit-btn" disabled value="invalidate"><i class="fas fa-times"></i> Invalidate selected</button>
+        <div class="table-responsive mt-1">
             <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <tbody>
+                <form id="user-form" action="" method="POST">{% csrf_token %}
+                    <input type="hidden" id="user-form-action" name="action" value="">
+                    {% for user in admin_users_list.users %}
+                        <tr>
+                            <td class="text-center">
+                                <input type="checkbox" class="select-user" name="user_id" value="{{ user.id }}">
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.get_full_name }}</td>
+                            <td>{{ user.profile.getNumber }}</td>
+                            <td>
+                                <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <a class="btn btn-warning btn-sm" href=""><i class="fas fa-pen"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </form>
+                </tbody>
                 <thead>
                 <tr>
+                    <th class="text-center"><input type="checkbox" class="select-all"></th>
                     <th>Email</th>
                     <th>Name</th>
                     <th>Number</th>
@@ -17,6 +41,7 @@
                 </thead>
                 <tfoot>
                 <tr>
+                    <th class="text-center"><input type="checkbox" class="select-all"></th>
                     <th>Email</th>
                     <th>Name</th>
                     <th>Number</th>
@@ -24,20 +49,29 @@
                     <th>Actions</th>
                 </tr>
                 </tfoot>
-                <tbody>
-                {% for user in admin_users_list.users %}
-                    <tr>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.get_full_name }}</td>
-                        <td>{{ user.number }}</td>
-                        <td>{{ user.valid }}</td>
-                        <td>
-                            <a class="btn btn-warning btn-sm" href=""><i class="fas fa-pen"></i></a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
             </table>
         </div>
     </div>
 </div>
+<script>
+    $(".select-all").click(function (e) {
+        $(".select-all").prop('checked', this.checked);
+        $(".select-user").prop('checked', this.checked);
+        $(".is-checkbox-select-btn").prop('disabled', !($(".select-user:checked").length > 0));
+    });
+    $(".select-user").click(function (e) {
+        let selectedCheckboxes = $(".select-user:checked")
+        if (selectedCheckboxes.length === $(".select-user").length) {
+            $(".select-all").prop('checked', true);
+        } else {
+            $(".select-all").prop('checked', false);
+        }
+        $(".is-checkbox-select-btn").prop('disabled', !(selectedCheckboxes.length > 0));
+    })
+    $(".submit-btn").click(function (e) {
+        $("#user-form-action").val($(this).val())
+        console.log($("#user-form-action").val())
+        console.log($("#user-form").serialize())
+        $("#user-form").submit()
+    })
+</script>

@@ -11,5 +11,15 @@ def dashboard_view(request):
     context = {}
     users = User.objects.all()
     context.update(getAdminUsersListContext(users))
+    if request.POST:
+        action = request.POST.get("action")
+        if action:
+            for user_id in request.POST.getlist("user_id"):
+                user = User.objects.get(id=user_id)
+                if action == "validate":
+                    user.profile.setValid(True)
+                if action == "invalidate":
+                    user.profile.setValid(False)
+                user.save()
 
     return render(request, template_name, context)

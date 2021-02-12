@@ -60,6 +60,15 @@ class Profile(models.Model):
     def getUser(self):
         return self.user
 
+    def getNumber(self):
+        return self.number
+
+    def isValid(self):
+        return self.valid
+
+    def setValid(self, value: bool):
+        self.valid = value
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
