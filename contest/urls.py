@@ -15,7 +15,6 @@ from .views import (
     contest_list_view,
     contest_detail_view,
     user_contest_detail_dashboard_view,
-    contest_attempt_form_view,
     team_create_view,
     team_join_view,
     team_detail_view,

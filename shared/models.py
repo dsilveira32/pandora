@@ -66,6 +66,7 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
     instance.profile.save()
 
+
 class Specification(models.Model):
     cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
     mem = models.PositiveIntegerField(default=32768)  # <kbytes>		Default: 32768 kbyte(s)
@@ -73,6 +74,7 @@ class Specification(models.Model):
 
     class Meta:
         abstract = True
+
 
 class Contest(models.Model):
     title = models.CharField(max_length=128)
@@ -94,6 +96,10 @@ class Contest(models.Model):
     @classmethod
     def getContestsForUser(cls, request):
         return cls.objects.filter(group__users__exact=request.user).distinct()
+
+    @classmethod
+    def getContestByID(cls, contest_id):
+        return cls.objects.get(id=contest_id)
 
     def getSpecifications(self):
         try:
@@ -162,6 +168,10 @@ class Contest(models.Model):
     def getName(self):
         return self.title
 
+    def userHasAccess(self, user):
+        return not not self.group_set.filter(users__exact=user)
+
+
 class Test(models.Model):
     name = models.CharField(max_length=512, null=False, blank=True)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
@@ -203,12 +213,9 @@ class Test(models.Model):
         return specs.cpu, specs.mem, specs.space, specs.minuid, specs.maxuid, specs.core, specs.nproc, specs.fsize, specs.stack, specs.clock
 
 
-
-
-
 class C_Specification(Specification):
-
-    contest = models.OneToOneField(Contest, null=True, blank=True,  on_delete=models.CASCADE, related_name='c_specifications')
+    contest = models.OneToOneField(Contest, null=True, blank=True, on_delete=models.CASCADE,
+                                   related_name='c_specifications')
     test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='c_specifications')
 
     compile_flags = models.CharField(max_length=120, blank=True, default="-Wall")
@@ -231,14 +238,17 @@ class C_Specification(Specification):
             # is filled. Rejects if both are or if none are.
             models.CheckConstraint(
                 name="c_specifications_contest_test_one_only_constraint",
-                check=models.Q(contest__isnull=False)&models.Q(test__isnull=True)|models.Q(contest__isnull=True)&models.Q(test__isnull=False)
+                check=models.Q(contest__isnull=False) & models.Q(test__isnull=True) | models.Q(
+                    contest__isnull=True) & models.Q(test__isnull=False)
             )
         ]
-#models.Q(
- #                   contest__isnull=False and test__isnull=True
- #                                     or
-  #                  contest__isnull=True and test_isnull=False
-  #              ),
+
+
+# models.Q(
+#                   contest__isnull=False and test__isnull=True
+#                                     or
+#                  contest__isnull=True and test_isnull=False
+#              ),
 
 # def checkAttempts(self, request, attempts):
 #	if self.max_submitions > 0:
@@ -259,6 +269,7 @@ class Team(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True)
     users = models.ManyToManyField(User)
+
     # image  = models.ImageField(upload_to='images/', blank=True, null=True)
 
     class Meta:
@@ -306,7 +317,7 @@ class Attempt(models.Model):
     date = models.DateTimeField(auto_now_add=True, blank=True)
     file = models.FileField(upload_to=get_file_path, blank=False, null=False, max_length=512,
                             validators=[validate_file_extension])
-    #auto_generated = models.BooleanField(null=False, default=False, blank=False)
+    # auto_generated = models.BooleanField(null=False, default=False, blank=False)
     comment = models.CharField(null=True, max_length=128, blank=True)
     compile_error = models.BooleanField(null=False, default=False, blank=True)
     failed_mandatory_test = models.BooleanField(null=False, default=False, blank=True)
@@ -359,6 +370,7 @@ class Classification(models.Model):
     result = models.IntegerField(null=False, default=0)
     diff = models.TextField(default='')
 
+
 """
 class TeamMember(models.Model):
     team = models.ForeignKey(Team, default=1, null=False, on_delete=models.CASCADE)
@@ -382,12 +394,14 @@ class UserContestDateException(models.Model):
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     unique_together = ('contest', 'user')
 
+
 # TODO: Falar com o prof. esta classe e utilizada?
 class ContestTestDataFile(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     data_file = models.FileField(upload_to=get_contest_data_path, blank=False, null=False, max_length=512)
     file_name = models.CharField(max_length=150, blank=False)
     unique_together = ('contest', 'file_name')
+
 
 class Group(models.Model):
     name = models.CharField(max_length=50, blank=False, unique=True)
@@ -417,4 +431,3 @@ class Group(models.Model):
     @classmethod
     def getGroupsForUser(cls, request):
         return cls.objects.filter(users__exact=request.user)
-

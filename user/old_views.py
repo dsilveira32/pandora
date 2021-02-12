@@ -96,9 +96,9 @@ def contest_detail_view(request, id):
     present = timezone.now()
     if present < obj.start_date:
         # contest is not yet open. Don't let anyone see a dam thing.
-        template_name = 'contest/contest_closed_error.html'
+        template_name = 'contest/closed_error.html'
     else:
-        template_name = 'contest/contest_details.html'
+        template_name = 'contest/details.html'
 
     context = {"contest": obj}
     return render(request, template_name, context)
@@ -107,7 +107,7 @@ def contest_detail_view(request, id):
 # profile
 @login_required
 def profile_view(request):
-    template_name = 'user_profile.html'
+    template_name = 'profile.html'
     context = {'user': request.user, 'title': "My Information"}
     return render(request, template_name, context)
 
@@ -120,7 +120,7 @@ def ranking_view(request, id):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'contest/contest_rankings.html'
+    template_name = 'contest/rankings.html'
 
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
@@ -140,7 +140,7 @@ def team_create_view(request, id):
     if not request.user.profile.valid:
         return redirect('not_active')
 
-    template_name = 'components/contests/contest_form.html'
+    template_name = 'components/contests/form.html'
     contest_obj = get_object_or_404(Contest, id=id)
     context = {'contest': contest_obj}
 
@@ -334,242 +334,4 @@ def team_detail_view(request, id):
     return render(request, template_name, context)
 
 
-# SUMISSION VIEW
-@login_required
-def contest_attempt_form_view(request, id):
-    checkUserProfileInRequest(request)
-    template_name = 'views/contests/contest_attempt.html'
-    context = {}
-    can_submit = True
 
-    contest = getContestByID(id)
-
-    # Check team members when user doenst have team
-    if not contest.userHasTeam(request.user):
-        return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
-
-    team = contest.getUserTeam(request.user)
-    attempts = team.getAttempts()
-
-    # this will allow specific users to submit outside the scheduled dates
-    # example is a user that was sick
-    #if not checkUsersDateExceptions(request, contest):
-    #    return redirect(os.path.join(contest.get_absolute_url()))
-
-    # Check attempts
-    can_submit = contest.checkAttempts(request.user)
-
-    # Check contest
-    can_submit = contest.isOpen()
-
-    # Check team
-    can_submit = team.getUsers().count() > 0
-
-    # Form Submit
-    form = AttemptModelForm(request.POST or None, request.FILES or None)
-    submitted, attempt = form.submit(request.user, can_submit, contest, team)
-    print_variable_debug(attempt)
-    if submitted and attempt:
-        handle_uploaded_file(attempt, attempt.file, contest)
-        return redirect('contest_attempt_view', id, attempt.id)
-
-    context.update(getContestDetailLayoutContext(contest))
-    context.update(getContestFormContext(contest, form))
-    context.update(getTeamSubmissionHistoryContext(attempts))
-    return render(request, template_name, context)
-
-@login_required
-def contest_attempt_details_view(request, id, attempt_id):
-    print("Contest ID: %i | Attempt ID: %i" % (id, attempt_id))
-    checkUserProfileInRequest(request)
-    template_name = 'views/contests/contest_attempt.html'
-    context={}
-
-    attempt = getAttemptByID(attempt_id)
-    contest = getContestByID(id)
-
-    # check if the url contest id is the same of the attempt contest id
-    if not contest.id == attempt.getContest().id:
-        raise Http404
-
-    team = attempt.getTeam()
-    # check if request.user is a member of atempt team OR admin
-    if not request.user.is_superuser:
-        if not team.hasUser(request.user):
-            raise Http404
-
-    results = attempt.getClassifications()
-    n_tests, n_mandatory, n_diff = contest.getTestsCount()
-    n_passed, mandatory_passed, passed_diff = attempt.getPassedTestsCount()
-
-    for res in results:
-        res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
-                                         errors='strict')
-        if res.output and os.path.isfile(res.output.path):
-            res.obtained_output = smart_text(res.output.read(), encoding='utf-8', strings_only=False, errors='strict')
-        else:
-            res.obtained_output = ''
-
-        res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
-                               errors='strict')
-
-    # res.diff = ' '.join(map(str, res.diff))
-    context.update(getTeamSubmissionDetailsContext(contest, request.user, team, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, "9"))
-    context.update(getContestDetailLayoutContext(contest))
-    context.update(getTeamSubmissionHistoryContext(team.getAttempts()))
-    return render(request, template_name, context)
-
-# HOME VIEW
-@login_required
-def user_contest_home_view(request):
-    checkUserProfileInRequest(request)
-    template_name = 'views/contests/user_contest_home.html'
-    context = {'title': 'Contests',
-               'description': 'PANDORA is an Automated Assessment Tool.',
-               # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
-               }
-    contests = Contest.getContestsForUser(request)
-    context.update(getContestListContext(contests))
-    return render(request, template_name, context)
-
-# CONTEST VIEW
-@login_required
-def user_contest_detail_dashboard_view(request, id):
-    #checkUserProfileInRequest(request)
-    context = {}
-    template_name = 'views/contests/user_contest_detail_dashboard.html'
-
-    # Get required data
-    contest = getContestByID(id)
-    #has_access = checkIfUserHasAccessToContest(request, contest) # TODO: is necessary?
-    team = contest.getUserTeam(request.user)
-
-    if team:
-        team_attempts = team.getAttempts()
-        context.update(getTeamSubmissionStatusContext(team_attempts))
-        context.update(getTeamSubmissionHistoryContext(team_attempts))
-
-        ranked_attempts = getAllContestAttemptsRanking(contest)
-        context.update(getContestRankingsContext(ranked_attempts))
-
-
-    # Update context
-    print_variable_debug(team)
-    context.update(getContestDetailLayoutContext(contest))
-    context.update(getTeamMembersContext(team))
-    context.update(getContestDetailsContext(contest))
-    context.update(getContestSubmitAttemptButton(contest, team))
-    return render(request, template_name, context)
-
-# TEAM JOIN VIEW
-@login_required
-def user_contest_team_join_view(request, id):
-    context = {}
-    template_name = 'views/contests/teams/user_contest_team_join.html'
-
-    contest = getContestByID(id)
-
-    join_form = TeamJoinForm(request.POST or None if 'submit_join_form' in request.POST else None)
-    if join_form.is_valid():
-        if join_form.submit(request.user, contest):
-            return redirect(user_contest_detail_dashboard_view, id)
-
-
-    create_form = TeamCreateForm(request.POST or None if 'submit_create_form' in request.POST else None)
-    if create_form.is_valid():
-        if create_form.submit(request.user, contest):
-            return redirect(user_contest_detail_dashboard_view, id)
-
-    context.update(getContestDetailLayoutContext(contest))
-    context.update(getTeamJoinFormContext(create_form, join_form))
-    return render(request, template_name, context)
-
-##########
-# GROUPS #
-##########
-
-@login_required
-def user_group_home_view(request):
-    template_name = 'views/groups/user_group_home.html'
-
-    context = {}
-    groups = getGroupsForUser(request)
-
-    context.update(getUserGroupListContext(groups))
-    return render(request, template_name, context)
-
-
-@login_required
-def user_group_join_view(request):
-    template_name = 'views/groups/user_group_join.html'
-
-    context = {}
-    form = GroupJoinForm(request.POST or None)
-    if request.POST:
-        if form.is_valid():
-            print('form is valid')
-            if form.submit(request.user):
-                return redirect(user_group_home_view)
-        else:
-            print('not valid')
-            print(form.errors)
-
-    context.update(getUserGroupJoinFormContext(form))
-    return render(request, template_name, context)
-
-@login_required
-def user_group_detail_dashboard_view(request):
-    template_name = 'views/groups/teams/team_join.html'
-
-    context = {}
-    return render(request, template_name, context)
-
-@login_required
-def about_page(request):
-    return render(request, "views/user_about.html", {"title": "About"})
-
-@login_required
-def user_dashboard_view(request):
-    template_name = 'views/user_dashboard.html'
-    context = {}
-    contests = getContestsForUser(request)
-    labels = []
-    data = []
-    bgcolors = []
-    for contest in contests:
-        labels.append(contest.getName())
-        team = contest.getUserTeam(request.user)
-        data.append(team.getGreatestGradeAttempt().getGrade())
-        bgcolors.append('#4e73df')
-
-    numberOpenedContests = 0
-    for contest in getContestsForUser(request):
-        if (contest.isOpen()):
-            numberOpenedContests += 1
-
-    context.update(getUserGradesDasboardContext(labels, [
-        {
-            'label': 'Nota',
-            'data': data,
-            'backgroundColor': bgcolors,
-            'hoverBackgroundColor': "#2e59d9",
-            'borderColor': "#4e73df"
-        }
-    ]))
-
-    context.update(getUserContestsNumberCardContext(numberOpenedContests))
-    return render(request, template_name, context)
-
-@login_required
-def user_profile_view(request):
-    template_name = 'views/user_profile.html'
-    context = {}
-    profile_form = ProfileEditForm(request.POST or None, instance=request.user.profile)
-    user_form = UserEditForm(request.POST or None, instance=request.user)
-
-    if all((profile_form.is_valid(), user_form.is_valid())):
-        profile_form.save()
-        user_form.save()
-
-    context.update(getUserProfileFormContext(user_form, profile_form))
-    return render(request, template_name, context)

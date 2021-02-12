@@ -37,10 +37,10 @@ def getAdminContestListContext(contests):
     }
 
 
-# For contest_list.html
+# For list.html
 def getContestListContext(contests):
-    """Context for contest_list.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_list.html
+    """Context for list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND list.html
     Parameters
     ----------
         contests : list of Contest
@@ -55,10 +55,10 @@ def getContestListContext(contests):
     }
 
 
-# For contest_details.html
+# For details.html
 def getContestDetailsContext(contest):
-    """Context for contest_details.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_details.html
+    """Context for details.html
+    REQUIRED IN ALL VIEWS THAT EXTEND details.html
     Parameters
     ----------
         contest : Contest
@@ -114,11 +114,11 @@ def getAdminContestDetailLayoutContext(contest):
     return context
 
 
-# For contest_closed_error.html
+# For closed_error.html
 # Probably not necessary since it is only used in Detail Layout but let's keep it here until we are sure
 def getContestClosedErrorContext(contest):
-    """Context for contest_closed_error.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_closed_error.html
+    """Context for closed_error.html
+    REQUIRED IN ALL VIEWS THAT EXTEND closed_error.html
     Parameters
     ----------
         contest : Contest
@@ -133,10 +133,10 @@ def getContestClosedErrorContext(contest):
     }
 
 
-# For team_members.html
+# For members.html
 def getTeamMembersContext(team):
-    """Context for team_members.html
-    REQUIRED IN ALL VIEWS THAT EXTEND team_members.html
+    """Context for members.html
+    REQUIRED IN ALL VIEWS THAT EXTEND members.html
     Parameters
     ----------
         team : Team
@@ -151,10 +151,10 @@ def getTeamMembersContext(team):
     }
 
 
-# For team_submission_history.html
+# For history.html
 def getTeamSubmissionHistoryContext(attempts):
-    """Context for team_submission_history.html
-    REQUIRED IN ALL VIEWS THAT EXTEND team_submission_history.html
+    """Context for history.html
+    REQUIRED IN ALL VIEWS THAT EXTEND history.html
     Parameters
     ----------
         attempts : list of Attempt
@@ -169,10 +169,10 @@ def getTeamSubmissionHistoryContext(attempts):
     }
 
 
-# For team_submission_status.html
+# For status.html
 def getTeamSubmissionStatusContext(attempts):
-    """Context for team_submission_status.html
-    REQUIRED IN ALL VIEWS THAT EXTEND team_submission_status.html
+    """Context for status.html
+    REQUIRED IN ALL VIEWS THAT EXTEND status.html
     Parameters
     ----------
         attempts : list of Attempt
@@ -201,10 +201,10 @@ def getTeamSubmissionStatusContext(attempts):
     }
 
 
-# For contest_rankings.html
+# For rankings.html
 def getContestRankingsContext(attempts):
-    """Context for contest_rankings.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_rankings.html
+    """Context for rankings.html
+    REQUIRED IN ALL VIEWS THAT EXTEND rankings.html
     Parameters
     ----------
         attempts : array of Attempt
@@ -255,11 +255,11 @@ def getTeamListContext(teams):
     }
 
 
-# For contest_form.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+# For form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND submission.html
 def getContestFormContext(contest, form):
-    """Context for contest_form.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_form.html
+    """Context for form.html
+    REQUIRED IN ALL VIEWS THAT EXTEND form.html
     Parameters
     ----------
         request
@@ -322,10 +322,10 @@ def getTestCreationContext(contest, form):
     }
 
 
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_submit_attempt_button.html
+# REQUIRED IN ALL VIEWS THAT EXTEND submit_button.html
 def getContestSubmitAttemptButton(contest, team):
     """Context for test_creation.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_submit_attempt_button.html
+    REQUIRED IN ALL VIEWS THAT EXTEND submit_button.html
     Parameters
     ----------
         contest : Contest
@@ -363,8 +363,8 @@ def getContestTeamJoinContext(contest, teams, form):
         }
     }
 
-# For team_submission_details.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+# For details.html
+# REQUIRED IN ALL VIEWS THAT EXTEND submission.html
 def getTeamSubmissionDetailsContext(contest, user, team, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, min_passed_grade):
     return {
         'team_submission_details': {
@@ -384,10 +384,10 @@ def getTeamSubmissionDetailsContext(contest, user, team, attempt, n_passed, n_te
             'min_grade': min_passed_grade
         }
     }
-# REQUIRED IN ALL VIEWS THAT EXTEND user_group_list.html
+# REQUIRED IN ALL VIEWS THAT EXTEND list.html
 def getUserGroupListContext(groups):
-    """Context for user_group_list.html
-    REQUIRED IN ALL VIEWS THAT EXTEND user_group_list.html
+    """Context for list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND list.html
     Parameters
     ----------
         groups: list of Group
@@ -418,10 +418,10 @@ def getUserGroupDetailLayout(group):
         }
     }
 
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_view_sow_button.html
+# REQUIRED IN ALL VIEWS THAT EXTEND view_sow_button.html
 def getContestViewSowButtonContext(contest):
-    """Context for contest_view_sow_button.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_view_sow_button.html
+    """Context for view_sow_button.html
+    REQUIRED IN ALL VIEWS THAT EXTEND view_sow_button.html
     Parameters
     ----------
         contest: Contest
@@ -436,10 +436,10 @@ def getContestViewSowButtonContext(contest):
     }
 
 
-# REQUIRED IN ALL VIEWS THAT EXTEND user_group_join_form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
 def getUserGroupJoinFormContext(form):
-        """Context for user_group_join_form.html
-        REQUIRED IN ALL VIEWS THAT EXTEND user_group_join_form.html
+        """Context for join_form.html
+        REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
         Parameters
         ----------
             form: GroupJoinForm
@@ -454,10 +454,10 @@ def getUserGroupJoinFormContext(form):
         }
 
 
-# REQUIRED IN ALL VIEWS THAT EXTEND team_join_form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
 def getTeamJoinFormContext(create_form,join_form):
-        """Context for team_join_form.html
-        REQUIRED IN ALL VIEWS THAT EXTEND team_join_form.html
+        """Context for join_form.html
+        REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
         Parameters
         ----------
             create_form: TeamCreateForm
@@ -492,10 +492,10 @@ def getUserGradesDasboardContext(labels, datasets):
             }
         }
 
-# REQUIRED IN ALL VIEWS THAT EXTEND user_profile_form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND profile_form.html
 def getUserProfileFormContext(userForm, profileForm):
-        """Context for user_profile_form.html
-        REQUIRED IN ALL VIEWS THAT EXTEND user_profile_form.html
+        """Context for profile_form.html
+        REQUIRED IN ALL VIEWS THAT EXTEND profile_form.html
         Parameters
         ----------
             userForm: ModelForm
@@ -511,10 +511,10 @@ def getUserProfileFormContext(userForm, profileForm):
             }
         }
 
-# REQUIRED IN ALL VIEWS THAT EXTEND user_contests_number_card.html
+# REQUIRED IN ALL VIEWS THAT EXTEND number_card.html
 def getUserContestsNumberCardContext(activeContestsNumber):
-        """Context for user_contests_number_card.html
-        REQUIRED IN ALL VIEWS THAT EXTEND user_contests_number_card.html
+        """Context for number_card.html
+        REQUIRED IN ALL VIEWS THAT EXTEND number_card.html
         Parameters
         ----------
             activeContestsNumber: int

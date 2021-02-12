@@ -37,10 +37,10 @@ def getAdminContestListContext(contests):
     }
 
 
-# For contest_list.html
+# For list.html
 def getContestListContext(contests):
-    """Context for contest_list.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_list.html
+    """Context for list.html
+    REQUIRED IN ALL VIEWS THAT EXTEND list.html
     Parameters
     ----------
         contests : list of Contest
@@ -203,10 +203,10 @@ def getTeamSubmissionStatusContext(attempts):
     }
 
 
-# For contest_rankings.html
+# For rankings.html
 def getContestRankingsContext(attempts):
-    """Context for contest_rankings.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_rankings.html
+    """Context for rankings.html
+    REQUIRED IN ALL VIEWS THAT EXTEND rankings.html
     Parameters
     ----------
         attempts : array of Attempt
@@ -257,11 +257,11 @@ def getTeamListContext(teams):
     }
 
 
-# For team_submission_details.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+# For details.html
+# REQUIRED IN ALL VIEWS THAT EXTEND attempt.html
 def getTeamSubmissionDetailsContext(request, contest, attempt):
-    """Context for team_submission_details.html
-    REQUIRED IN ALL VIEWS THAT EXTEND team_submission_details.html
+    """Context for details.html
+    REQUIRED IN ALL VIEWS THAT EXTEND details.html
     Parameters
     ----------
         request
@@ -281,11 +281,11 @@ def getTeamSubmissionDetailsContext(request, contest, attempt):
     return context
 
 
-# For contest_form.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_attempt.html
+# For form.html
+# REQUIRED IN ALL VIEWS THAT EXTEND attempt.html
 def getContestFormContext(contest, form):
-    """Context for contest_form.html
-    REQUIRED IN ALL VIEWS THAT EXTEND contest_form.html
+    """Context for form.html
+    REQUIRED IN ALL VIEWS THAT EXTEND form.html
     Parameters
     ----------
         request
