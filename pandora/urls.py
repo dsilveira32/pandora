@@ -21,6 +21,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from django.urls import include
 
+from shared.views import (login_view, register_view)
 from .views import (
     manage,
 )
@@ -30,7 +31,9 @@ urlpatterns = [
     path('admin-django/', admin.site.urls),
     path('admin/', include('administration.urls')),
     path('', include('user.urls')),
-	re_path(r'^login/$', auth_views.LoginView.as_view(), name='login'),
+    path('login/', login_view, name='login'),
+    path('signup/', register_view, name='register'),
+    # re_path(r'^login/$', auth_views.LoginView.as_view(), name='login'),
     re_path(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
 	re_path(r'^oauth/', include('social_django.urls', namespace='social')),
 	#path(
