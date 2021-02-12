@@ -20,11 +20,13 @@ class LoginException(BaseException):
 
 
 def autenticate(email, password):
-    if not email or not password:
-        raise LoginException('You did not provide a user or password!')
+    if not email:
+        raise LoginException('You did not provide an email!')
+    if not password:
+        raise LoginException('You did not provide a password!')
     user = auth.authenticate(username=email, password=password)
     if user is None:
-        raise LoginException('Email and password does not match!')
+        raise LoginException('Email and/or password are incorrect.')
 
     # if not user.check_password(password):
     #    raise LoginException('Incorrect password for this user\'s email!')
@@ -40,7 +42,7 @@ def login_view(request):
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("user_contests_home")
         except LoginException as error:
-            context.update({"error": error})
+            context.update({"error": error.getMessage()})
         except:
             context.update({"error": "Unexpected error. Please contact admin!"})
     return render(request, template_name, context)
@@ -52,11 +54,12 @@ def register_view(request):
     profile_form = ProfileRegisterForm()
     if user_form.is_valid():
         submit_is_ok, user = user_form.submit()
-        profile_form = ProfileRegisterForm(request.POST or None, instance=user.profile)
-        if submit_is_ok and profile_form.is_valid():
-            if profile_form.submit():
-                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                return redirect('user_contests_home')
+        if submit_is_ok:
+            profile_form = ProfileRegisterForm(request.POST or None, instance=user.profile)
+            if profile_form.is_valid():
+                if profile_form.submit():
+                    auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    return redirect('user_contests_home')
 
     context = {
         "userForm": user_form,

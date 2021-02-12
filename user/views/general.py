@@ -6,7 +6,24 @@ from shared.forms import ProfileEditForm, UserEditForm
 from user.context_functions import *
 
 
+
+def user_approval_required(function):
+    """
+    Limit view to users have property active set to true.
+    i.e. users that have been approved by the admin
+    """
+
+    def _inner(request, *args, **kwargs):
+        if request.user.profile.valid:
+            return function(request, *args, **kwargs)
+        return redirect(awaiting_approval_view)
+
+    return _inner
+
+
+
 @login_required
+@user_approval_required
 def dashboard_view(request):
     template_name = 'user/views/dashboard.html'
     context = {}
@@ -57,3 +74,7 @@ def profile_view(request):
 @login_required
 def about_view(request):
     return render(request, "user/views/about.html", {"title": "About"})
+
+@login_required
+def awaiting_approval_view(request):
+    return render(request, 'user/views/awaiting_approval.html', {})

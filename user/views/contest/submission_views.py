@@ -11,8 +11,11 @@ from user.context_functions import *
 from user.views.contest_views import user_has_contest
 
 # TODO: Create user_has_submission decorator
+from user.views.general import user_approval_required
+
 
 @login_required
+@user_approval_required
 @user_has_contest
 def submit_view(request, contest_id):
     checkUserProfileInRequest(request)
@@ -57,6 +60,7 @@ def submit_view(request, contest_id):
     return render(request, template_name, context)
 
 @login_required
+@user_approval_required
 @user_has_contest
 def detail_view(request, contest_id, submission_id):
     print("Contest ID: %i | Attempt ID: %i" % (contest_id, submission_id))

@@ -9,6 +9,7 @@ urlpatterns = [
     path('', general.dashboard_view, name='user_dashboard'),
     path('profile/', general.profile_view, name='user_profile_view'),
     path('about/', general.about_view, name='about'),
+    path('awaiting_approval/', general.awaiting_approval_view, name='awaiting_approval'),
 
     # Contests
     path('contests/', contest_views.dashboard_view, name='user_contests_home'),

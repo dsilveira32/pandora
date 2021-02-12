@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 
 from user.context_functions import *
-
+from user.views.general import user_approval_required
 
 def user_has_contest(function):
     """Limit view to users that have access to the contest."""
@@ -22,8 +22,8 @@ def user_has_contest(function):
 # HOME VIEW
 
 @login_required
+@user_approval_required
 def dashboard_view(request):
-    checkUserProfileInRequest(request)
     template_name = 'user/views/contests/dashboard.html'
     context = {'title': 'Contests',
                'description': 'PANDORA is an Automated Assessment Tool.',
@@ -35,6 +35,7 @@ def dashboard_view(request):
 
 # CONTEST VIEW
 @login_required
+@user_approval_required
 @user_has_contest
 def detail_dashboard_view(request, contest_id):
     #checkUserProfileInRequest(request)

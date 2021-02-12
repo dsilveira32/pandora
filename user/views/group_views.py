@@ -9,8 +9,11 @@ from user.context_functions import *
 ##########
 # GROUPS #
 ##########
+from user.views.general import user_approval_required
+
 
 @login_required
+@user_approval_required
 def dashboard_view(request):
     template_name = 'user/views/groups/dashboard.html'
 
@@ -22,6 +25,7 @@ def dashboard_view(request):
 
 
 @login_required
+@user_approval_required
 def join_view(request):
     template_name = 'user/views/groups/join.html'
 
@@ -40,6 +44,7 @@ def join_view(request):
     return render(request, template_name, context)
 
 @login_required
+@user_approval_required
 def detail_dashboard_view(request, group_id):
     template_name = 'doesnt_exist_yet.html'
 

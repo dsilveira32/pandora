@@ -245,6 +245,7 @@ class UserRegisterForm(forms.ModelForm):
 
         # Checks if there is no user with same username
         if User.objects.filter(username=self.data["email"]).exists():
+            print("Nao passou!!")
             self.add_error('email', 'There is already a user with this email.')
             return False, None
 
@@ -254,17 +255,14 @@ class UserRegisterForm(forms.ModelForm):
             return False, None
 
 
-        user: User = self.save(commit=False)
-        print(user.password)
+        user = self.save(commit=False)
         user.set_password(user.password)
         user.username = user.email
         user.is_active = True
         user.is_superuser = False
         user.is_staff = False
         user.save()
-        print(user.password)
         new_user = User.objects.get(username=user.username)
-        print(new_user.password)
         return True, new_user
 
 

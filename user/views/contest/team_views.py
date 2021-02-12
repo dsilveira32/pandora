@@ -6,8 +6,12 @@ from user.context_functions import *
 from user.views import contest_views
 
 
+from user.views.general import user_approval_required
+
 # TEAM JOIN VIEW
+
 @login_required
+@user_approval_required
 def join_view(request, contest_id):
     context = {}
     template_name = 'user/views/contests/teams/join.html'
@@ -31,6 +35,7 @@ def join_view(request, contest_id):
 
 
 @login_required
+@user_approval_required
 def detail_dashboard_view(request, team_id):
     template_name = 'doesnt_exist_yet.html'
 
