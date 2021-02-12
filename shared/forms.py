@@ -128,12 +128,26 @@ class AdminUserEditForm(forms.ModelForm):
         model = User
         fields = ['email', 'first_name', 'last_name']
 
+    def submit(self):
+        if not self.is_valid():
+            return False
+
+        self.save(commit=False)
+        self.save()
+        return True
 
 class AdminUserProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['number', 'gprd', 'valid']
 
+    def submit(self):
+        if not self.is_valid():
+            return False
+
+        self.save(commit=False)
+        self.save()
+        return True
 
 class TeamMemberApprovalForm(forms.Form):
     member_id = forms.CharField(required=False)

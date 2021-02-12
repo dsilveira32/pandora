@@ -33,8 +33,15 @@ def user_form_view(request, user_id):
         user = User.objects.get(id=user_id)
         userForm = AdminUserEditForm(request.POST or None, instance=user)
         profileForm = AdminUserProfileEditForm(request.POST or None, instance=user.profile)
+        if request.POST and userForm.is_valid() and profileForm.is_valid():
+            if not userForm.submit():
+                context.update({"message": "An error occurred when saving user\'s data", "type": "danger"})
+            if not profileForm.submit():
+                context.update({"message": "An error occurred when saving user\'s profile data", "type": "danger"})
+            context.update({"message": "User\'s data saved successfully.", "type": "success"})
         context.update(getAdminUserDetailLayoutContext(user))
         context.update(getAdminUsersFormContext(userForm, profileForm))
+
     return render(request, template_name, context)
 
 @superuser_only

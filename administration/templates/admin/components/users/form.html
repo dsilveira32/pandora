@@ -1,4 +1,7 @@
 {% load crispy_forms_tags %}
+{% if message and type %}
+<div class="alert alert-{{ type }}">{{ message }}</div>
+{% endif %}
 <form action="" method="POST"> {% csrf_token %}
     <div>
         <h4>User info</h4>

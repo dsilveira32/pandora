@@ -1,4 +1,8 @@
 {% extends "admin/layouts/users/detail_layout.html" %}
 {% block pageContent %}
-    {% include "admin/components/users/form.html" %}
+    <div class="row">
+        <div class="offset-3 col-6">
+            {% include "admin/components/users/form.html" %}
+        </div>
+    </div>
 {% endblock %}
