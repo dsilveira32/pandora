@@ -3,15 +3,10 @@
      <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">
-                <a href="{% url 'admin_groups_home' %}">Users</a>
+                <a href="{% url 'admin_users_home' %}">User</a>
             </li>
-            {% if admin_group_detail_layout.group %}
-            <li class="breadcrumb-item active">
-                <a href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">{{ admin_group_detail_layout.group.name }}</a>
-            </li>
-            {% endif %}
-            {% if admin_group_detail_layout.subpage %}
-            <li class="breadcrumb-item " aria-current="page">{{ admin_group_detail_layout.subpage }}</li>
+            {% if admin_users_detail_layout.user %}
+            <li class="breadcrumb-item " aria-current="page">{{ admin_users_detail_layout.user.get_full_name }}</li>
             {% endif %}
         </ol>
     </nav>

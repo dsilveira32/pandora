@@ -186,10 +186,27 @@ def getAdminSpecificationFormContext(form):
         }
     }
 
-# For admin_test_specification_form.html
+# For admin/users/list.html
 def getAdminUsersListContext(users):
     return {
         'admin_users_list': {
             'users': users
+        }
+    }
+
+# For admin/users/form.html
+def getAdminUsersFormContext(userForm, profileForm):
+    return {
+        'admin_users_form': {
+            'userForm': userForm,
+            'profileForm': profileForm
+        }
+    }
+
+# For admin/users/form.html
+def getAdminUserDetailLayoutContext(user):
+    return {
+        'admin_user_detail_layout': {
+            'user': user
         }
     }

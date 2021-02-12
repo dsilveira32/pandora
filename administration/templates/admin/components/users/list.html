@@ -23,7 +23,7 @@
                                 <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}"></i>
                             </td>
                             <td>
-                                <a class="btn btn-warning btn-sm" href=""><i class="fas fa-pen"></i></a>
+                                <a class="btn btn-warning btn-sm" href="{% url 'admin_users_user_form' user.id %}"><i class="fas fa-pen"></i></a>
                             </td>
                         </tr>
                     {% endfor %}

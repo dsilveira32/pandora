@@ -1,13 +1,14 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render
 
-from administration.context_functions import getAdminUsersListContext
+from administration.context_functions import *
 from contest.admin_views import superuser_only
+from shared.forms import *
 
 
 @superuser_only
 def dashboard_view(request):
-    template_name = 'admin/views/users/dashboard.html'
+    template_name = 'admin/views/users/home.html'
     context = {}
     users = User.objects.all()
     context.update(getAdminUsersListContext(users))
@@ -22,4 +23,22 @@ def dashboard_view(request):
                     user.profile.setValid(False)
                 user.save()
 
+    return render(request, template_name, context)
+
+@superuser_only
+def user_form_view(request, user_id):
+    template_name = 'admin/views/users/user_form.html'
+    context = {}
+    if User.objects.filter(id=user_id).exists():
+        user = User.objects.get(id=user_id)
+        userForm = AdminUserEditForm(request.POST or None, instance=user)
+        profileForm = AdminUserProfileEditForm(request.POST or None, instance=user.profile)
+        context.update(getAdminUserDetailLayoutContext(user))
+        context.update(getAdminUsersFormContext(userForm, profileForm))
+    return render(request, template_name, context)
+
+@superuser_only
+def user_form_create_view(request):
+    template_name = 'admin/views/users/home.html'
+    context = {}
     return render(request, template_name, context)

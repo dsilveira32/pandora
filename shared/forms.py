@@ -113,7 +113,6 @@ class UserEditForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name']
 
-
 class ProfileEditForm(forms.ModelForm):
     number = forms.IntegerField(required=True, label='Student Number')
     gprd = forms.BooleanField(required=True, initial=False,
@@ -123,6 +122,7 @@ class ProfileEditForm(forms.ModelForm):
         model = Profile
         fields = ['number', 'gprd']
 
+
 class AdminUserEditForm(forms.ModelForm):
     class Meta:
         model = User
@@ -130,13 +130,10 @@ class AdminUserEditForm(forms.ModelForm):
 
 
 class AdminUserProfileEditForm(forms.ModelForm):
-    number = forms.IntegerField(required=True, label='Student Number')
-    gprd = forms.BooleanField(required=True, initial=False,
-                              label='Agree to share my information (name, email, number, username, grade) with the authors and other users of this application')
-
     class Meta:
         model = Profile
-        fields = ['number', 'gprd']
+        fields = ['number', 'gprd', 'valid']
+
 
 class TeamMemberApprovalForm(forms.Form):
     member_id = forms.CharField(required=False)
