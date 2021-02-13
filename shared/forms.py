@@ -124,17 +124,21 @@ class ProfileEditForm(forms.ModelForm):
 
 
 class AdminUserEditForm(forms.ModelForm):
+    is_active = forms.BooleanField(required=False, label="Is Active")
+    is_staff = forms.BooleanField(required=False, label="Is Staff")
+    is_superuser = forms.BooleanField(required=False, label="Is Super User")
+
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name']
+        fields = ['username','email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser']
 
     def submit(self):
         if not self.is_valid():
             return False
 
-        self.save(commit=False)
-        self.save()
-        return True
+        user = self.save(commit=False)
+        user.save()
+        return True, user
 
 class AdminUserProfileEditForm(forms.ModelForm):
     class Meta:
