@@ -40,6 +40,7 @@ urlpatterns = [
     #name='logout'
     #),
 	#path('manage/', manage, name='manage'),
+    re_path(r'^celery-progress/', include('celery_progress.urls')),  # the endpoint is configurable
 ] + staticfiles_urlpatterns()
 
 

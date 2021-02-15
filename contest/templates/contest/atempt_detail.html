@@ -80,9 +80,9 @@
 								</td>
 								<td>
 									{% if r.test.type_of_feedback == 1 %}
-									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Input</button>
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Args</button>
 									{% elif user.is_superuser %}
-									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Input</button>
+									<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-cmd{{ forloop.counter }}">Args</button>
 									{% endif %}									
 								</td>								
 								<td>
@@ -119,7 +119,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-<pre>{{ atempt.error_description }}</pre>
+{{ atempt.error_description|linebreaks }}
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -196,19 +196,36 @@
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Expected Output / Obtained Output</h5>
+				<div class="col-md-4">
+					<h5 class="modal-title">Expected</h5>
+				</div>
+				<div class="col-md-4">
+					<h5 class="modal-title">Obtained</h5>
+				</div>
+				<div class="col-md-4">
+					<h5 class="modal-title">Smash</h5>						
+				</div>					
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-md-6">
-<pre>{{ r.expected_output }}</pre>
+					<div class="col-md-4">
+						<del style="background:#ffe6e6;"> </del>
+						<span>
+							{{ r.expected_output|linebreaks }}
+						</span>
 					</div>
-					<div class="col-md-6">
-<pre>{{ r.obtained_output }}</pre>
+					<div class="col-md-4">
+						<del style="background:#ffe6e6;"> </del>
+						<span>					
+							{{ r.obtained_output|linebreaks }}
+						</span>	
 					</div>
+					<div class="col-md-4">
+						{% autoescape off %}{{ r.diff }}{% endautoescape %}
+					</div>					
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -228,7 +245,9 @@
 				</button>
 			</div>
 			<div class="modal-body">
-<pre>{{ r.error_description }}</pre>
+<pre>
+{{ r.error_description }}
+</pre>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

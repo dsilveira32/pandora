@@ -36,7 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'contest',
-    'social_django'
+    'social_django',
+    # Celery apps
+    'celery',
+    'celery_progress',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -134,3 +137,8 @@ STATIC_ANALYZER = 'cppcheck --enable=all .'
 
 # valgrind configuration
 VALGRIND_EXEC = '/usr/bin/valgrind --error-exitcode=77 --leak-check=full -q'
+
+
+# Celery Settings
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'

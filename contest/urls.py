@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .admin_views import (
     admin_choose_test,
@@ -50,7 +50,6 @@ urlpatterns = [
     path('groups/join', group_join_view, name='group_join'),
     path('admin-view/contest-creation/', admin_contest_creation),
     path('admin-view/test-creation/', admin_test_creation),
-
     path('complete_profile/', complete_profile_view, name='complete_profile'),
     path('nonactive/', nonactive_view, name='not_active'),
     path('profile/', profile_view, name='profile')
