@@ -24,7 +24,7 @@ from .views import (
     profile_view,
     nonactive_view,
     complete_profile_view,
-    home_view
+    home_view, group_list_view, group_join_view
 )
 
 urlpatterns = [
@@ -45,6 +45,9 @@ urlpatterns = [
 
     path('contests/<int:id>/grades-downloader/', extract_grades),
     path('contests/<int:id>/zip-downloader/', extract_zip),
+
+    path('groups/', group_list_view, name='group_list'),
+    path('groups/join', group_join_view, name='group_join'),
     path('admin-view/contest-creation/', admin_contest_creation),
     path('admin-view/test-creation/', admin_test_creation),
 

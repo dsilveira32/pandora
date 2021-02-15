@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Groups</h1>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="offset-4 col-4 pt-3 pb-5">
+            <a href="{% url 'group_join' %}" class="btn btn-primary w-100 py-3">
+                Join a group
+            </a>
+        </div>
+        <div class="offset-4 col-4">
+            <div class="card border rounded shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-2 text-success">Your Groups</h5>
+                    <p class="card-text mb-auto">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Group</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for o in groups %}
+                            <tr>
+                                <td>
+                                    <b>
+                                        {{ o.name }}
+                                    </b>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

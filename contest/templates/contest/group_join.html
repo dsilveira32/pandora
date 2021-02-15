@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Groups</h1>
+    </div>
+    <hr>
+    <div class="container-fluid">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-md-8">
+                <div class="card border rounded shadow-sm mb-4 mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-2 text-primary">Join a Group</h5>
+                        <form method='POST' action=''
+                              enctype='multipart/form-data' id="joinGroupForm"> {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-success">Join</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
