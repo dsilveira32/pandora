@@ -1,17 +1,17 @@
 {% extends "admin/layouts/base_layout.html" %}
 {% block pageContent %}
-     <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">
                 <a href="{% url 'manager_contests_home' %}">Contests</a>
             </li>
             {% if admin_contest_detail_layout.contest %}
-            <li class="breadcrumb-item active">
-                <a href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">{{ admin_contest_detail_layout.contest.short_name }}</a>
-            </li>
+                <li class="breadcrumb-item active">
+                    <a href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">{{ admin_contest_detail_layout.contest.short_name }}</a>
+                </li>
             {% endif %}
             {% if admin_contest_detail_layout.subpage %}
-            <li class="breadcrumb-item " aria-current="page">{{ admin_contest_detail_layout.subpage }}</li>
+                <li class="breadcrumb-item " aria-current="page">{{ admin_contest_detail_layout.subpage }}</li>
             {% endif %}
         </ol>
     </nav>
@@ -20,26 +20,18 @@
             <h5>{{ admin_contest_detail_layout.contest.short_name }}
                 - {{ admin_contest_detail_layout.contest.title }}</h5>
         </div>
-        <nav class="navbar navbar-expand nav-pills">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser"
-                    aria-controls="navbarContestUser" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarContestUser">
-                <a class="nav-link mr-2 {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
-                   href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">
-                    Dashboard
-                </a>
-                <a class="nav-link mr-2 {% if '/tests' in request.path %}active{% endif %}"
-                   href="{% url 'manager_contests_detail_tests' admin_contest_detail_layout.contest.id %}">
-                    Tests
-                </a>
-                <a class="nav-link mr-2 {% if '/teams' in request.path %}active{% endif %}"
-                   href="{% url 'manager_contests_detail_teams' admin_contest_detail_layout.contest.id %}">
-                    Teams
-                </a>
-            </div>
-        </nav>
+        <a class="btn btn-primary btn-sm {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
+           href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">
+            Dashboard
+        </a>
+        <a class="btn btn-primary btn-sm {% if '/tests' in request.path %}active{% endif %}"
+           href="{% url 'manager_contests_detail_tests' admin_contest_detail_layout.contest.id %}">
+            Tests
+        </a>
+        <a class="btn btn-primary btn-sm {% if '/teams' in request.path %}active{% endif %}"
+           href="{% url 'manager_contests_detail_teams' admin_contest_detail_layout.contest.id %}">
+            Teams
+        </a>
         <hr>
         {% block contestDetailContent %}
         {% endblock %}

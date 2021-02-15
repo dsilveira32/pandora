@@ -106,8 +106,6 @@ def edit_view(request, group_id):
 		group = group_form.save(commit=False)
 		group.save()
 		return redirect(detail_dashboard_view, group_id = group.id)
-	groups = getGroupsForAdmin(request)
 	context.update(getAdminCreateGroupFormContext(group_form))
-	context.update(getAdminGroupListContext(groups))
-
+	context.update(getAdminGroupDetailLayoutContext(group))
 	return render(request, template_name, context)

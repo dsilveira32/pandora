@@ -43,7 +43,7 @@
             </div>
         </nav>
         {% endcomment %}
-        <a class="btn btn-primary btn-sm {% if '/users' not in request.path and '/contests' not in request.path %}active{% endif %}"
+        <a class="btn btn-primary btn-sm {% if '/users' not in request.path and '/contests' not in request.path and '/edit' not in request.path %}active{% endif %}"
            href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}"><i class="fas fa-chart-line"></i> Dashboard</a>
         <a class="btn btn-primary btn-sm {% if '/users' in request.path %}active{% endif %}"
            href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">Users</a>
