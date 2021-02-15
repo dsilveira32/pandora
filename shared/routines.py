@@ -6,18 +6,15 @@ import zipfile
 import re
 from shutil import copyfile
 from subprocess import check_output
-import json
-import difflib
 from django.conf import settings
-from django.contrib import messages
 from django.core.files import File
 import diff_match_patch
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 
-from shared.models import Classification, Team, Attempt, SafeExecError, Contest, UserContestDateException, \
+from shared.models import Classification, Attempt, Contest, UserContestDateException, \
     Group, Profile
-from .utils import *
+from shared.utils import *
 
 
 # check output function

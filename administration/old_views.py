@@ -2,21 +2,14 @@ import csv
 import io
 import sys
 
-from django.core.exceptions import PermissionDenied
 from django.db.models import Max
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
 
-from shared.forms import CreateContestModelForm, TestForm, CreateTestModelForm, GroupCreateForm, \
-	C_SpecificationCreateForm
-from shared.models import Contest, Test, get_tests_path, Attempt
-from contest.routines import *
+from shared.forms import CreateContestModelForm, TestForm, CreateTestModelForm
+from shared.models import Test
+from shared.routines import *
 from django.db import transaction
-from .context_functions import *
-
-
-
-
 
 
 @superuser_only

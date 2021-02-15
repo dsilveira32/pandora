@@ -1,10 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.admin import widgets as django_widgets
 
-from contest.routines import check_in_files, check_out_files
-from contest.utils import print_variables_debug
-from .models import Attempt, Team, Contest, Test, get_contest_code_path, Profile, Group, C_Specification
+from shared.utils import print_variables_debug
+from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification
 
 
 class DateInputWidget(forms.DateTimeInput):

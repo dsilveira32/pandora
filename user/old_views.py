@@ -1,18 +1,9 @@
-import sys
-
-from coolname import generate_slug
-from django.contrib import messages
 from django.contrib.auth import logout  # last 2 imported
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
-from django.utils.encoding import smart_text
+from django.shortcuts import render
 
-from shared.forms import AttemptModelForm, TeamMemberApprovalForm, \
-    ProfileEditForm, UserEditForm, TeamJoinForm, GroupJoinForm, TeamCreateForm
-from shared.models import Contest, UserContestDateException
-from contest.routines import *
+from shared.forms import TeamMemberApprovalForm, \
+    ProfileEditForm, UserEditForm
 from .context_functions import *
 
 

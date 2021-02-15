@@ -1,6 +1,3 @@
-from contest.routines import *
-
-
 #############################
 #      CONTEXT FUNCTIONS    #
 #############################

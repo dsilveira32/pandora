@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
+from shared.routines import *
 from shared.forms import TeamJoinForm, TeamCreateForm
 from user.context_functions import *
 from user.views import contest_views

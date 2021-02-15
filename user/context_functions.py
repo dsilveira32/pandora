@@ -1,4 +1,4 @@
-from contest.routines import *
+from shared.routines import *
 
 
 #############################

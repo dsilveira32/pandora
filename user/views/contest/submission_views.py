@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.encoding import smart_text
-
+from shared.routines import *
 from shared.forms import AttemptModelForm
 from user.context_functions import *
 

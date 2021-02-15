@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
-
+from shared.routines import *
 from user.context_functions import *
 from user.views.general import user_approval_required
 

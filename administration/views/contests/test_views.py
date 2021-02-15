@@ -1,9 +1,9 @@
 from django.db import transaction
 from django.shortcuts import render
-
+from shared.routines import *
 from administration.context_functions import *
 from administration.views.general import superuser_only
-from contest.routines import __get_zip_file_path
+from shared.routines import __get_zip_file_path
 from shared.forms import TestForm, CreateTestModelForm
 from shared.models import Test
 

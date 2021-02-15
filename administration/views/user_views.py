@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from administration.context_functions import *
-from contest.admin_views import superuser_only
+from .general import superuser_only
 from shared.forms import *
 
 

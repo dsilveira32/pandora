@@ -4,6 +4,7 @@ from administration.context_functions import *
 from administration.views.general import superuser_only
 from shared.forms import CreateContestModelForm
 
+from shared.routines import *
 #############################
 #       CONTEST VIEWS       #
 #############################

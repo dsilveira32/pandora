@@ -1,7 +1,8 @@
 from administration.views.general import superuser_only
 from django.shortcuts import render
 from administration.context_functions import *
-
+from shared.models import Team
+from shared.routines import *
 # Admin teams dashboard view
 from user.views.contest_views import user_has_contest
 
