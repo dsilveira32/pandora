@@ -1,13 +1,14 @@
 <div class="col-4">
-    <div class="card border-left-info shadow h-100 py-2">
+    <div class="card border-left-warning shadow h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
                         Users
                     </div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_groups_dashboard_cards.user_count }}</div>
-                    <a class="stretched-link" href="{% url 'admin_group_users_manager' admin_groups_dashboard_cards.group.id %}"></a>
+                    <a class="stretched-link"
+                       href="{% url 'admin_group_users_manager' admin_groups_dashboard_cards.group.id %}"></a>
                 </div>
                 <div class="col-auto">
                     <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -21,11 +22,12 @@
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
                         Open contests
                     </div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_groups_dashboard_cards.open_contest_count }}</div>
-                    <a class="stretched-link" href="{% url 'admin_group_contests_manager' admin_groups_dashboard_cards.group.id %}"></a>
+                    <a class="stretched-link"
+                       href="{% url 'admin_group_contests_manager' admin_groups_dashboard_cards.group.id %}"></a>
                 </div>
                 <div class="col-auto">
                     <i class="fas fa-check-circle fa-2x text-gray-300"></i>
@@ -39,11 +41,12 @@
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
                         Closed contests
                     </div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_groups_dashboard_cards.closed_contest_count }}</div>
-                    <a class="stretched-link" href="{% url 'admin_group_contests_manager' admin_groups_dashboard_cards.group.id %}"></a>
+                    <a class="stretched-link"
+                       href="{% url 'admin_group_contests_manager' admin_groups_dashboard_cards.group.id %}"></a>
                 </div>
                 <div class="col-auto">
                     <i class="fas fa-times-circle fa-2x text-gray-300"></i>
@@ -52,3 +55,29 @@
         </div>
     </div>
 </div>
+
+<div class="offset-3 col-6">
+    <div class="card border rounded shadow-sm mb-4 mt-4">
+        <div class="card-body text-center">
+            <h5 class="card-title mb-2 text-primary">Group Info</h5>
+            <p class="lead my-3">{{ admin_groups_dashboard_cards.group.name }}</p>
+            <p class="card-text mb-auto">
+            <table class="table">
+                <tbody>
+                <tr>
+                    <td>Join Code</td>
+                    <td>{{ admin_groups_dashboard_cards.group.join_code }}</td>
+                </tr>
+                <tr>
+                    <td>Open Registration</td>
+                    <td>
+                        <i class="fas {% if admin_groups_dashboard_cards.group.registration_open %}fa-check-circle text-success{% else %}fa-times-circle text-danger {% endif %}"></i>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </p>
+        </div>
+    </div>
+</div>
+
