@@ -1,0 +1,54 @@
+<div class="col-4">
+    <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Users
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_groups_dashboard_cards.user_count }}</div>
+                    <a class="stretched-link" href="{% url 'admin_group_users_manager' admin_groups_dashboard_cards.group.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-4">
+    <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Open contests
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_groups_dashboard_cards.open_contest_count }}</div>
+                    <a class="stretched-link" href="{% url 'admin_group_contests_manager' admin_groups_dashboard_cards.group.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-4">
+    <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Closed contests
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_groups_dashboard_cards.closed_contest_count }}</div>
+                    <a class="stretched-link" href="{% url 'admin_group_contests_manager' admin_groups_dashboard_cards.group.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

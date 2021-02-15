@@ -38,21 +38,46 @@ def create_view(request):
 
 	return render(request, template_name, context)
 
+# Admin Groups Dashboard View
+@superuser_only
+def detail_dashboard_view(request, group_id):
+	template_name = 'admin/views/groups/detail_dashboard.html'
+	context = {}
+	group = getGroupByID(group_id)
+	contests = group.getContests()
+
+	# TODO: Find a better way to do this
+	closed_contest_count = 0
+	open_contest_count = 0
+	user_count = group.getUsers().count()
+	print('user count is: ')
+	print(user_count)
+	for contest in contests:
+		if contest.isOpen():
+			open_contest_count += 1
+		else:
+			closed_contest_count += 1
+
+	context.update(getAdminGroupDetailLayoutContext(group))
+	context.update(getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, closed_contest_count))
+
+	return render(request, template_name, context)
+
+
 # Admin Groups Users Manager
 @superuser_only
 def users_manage_view(request, group_id):
 	template_name = 'admin/views/groups/users/manage.html'
 	context = {}
 	group = getGroupByID(group_id)
-	users = User.objects.exclude(group__users__group__exact=group)
-	user_profiles = getUserProfilesFromGroup(group)
+	users_not_in_group = User.objects.exclude(group__users__group__exact=group)
+	users_in_group = group.getUsers()
 	addremuserform = GroupAddUserForm(request.POST or None)
 	if addremuserform.is_valid():
 		addremuserform.submit(group)
 
 	context.update(getAdminGroupDetailLayoutContext(group))
-	context.update(getAdminGroupUserListContext(user_profiles))
-	context.update(getAdminUsersListContext(users))
+	context.update(getAdminGroupUserManagerContext(users_not_in_group, users_in_group))
 	return render(request, template_name, context)
 
 # Admin Groups Contests Manager

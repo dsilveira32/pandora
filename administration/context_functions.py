@@ -216,3 +216,24 @@ def getAdminGroupsContestsManagerContext(contests, contests_in):
             'contests_in': contests_in
         }
     }
+
+
+# For admin/components/groups/user_manager.html
+def getAdminGroupUserManagerContext(users_not_in_group, users_in_group):
+    return {
+        'admin_groups_user_manager': {
+            'users_not_in_group': users_not_in_group,
+            'users_in_group': users_in_group
+        }
+    }
+
+# For admin/components/groups/dashboard_cards.html
+def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, closed_contest_count):
+    return {
+        'admin_groups_dashboard_cards': {
+            'group': group,
+            'user_count': user_count,
+            'open_contest_count': open_contest_count,
+            'closed_contest_count': closed_contest_count,
+        }
+    }
