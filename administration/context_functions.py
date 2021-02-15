@@ -207,3 +207,12 @@ def getAdminUserDetailLayoutContext(user):
             'user': user
         }
     }
+
+# For admin/components/groups/contests_manager
+def getAdminGroupsContestsManagerContext(contests, contests_in):
+    return {
+        'admin_group_contests_manager': {
+            'contests': contests,
+            'contests_in': contests_in
+        }
+    }

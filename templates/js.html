@@ -29,8 +29,31 @@
 <script src="{% static 'datetimepicker/build/jquery.datetimepicker.full.min.js' %}"></script>
 
 <script>
+    function tablesSelectors(io){
+        $(".select-all-table-"+io).click(function (e) {
+            $(".select-all-table-"+io).prop('checked', this.checked);
+            $(".selected-table-"+io).prop('checked', this.checked);
+            $(".is-checkbox-select-btn-table-"+io).prop('disabled', !($(".selected-table-"+io+":checked").length > 0));
+        });
+        $(".selected-table-"+io).click(function (e) {
+            let selectedCheckboxes = $(".selected-table-"+io+":checked")
+            if (selectedCheckboxes.length === $(".selected-table-"+io).length) {
+                $(".select-all-table-"+io).prop('checked', true);
+            } else {
+                $(".select-all-table-"+io).prop('checked', false);
+            }
+            $(".is-checkbox-select-btn-table-"+io).prop('disabled', !(selectedCheckboxes.length > 0));
+        })
+        $(".submit-btn-table-"+io).click(function (e) {
+            $("#form-action-table-"+io).val($(this).val())
+            $("#form-table-"+io).submit()
+        })
+    }
+
     // Call the dataTables jQuery plugin
     $(document).ready(function () {
         $('.dataTablePandora').DataTable();
+        tablesSelectors("in")
+        tablesSelectors("out")
     });
 </script>

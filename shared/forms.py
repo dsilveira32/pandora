@@ -325,6 +325,20 @@ class GroupAddUserForm(forms.Form):
                 if action == "removeuser":
                     group.users.remove(user)
 
+
+class GroupAddContestForm(forms.Form):
+    def submit(self, group):
+        action = self.data.get("action")
+        if action:
+            for contest_id in self.data.getlist("contest_id"):
+                contest = Contest.objects.get(id=contest_id)
+                if action == "addcontest":
+                    group.contests.add(contest)
+                if action == "removecontest":
+                    group.contests.remove(contest)
+
+
+
 class UserListForm(forms.Form):
     def submit(self):
         action = self.data.get("action")

@@ -1,5 +1,8 @@
 {% extends "admin/layouts/groups/detail_layout.html" %}
 {% block groupDetailContent %}
+    <a class="btn btn-primary btn-sm" href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">Users</a>
+    <a class="btn btn-primary btn-sm" href="{% url 'admin_group_contests_manager' admin_group_detail_layout.group.id %}">Contests</a>
+    <hr>
     <div class="row">
         <div class="col-6">
             <div class="mb-4">

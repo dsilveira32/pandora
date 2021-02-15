@@ -1,0 +1,102 @@
+<div class="row">
+    <div class="col-6">
+        <div class="mb-4">
+            <button class="btn btn-success btn-sm is-checkbox-select-btn-table-out submit-btn-table-out" disabled
+                    value="addcontest"><i class="fas fa-plus-circle"></i> Add selected to group
+            </button>
+        </div>
+        <div class="card border rounded shadow-sm">
+            <div class="card-header py-3">
+                <div class="row">
+                    <div class="col-4">
+                        <h6 class="m-0 font-weight-bold text-primary">Contests</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="" method="POST" id="form-table-out">{% csrf_token %}
+                    <input type="hidden" id="form-action-table-out" name="action" value="">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover dataTablePandora">
+                            <thead>
+                            <tr>
+                                <th class="text-center"><input type="checkbox" class="select-all-table-out"></th>
+                                <th>Contest</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Open</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for contest in admin_group_contests_manager.contests %}
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="selected-table-out" name="contest_id"
+                                               value="{{ contest.id }}">
+                                    </td>
+                                    <td>{{ contest.getName }}</td>
+                                    <td>{{ contest.start_date }}</td>
+                                    <td>{{ contest.end_date }}</td>
+                                    <td>
+                                        <i class="fas fa-{% if contest.isOpen %}check-circle{% else %}times-circle{% endif %} {% if contest.isOpen %}text-success{% else %}text-danger{% endif %}"></i>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="mb-4">
+            <button class="btn btn-danger btn-sm is-checkbox-select-btn-table-in submit-btn-table-in"
+                    disabled value="removecontest"><i class="fas fa-trash"></i> Remove selected from group
+            </button>
+        </div>
+        <div class="card border rounded shadow-sm">
+            <div class="card-header py-3">
+                <div class="row">
+                    <div class="col-4">
+                        <h6 class="m-0 font-weight-bold text-primary">Contests</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="" method="POST" id="form-table-in">{% csrf_token %}
+                    <input type="hidden" id="form-action-table-in" name="action" value="">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover dataTablePandora">
+                            <thead>
+                            <tr>
+                                <th class="text-center"><input type="checkbox" class="select-all-table-in"></th>
+                                <th>Contest</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Open</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for contest in admin_group_contests_manager.contests_in %}
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="selected-table-in" name="contest_id"
+                                               value="{{ contest.id }}">
+                                    </td>
+                                    <td>{{ contest.getName }}</td>
+                                    <td>{{ contest.start_date }}</td>
+                                    <td>{{ contest.end_date }}</td>
+                                    <td>
+                                        <i class="fas fa-{% if contest.isOpen %}check-circle{% else %}times-circle{% endif %} {% if contest.isOpen %}text-success{% else %}text-danger{% endif %}"></i>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

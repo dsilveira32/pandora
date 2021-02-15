@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from administration.context_functions import *
 from administration.views.general import superuser_only
-from shared.forms import GroupCreateForm, GroupAddUserForm
+from shared.forms import GroupCreateForm, GroupAddUserForm, GroupAddContestForm
 
 from shared.routines import *
 
@@ -61,9 +61,11 @@ def contests_manage_view(request, group_id):
 	template_name = 'admin/views/groups/contests/manage.html'
 	context = {}
 	group = getGroupByID(group_id)
-	users = Contest.objects.exclude(group__users__group__exact=group).all()
-	contests = group.getContests()
-	#form
-	context.update(getAdminContestListContext(contests))
+	contests = Contest.objects.exclude(group__users__group__exact=group).all()
+	contests_in = group.getContests()
+	form = GroupAddContestForm(request.POST or None)
+	if form.is_valid():
+		form.submit(group)
+	context.update(getAdminGroupsContestsManagerContext(contests, contests_in))
 	context.update(getAdminGroupDetailLayoutContext(group))
 	return render(request, template_name, context)
