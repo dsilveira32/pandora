@@ -33,6 +33,7 @@ def getAdminContestListContext(contests):
         }
     }
 
+
 # For detail_layout.html
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
 def getAdminContestDetailLayoutContext(contest):
@@ -51,6 +52,7 @@ def getAdminContestDetailLayoutContext(contest):
         }
     }
     return context
+
 
 # For list.html
 def getAdminTeamListContext(teams):
@@ -87,6 +89,7 @@ def getAdminTeamDetailContext(team):
         }
     }
 
+
 # For form.html
 def getAdminTestFormContext(contest, form):
     """Context for form.html
@@ -106,12 +109,14 @@ def getAdminTestFormContext(contest, form):
         }
     }
 
+
 def getAdminTestListContext(tests):
     return {
         'admin_test_list': {
             'tests': tests
         }
     }
+
 
 # For detail_layout.html
 def getAdminGroupDetailLayoutContext(group):
@@ -142,6 +147,7 @@ def getAdminGroupListContext(groups):
         }
     }
 
+
 # For list.html
 def getAdminGroupUserListContext(user_profiles):
     """Context for list.html
@@ -156,6 +162,7 @@ def getAdminGroupUserListContext(user_profiles):
         }
     }
 
+
 # For form.html
 def getAdminCreateGroupFormContext(form):
     return {
@@ -163,7 +170,6 @@ def getAdminCreateGroupFormContext(form):
             'form': form
         }
     }
-
 
 
 # For form.html
@@ -183,6 +189,7 @@ def getAdminSpecificationFormContext(form):
         }
     }
 
+
 # For admin/users/list.html
 def getAdminUsersListContext(users):
     return {
@@ -190,6 +197,7 @@ def getAdminUsersListContext(users):
             'users': users
         }
     }
+
 
 # For admin/users/form.html
 def getAdminUsersFormContext(userForm, profileForm):
@@ -200,10 +208,32 @@ def getAdminUsersFormContext(userForm, profileForm):
         }
     }
 
+
 # For admin/users/form.html
 def getAdminUserDetailLayoutContext(user):
     return {
         'admin_user_detail_layout': {
             'user': user
+        }
+    }
+
+
+# For admin/components/groups/user_manager.html
+def getAdminGroupUserManagerContext(users_not_in_group, users_in_group):
+    return {
+        'admin_groups_user_manager': {
+            'users_not_in_group': users_not_in_group,
+            'users_in_group': users_in_group
+        }
+    }
+
+# For admin/components/groups/dashboard_cards.html
+def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, closed_contest_count):
+    return {
+        'admin_groups_dashboard_cards': {
+            'group': group,
+            'user_count': user_count,
+            'open_contest_count': open_contest_count,
+            'closed_contest_count': closed_contest_count,
         }
     }
