@@ -153,6 +153,7 @@ class AdminUserProfileEditForm(forms.ModelForm):
         self.save()
         return True
 
+
 class TeamMemberApprovalForm(forms.Form):
     member_id = forms.CharField(required=False)
     member_id_remove = forms.CharField(required=False)
@@ -314,3 +315,26 @@ class ProfileRegisterForm(forms.ModelForm):
 
 class TeamMemberForm(object):
     pass
+
+class GroupAddUserForm(forms.Form):
+    def submit(self, group):
+        action = self.data.get("action")
+        if action:
+            for user_id in self.data.getlist("user_id"):
+                user = User.objects.get(id=user_id)
+                if action == "adduser":
+                    group.users.add(user)
+                if action == "removeuser":
+                    group.users.remove(user)
+
+class UserListForm(forms.Form):
+    def submit(self):
+        action = self.data.get("action")
+        if action:
+            for user_id in self.data.getlist("user_id"):
+                user = User.objects.get(id=user_id)
+                if action == "validate":
+                    user.profile.setValid(True)
+                if action == "invalidate":
+                    user.profile.setValid(False)
+                user.save()

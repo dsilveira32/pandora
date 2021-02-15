@@ -1,0 +1,18 @@
+{% extends "admin/layouts/groups/detail_layout.html" %}
+{% block groupDetailContent %}
+    <div class="row">
+        <div class="col-6">
+            <div class="mb-4">
+                <button class="btn btn-success btn-sm is-checkbox-select-btn-users-table submit-btn-users-table" disabled value="adduser"><i class="fas fa-plus-circle"></i> Add selected to group</button>
+            </div>
+            {% include 'admin/components/users/list.html' %}
+        </div>
+        <div class="col-6">
+            <div class="mb-4">
+                <button class="btn btn-danger btn-sm is-checkbox-select-btn-group-users-table submit-btn-group-users-table" disabled value="removeuser"><i class="fas fa-trash"></i> Remove selected from group</button>
+            </div>
+            {% include 'admin/components/groups/users/list.html' %}
+        </div>
+    </div>
+
+{% endblock %}

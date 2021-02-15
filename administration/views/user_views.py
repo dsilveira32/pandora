@@ -7,22 +7,19 @@ from shared.forms import *
 
 
 @superuser_only
-def dashboard_view(request):
+def dashboard_view(request, pag=1):
     template_name = 'admin/views/users/home.html'
     context = {}
+    #n_reg=2
+    #f = pag * n_reg if pag > 1 else 0
+    #t = f + n_reg
+    #users = User.objects.all()[f:t]
     users = User.objects.all()
-    context.update(getAdminUsersListContext(users))
-    if request.POST:
-        action = request.POST.get("action")
-        if action:
-            for user_id in request.POST.getlist("user_id"):
-                user = User.objects.get(id=user_id)
-                if action == "validate":
-                    user.profile.setValid(True)
-                if action == "invalidate":
-                    user.profile.setValid(False)
-                user.save()
+    form = UserListForm(request.POST or None)
+    if form.is_valid():
+        form.submit()
 
+    context.update(getAdminUsersListContext(users))
     return render(request, template_name, context)
 
 @superuser_only

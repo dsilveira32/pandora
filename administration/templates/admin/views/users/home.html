@@ -6,20 +6,9 @@
         </ol>
     </nav>
     <div class="container-fluid">
-        <nav class="navbar navbar-expand nav-pills">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser"
-                    aria-controls="navbarContestUser" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarContestUser">
-                <a class="nav-link active" href="{% url 'admin_users_user_form_create' %}">
-                    <i class="fas fa-plus-circle"></i>
-                    Create User
-                </a>
-            </div>
-        </nav>
-
+        <a class="btn btn-primary btn-sm" href="{% url 'admin_users_user_form_create' %}"><i class="fas fa-plus-circle"></i> Create User</a>
+        <button class="btn btn-primary btn-sm is-checkbox-select-btn-users-table submit-btn-users-table" disabled value="validate"><i class="fas fa-check"></i> Validate selected</button>
+        <button class="btn btn-primary btn-sm is-checkbox-select-btn-users-table submit-btn-users-table" disabled value="invalidate"><i class="fas fa-times"></i> Invalidate selected</button>
         <hr>
         {% include "admin/components/users/list.html" %}
     </div>

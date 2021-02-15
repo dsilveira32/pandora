@@ -1,16 +1,19 @@
 <!-- DataTales Example -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Users list</h6>
+        <div class="row">
+            <div class="col-4">
+                <h6 class="m-0 font-weight-bold text-primary">Users</h6>
+            </div>
+        </div>
     </div>
     <div class="card-body">
-        <button class="btn btn-primary btn-sm is-checkbox-select-btn submit-btn" disabled value="validate"><i class="fas fa-check"></i> Validate selected</button>
-        <button class="btn btn-primary btn-sm is-checkbox-select-btn submit-btn" disabled value="invalidate"><i class="fas fa-times"></i> Invalidate selected</button>
-        <div class="table-responsive mt-1">
-            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                <tbody>
-                <form id="user-form" action="" method="POST">{% csrf_token %}
-                    <input type="hidden" id="user-form-action" name="action" value="">
+        <form id="user-form" action="" method="POST">{% csrf_token %}
+            <input type="hidden" id="user-form-action" name="action" value="">
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
+                    <tbody>
                     {% for user in admin_users_list.users %}
                         <tr>
                             <td class="text-center">
@@ -23,55 +26,44 @@
                                 <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}"></i>
                             </td>
                             <td>
-                                <a class="btn btn-warning btn-sm" href="{% url 'admin_users_user_form' user.id %}"><i class="fas fa-pen"></i></a>
+                                <a class="btn btn-warning btn-sm" href="{% url 'admin_users_user_form' user.id %}"><i
+                                        class="fas fa-pen"></i></a>
                             </td>
                         </tr>
                     {% endfor %}
-                </form>
-                </tbody>
-                <thead>
-                <tr>
-                    <th class="text-center"><input type="checkbox" class="select-all"></th>
-                    <th>Email</th>
-                    <th>Name</th>
-                    <th>Number</th>
-                    <th>Is Valid</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tfoot>
-                <tr>
-                    <th class="text-center"><input type="checkbox" class="select-all"></th>
-                    <th>Email</th>
-                    <th>Name</th>
-                    <th>Number</th>
-                    <th>Is Valid</th>
-                    <th>Actions</th>
-                </tr>
-                </tfoot>
-            </table>
-        </div>
+                    </tbody>
+                    <thead>
+                    <tr>
+                        <th class="text-center"><input type="checkbox" class="select-all-users-table"></th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>Is Valid</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </form>
     </div>
 </div>
 <script>
-    $(".select-all").click(function (e) {
-        $(".select-all").prop('checked', this.checked);
+    $(".select-all-users-table").click(function (e) {
+        $(".select-all-users-table").prop('checked', this.checked);
         $(".select-user").prop('checked', this.checked);
-        $(".is-checkbox-select-btn").prop('disabled', !($(".select-user:checked").length > 0));
+        $(".is-checkbox-select-btn-users-table").prop('disabled', !($(".select-user:checked").length > 0));
     });
     $(".select-user").click(function (e) {
         let selectedCheckboxes = $(".select-user:checked")
         if (selectedCheckboxes.length === $(".select-user").length) {
-            $(".select-all").prop('checked', true);
+            $(".select-all-users-table").prop('checked', true);
         } else {
-            $(".select-all").prop('checked', false);
+            $(".select-all-users-table").prop('checked', false);
         }
-        $(".is-checkbox-select-btn").prop('disabled', !(selectedCheckboxes.length > 0));
+        $(".is-checkbox-select-btn-users-table").prop('disabled', !(selectedCheckboxes.length > 0));
     })
-    $(".submit-btn").click(function (e) {
+    $(".submit-btn-users-table").click(function (e) {
         $("#user-form-action").val($(this).val())
-        console.log($("#user-form-action").val())
-        console.log($("#user-form").serialize())
         $("#user-form").submit()
     })
 </script>
