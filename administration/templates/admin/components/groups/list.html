@@ -30,6 +30,7 @@
                         <td>{{ o.users.count }}</td>
                         <td>
                             <a class="btn btn-primary btn-sm" href="{% url 'admin_group_detail_dashboard' o.id %}">View</a>
+                            <a class="btn btn-warning btn-sm" href="{% url 'admin_group_edit' o.id %}"><i class="fas fa-pencil-alt"></i></a>
                         </td>
                     </tr>
                 {% endfor %}

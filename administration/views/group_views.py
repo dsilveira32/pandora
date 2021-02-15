@@ -94,3 +94,20 @@ def contests_manage_view(request, group_id):
 	context.update(getAdminGroupsContestsManagerContext(contests, contests_in))
 	context.update(getAdminGroupDetailLayoutContext(group))
 	return render(request, template_name, context)
+
+# Admin Groups Edit
+@superuser_only
+def edit_view(request, group_id):
+	template_name = 'admin/views/groups/edit.html'
+	context = {}
+	group = getGroupByID(group_id)
+	group_form = GroupCreateForm(request.POST or None, instance=group)
+	if group_form.is_valid():
+		group = group_form.save(commit=False)
+		group.save()
+		return redirect(detail_dashboard_view, group_id = group.id)
+	groups = getGroupsForAdmin(request)
+	context.update(getAdminCreateGroupFormContext(group_form))
+	context.update(getAdminGroupListContext(groups))
+
+	return render(request, template_name, context)

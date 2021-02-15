@@ -1,21 +1,22 @@
 {% extends "admin/layouts/base_layout.html" %}
 {% block pageContent %}
-     <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">
                 <a href="{% url 'admin_groups_home' %}">Groups</a>
             </li>
             {% if admin_group_detail_layout.group %}
-            <li class="breadcrumb-item active">
-                <a href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">{{ admin_group_detail_layout.group.name }}</a>
-            </li>
+                <li class="breadcrumb-item active">
+                    <a href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">{{ admin_group_detail_layout.group.name }}</a>
+                </li>
             {% endif %}
             {% if admin_group_detail_layout.subpage %}
-            <li class="breadcrumb-item " aria-current="page">{{ admin_group_detail_layout.subpage }}</li>
+                <li class="breadcrumb-item " aria-current="page">{{ admin_group_detail_layout.subpage }}</li>
             {% endif %}
         </ol>
     </nav>
     <div class="container-fluid">
+
         {% comment %}
         #### Probably not needed
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -42,9 +43,19 @@
             </div>
         </nav>
         {% endcomment %}
+        <a class="btn btn-primary btn-sm {% if '/users' not in request.path and '/contests' not in request.path %}active{% endif %}"
+           href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a class="btn btn-primary btn-sm {% if '/users' in request.path %}active{% endif %}"
+           href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">Users</a>
+        <a class="btn btn-primary btn-sm {% if '/contests' in request.path %}active{% endif %}"
+           href="{% url 'admin_group_contests_manager' admin_group_detail_layout.group.id %}">Contests</a>
+        <a class="btn btn-warning btn-sm {% if '/edit' in request.path %}active{% endif %}"
+           href="{% url 'admin_group_edit' admin_group_detail_layout.group.id %}"><i class="fas fa-pencil-alt"></i> Edit</a>
         <hr>
-        {% block groupDetailContent %}
-        {% endblock %}
-    </div>
+        <div class="container-fluid">
+            {% block groupDetailContent %}
+            {% endblock %}
+        </div>
 
+    </div>
 {% endblock %}

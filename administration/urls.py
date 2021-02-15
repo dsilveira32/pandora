@@ -37,6 +37,7 @@ urlpatterns = [
     path('groups/', group_views.dashboard_view, name="admin_groups_home"),
     path('groups/create', group_views.create_view, name='admin_group_create'),
     path('groups/<int:group_id>/', group_views.detail_dashboard_view, name='admin_group_detail_dashboard'),
+    path('groups/<int:group_id>/edit', group_views.edit_view, name='admin_group_edit'),
     path('groups/<int:group_id>/users', group_views.users_manage_view, name='admin_group_users_manager'),
     path('groups/<int:group_id>/contests', group_views.contests_manage_view, name='admin_group_contests_manager'),
 

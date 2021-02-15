@@ -165,7 +165,6 @@ def getAdminCreateGroupFormContext(form):
     }
 
 
-
 # For form.html
 def getAdminCreateContestFormContext(form):
     return {
