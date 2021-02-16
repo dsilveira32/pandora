@@ -110,6 +110,9 @@ class Contest(models.Model):
     def getContestByID(cls, contest_id):
         return cls.objects.get(id=contest_id)
 
+    def getUsers(self):
+        return Group.objects.get(contests__exact=self).getUsers()
+
     def getSpecifications(self):
         try:
             if self.language == 'C':
@@ -284,6 +287,9 @@ class Team(models.Model):
     class Meta:
         unique_together = (('contest', 'join_code'), ('contest', 'name'))
 
+    def getId(self):
+        return self.id
+
     def getName(self):
         return self.name
 
@@ -308,6 +314,11 @@ class Team(models.Model):
     def isFull(self):
         return self.users.count() >= self.contest.max_team_members
 
+    def getMaxMembers(self):
+        return self.contest.max_team_members
+    @classmethod
+    def getById(cls, id):
+        return cls.objects.get(id=id)
 
 # TODO: Its possible to make this inside the Model?
 # get the team attempts

@@ -207,6 +207,36 @@ class TeamCreateForm(forms.ModelForm):
         return True
 
 
+class AdminTeamCreateForm(forms.ModelForm):
+    name = forms.CharField(required=True, label='Team Name')
+    join_code = forms.SlugField(required=True, label='Join code')
+    include_user = forms.BooleanField(required=False, label='Include me on team')
+    class Meta:
+        model = Team
+        fields = ['name', 'join_code']
+
+    def submit(self, user, contest):
+        if not self.is_valid():
+            return False
+
+        # Check if the team name is already in use
+        team = Team.objects.filter(name=self.data['name'], contest=contest).exists()
+        if team:
+            self.add_error('name', 'The name you entered is already in use by other team')
+            return False
+        # Check if the team join code is already in use
+        team = Team.objects.filter(join_code=self.data['join_code'], contest=contest).exists()
+        if team:
+            self.add_error('join_code', 'The code you entered is already in use by other team.')
+            return False
+        team = self.save(commit=False)
+        team.contest = contest
+        team.save()
+        print(self.data.get("include_user"))
+        if self.data.get("include_user"):
+            team.users.add(user)
+        return True
+
 class TestForm(forms.Form):
     pass
 
@@ -350,3 +380,42 @@ class UserListForm(forms.Form):
                 if action == "invalidate":
                     user.profile.setValid(False)
                 user.save()
+
+
+class AdminTeamManagerForm(forms.Form):
+    def submit(self, team):
+        action = self.data.get("action")
+        if action:
+            for user_id in self.data.getlist("user_id"):
+                user = User.objects.get(id=user_id)
+                if action == "adduser":
+                    if not team.isFull():
+                        team.users.add(user)
+                if action == "removeuser":
+                    team.users.remove(user)
+
+class AdminTeamEditForm(forms.ModelForm):
+    name = forms.CharField(required=True, label='Team Name')
+    join_code = forms.SlugField(required=True, label='Join code')
+    class Meta:
+        model = Team
+        fields = ['name', 'join_code']
+
+    def submit(self, user, contest):
+        if not self.is_valid():
+            return False
+
+        # Check if the team name is already in use
+        team = Team.objects.exclude(id=self.instance.getId()).filter(name=self.data['name'], contest=contest).exists()
+        if team:
+            self.add_error('name', 'The name you entered is already in use by other team')
+            return False
+        # Check if the team join code is already in use
+        team = Team.objects.exclude(id=self.instance.getId()).filter(join_code=self.data['join_code'], contest=contest).exists()
+        if team:
+            self.add_error('join_code', 'The code you entered is already in use by other team.')
+            return False
+        team = self.save(commit=False)
+        team.contest = contest
+        team.save()
+        return True

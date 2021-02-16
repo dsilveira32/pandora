@@ -19,7 +19,7 @@ from user.views.general import user_approval_required
 @user_has_contest
 def submit_view(request, contest_id):
     checkUserProfileInRequest(request)
-    template_name = 'user/views/contests/submission.html'
+    template_name = 'user/views/contests/submissions/submission.html'
     context = {}
     can_submit = True
 

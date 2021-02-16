@@ -236,3 +236,26 @@ def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, cl
             'closed_contest_count': closed_contest_count,
         }
     }
+
+# For /contests/teams/form.html
+def getAdminContestsTeamsFormContext(form):
+    return {
+        'admin_contests_teams_form': {
+            'form': form
+        }
+    }
+
+# For /contests/teams/manager.html
+def getAdminContestsTeamsManagerContext(users_out, users_in, team):
+    return {
+        'admin_contests_teams_manager': {
+            'users_out': users_out,
+            'users_in': users_in,
+            'team': team
+        }
+    }
+
+
+
+
+

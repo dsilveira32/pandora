@@ -1,6 +1,7 @@
 from administration.views.general import superuser_only
 from django.shortcuts import render
 from administration.context_functions import *
+from shared.forms import TeamCreateForm, AdminTeamCreateForm, AdminTeamEditForm, AdminTeamManagerForm
 from shared.models import Team
 from shared.routines import *
 # Admin teams dashboard view
@@ -9,7 +10,6 @@ from user.views.contest_views import user_has_contest
 # TODO: create user_has_team decorator
 
 @superuser_only
-@user_has_contest
 def dashboard_view(request, contest_id):
 	template_name = 'admin/views/contests/teams/dashboard.html'
 	context = {}
@@ -25,14 +25,57 @@ def dashboard_view(request, contest_id):
 
 # Admin team detail dashboard view
 @superuser_only
-@user_has_contest
 def detail_dashboard_view(request, contest_id, team_id):
 	template_name = 'admin/views/contests/teams/admin_contest_detail_team_edit.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
-	team = Team.objects.filter(id=team_id).first()
+	team = Team.getById(team_id)
 	context.update(getAdminTeamDetailContext(team))
 
+
+	return render(request, template_name, context)
+
+
+# Admin team detail dashboard view
+@superuser_only
+def create_view(request, contest_id):
+	template_name = 'admin/views/contests/teams/create.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	form = AdminTeamCreateForm(request.POST or None)
+	if form.is_valid():
+		if form.submit(request.user, contest):
+			return redirect("manager_contests_detail_teams", contest_id=contest_id)
+	context.update(getAdminContestsTeamsFormContext(form))
+	context.update(getAdminContestDetailLayoutContext(contest))
+	return render(request, template_name, context)
+
+# Admin team detail dashboard view
+@superuser_only
+def edit_view(request, contest_id, team_id):
+	template_name = 'admin/views/contests/teams/edit.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	team = Team.getById(team_id)
+
+	users_out = contest.getUsers().exclude(team__users__team__exact=team)
+
+	form = AdminTeamEditForm(instance=team)
+	form_manager = AdminTeamManagerForm(request.POST or None)
+
+	if not 'action' in request.POST:
+		if form.is_valid():
+			form = AdminTeamEditForm(request.POST or None, instance=team)
+			if form.submit(request.user, contest):
+				return redirect("manager_contests_detail_teams", contest_id=contest_id)
+	else:
+		if form_manager.is_valid():
+			form_manager.submit(team)
+
+	context.update(getAdminContestsTeamsFormContext(form))
+	context.update(getAdminContestDetailLayoutContext(contest))
+
+	context.update(getAdminContestsTeamsManagerContext(users_out, team.getUsers(), team))
 
 	return render(request, template_name, context)

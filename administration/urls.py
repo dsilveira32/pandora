@@ -30,7 +30,9 @@ urlpatterns = [
          test_views.detail_edit_view, name='manager_contest_detail_test_detail_edit'),
     path('contests/<int:contest_id>/teams/', team_views.dashboard_view,
          name='manager_contests_detail_teams'),
-    path('contests/<int:contest_id>/teams/<int:team_id>', team_views.detail_dashboard_view,
+    path('contests/<int:contest_id>/teams/create', team_views.create_view,
+         name='manager_contests_detail_teams_create'),
+    path('contests/<int:contest_id>/teams/<int:team_id>', team_views.edit_view,
          name='manager_contests_detail_team_edit'),
 
     # GROUPS
