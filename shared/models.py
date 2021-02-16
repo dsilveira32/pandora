@@ -381,6 +381,10 @@ class Attempt(models.Model):
     def get_absolute_url(self):
         return "/contests/%i/attempt/%i/" % (self.contest.id, self.id)
 
+    @classmethod
+    def getById(cls, id):
+        return cls.objects.get(id=id).first()
+
 
 class SafeExecError(models.Model):
     description = models.CharField(null=False, max_length=128, unique=True, blank=False)

@@ -1,0 +1,75 @@
+{% load static from staticfiles %}
+<div class="card border rounded shadow-sm mb-4 mt-4">
+    <div class="card-body">
+        <h5 class="car-title mb-2 text-primary">Results summary for attempt
+            #{{ team_submission_details.attempt.id }}</h5>
+        <p class="card-text mb-auto">
+        <table class="table">
+            <tbody>
+            <tr>
+                <td>Compilation</td>
+                <td>{% if team_submission_details.attempt.compile_error %}0/1{% else %}1/1{% endif %}</td>
+                <td>
+                    <h5 class="m-0 p-0 text-{% if team_submission_details.attempt.compile_error %}danger{% else %}success{% endif %}">
+                        <i
+                                class="fas fa-{% if team_submission_details.attempt.compile_error %}times-circle{% else %}check-circle{% endif %}"></i>
+                    </h5>
+                    {# TODO: Delete the below if prof approves #}
+                    {% if team_submission_details.attempt.compile_error %}
+                        <!--  -->
+                    {% else %}
+                        <!-- <span class="oi oi-check text-success"></span> -->
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                            data-target="#modal-compilation">Open
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Mandatory Tests</td>
+                <td>{{ team_submission_details.mandatory_passed }}/{{ team_submission_details.mandatory_total }}</td>
+                <td>
+                    <h5 class="m-0 p-0 text-{% if team_submission_details.mandatory_passed < team_submission_details.mandatory_total %}danger{% else %}success{% endif %}">
+                        <i class="fas fa-{% if team_submission_details.mandatory_passed < team_submission_details.mandatory_total %}times-circle{% else %}check-circle{% endif %}"></i>
+                    </h5>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>General Tests</td>
+                <td>{{ team_submission_details.n_passed }}/{{ team_submission_details.n_total }}</td>
+
+                <td>
+                    <h5 class="m-0 p-0 text-{% if team_submission_details.n_passed < team_submission_details.n_total %}danger{% else %}success{% endif %}">
+                        <i class="fas fa-{% if team_submission_details.n_passed < team_submission_details.n_total %}times-circle{% else %}check-circle{% endif %}"></i>
+                    </h5>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Classification</td>
+                <td>{{ team_submission_details.attempt.grade }}</td>
+                <td>
+                    <h5 class="m-0 p-0 text-{% if team_submission_details.attempt.grade < 10 %}danger{% elif team_submission_details.attempt.grade < 10 and team_submission_details.attempt.grade > min_grade %}warning{% else %}success{% endif %}">
+                        <i class="fas fa-{% if team_submission_details.attempt.grade < 10 %}times-circle{% elif team_submission_details.attempt.grade < 10 and team_submission_details.attempt.grade > min_grade %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+                    </h5>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Static Analysis</td>
+                <td></td>
+                <td></td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                            data-target="#modal-analysis">Open
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </p>
+    </div>
+</div>

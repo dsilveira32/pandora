@@ -31,11 +31,15 @@ def dashboard_view(request):
     labels = []
     data = []
     bgcolors = []
-    for contest in contests:
-        labels.append(contest.getName())
-        team = contest.getUserTeam(request.user)
-        data.append(team.getGreatestGradeAttempt().getGrade())
-        bgcolors.append('#4e73df')
+    if contests:
+        for contest in contests:
+            labels.append(contest.getName())
+            team = contest.getUserTeam(request.user)
+            if team:
+                submission = team.getGreatestGradeAttempt()
+                if submission:
+                    data.append(submission.getGrade())
+                    bgcolors.append('#4e73df')
 
     numberOpenedContests = 0
     for contest in getContestsForUser(request):

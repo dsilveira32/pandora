@@ -63,8 +63,8 @@ def edit_view(request, contest_id, team_id):
 	form_manager = AdminTeamManagerForm(request.POST or None)
 
 	if not 'action' in request.POST:
+		form = AdminTeamEditForm(request.POST or None, instance=team)
 		if form.is_valid():
-			form = AdminTeamEditForm(request.POST or None, instance=team)
 			if form.submit(request.user, contest):
 				return redirect("manager_contests_detail_teams", contest_id=contest_id)
 	else:
