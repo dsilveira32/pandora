@@ -1,0 +1,165 @@
+{% load helpers %}
+<!-- Some cards -->
+<div class="col-3">
+    <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
+                        Submissions
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_contests_dashboard_cards.submission_count }}</div>
+                    <a class="stretched-link"
+                       href="{% url 'manager_contests_detail_submissions' admin_contests_dashboard_cards.contest.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-upload fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-3">
+    <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
+                        Tests
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_contests_dashboard_cards.test_count }}</div>
+                    <a class="stretched-link"
+                       href="{% url 'manager_contests_detail_tests' admin_contests_dashboard_cards.contest.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-3">
+    <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
+                        Teams
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_contests_dashboard_cards.team_count }}</div>
+                    <a class="stretched-link"
+                       href="{% url 'manager_contests_detail_teams' admin_contests_dashboard_cards.contest.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-3">
+    <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">
+                        Users
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ admin_contests_dashboard_cards.user_count }}</div>
+                    <a class="stretched-link"
+                       href="{% url 'manager_contests_detail_teams' admin_contests_dashboard_cards.contest.id %}"></a>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-user fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Details -->
+
+<div class="col-6">
+    <div class="card border rounded shadow-sm mb-4 mt-4">
+        <div class="card-body text-center">
+            <h5 class="card-title mb-2 text-primary">Details</h5>
+            <p class="lead my-3">{{ admin_contests_dashboard_cards.contest.description }}</p>
+            <p class="card-text mb-auto">
+            <table class="table">
+                <tbody>
+                <tr>
+                    <td>Language</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.language }}</td>
+                </tr>
+                <tr>
+                    <td>Kick Off</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.start_date }}</td>
+                </tr>
+                <tr>
+                    <td>Deadline</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.end_date }}</td>
+                </tr>
+                <tr>
+                    <td>Min Nr. of Elements</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.min_team_members }}</td>
+                </tr>
+                <tr>
+                    <td>Max Nr. of Elements</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.max_team_members }}</td>
+                </tr>
+                <tr>
+                    <td>Max Classification</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.max_classification }}</td>
+                </tr>
+
+                </tbody>
+            </table>
+            {% if admin_contests_dashboard_cards.contest.sow %}
+                <a href="{{ admin_contests_dashboard_cards.contest.sow }}">
+                    <strong class="d-inline-block mb-1 btn btn-success">
+                        View Statement Of Work
+                    </strong>
+                </a>
+            {% endif %}
+            </p>
+        </div>
+    </div>
+
+</div>
+<div class="col-6">
+    <div class="card border rounded shadow-sm mb-4 mt-4">
+        <div class="card-body text-center">
+            <h5 class="card-title mb-2 text-primary">Default Specifications</h5>
+            <p class="card-text mb-auto">
+            <table class="table">
+                <tbody>
+                {% for field in admin_contests_dashboard_cards.contest.getSpecifications.getFields %}
+                    <!-- Ignore contest, test, and id fields as they're redundant -->
+                    {% if field.name != 'contest' and field.name != 'id' and field.name != 'test' %}
+                        <tr>
+                            <td>
+                                {{ field.name }}
+                            </td>
+                            <td>
+                                {% call_method admin_contests_dashboard_cards.contest.getSpecifications 'getAttribute' field.name %}
+                            </td>
+                        </tr>
+                    {% endif %}
+
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'manager_contest_detail_specification' admin_contests_dashboard_cards.contest.id %}">
+                <strong class="d-inline-block mb-1 btn btn-warning">
+                    Edit Default Specifications
+                </strong>
+            </a>
+            </p>
+        </div>
+    </div>
+
+</div>
+

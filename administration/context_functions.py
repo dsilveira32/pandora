@@ -259,3 +259,23 @@ def getAdminContestsTeamsManagerContext(users_out, users_in, team):
 
 
 
+
+# For admin/components/contests/dashboard_cards.html
+def getAdminContestDashboardCardsContext(contest, submission_count, team_count, test_count, user_count):
+    return {
+        'admin_contests_dashboard_cards': {
+            'contest': contest,
+            'submission_count': submission_count,
+            'team_count': team_count,
+            'test_count': test_count,
+            'user_count': user_count,
+        }
+    }
+
+# For admin/components/contests/submissions/list.html
+def getAdminContestSubmissionListContext(submissions):
+    return {
+        'admin_contests_submissions_list': {
+            'submissions': submissions,
+        }
+    }

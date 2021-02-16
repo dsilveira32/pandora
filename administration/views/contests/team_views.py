@@ -5,9 +5,7 @@ from shared.forms import TeamCreateForm, AdminTeamCreateForm, AdminTeamEditForm,
 from shared.models import Team
 from shared.routines import *
 # Admin teams dashboard view
-from user.views.contest_views import user_has_contest
 
-# TODO: create user_has_team decorator
 
 @superuser_only
 def dashboard_view(request, contest_id):

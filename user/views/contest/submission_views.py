@@ -9,6 +9,7 @@ from user.context_functions import *
 
 # SUMISSION VIEW
 from user.views.contest_views import user_has_contest
+from user.views.contest.team_views import join_view
 
 # TODO: Create user_has_submission decorator
 from user.views.general import user_approval_required
@@ -25,9 +26,10 @@ def submit_view(request, contest_id):
 
     contest = getContestByID(contest_id)
 
+    # TODO: Make a decorator to check if user has team and get rid of this
     # Check team members when user doenst have team
     if not contest.userHasTeam(request.user):
-        return redirect(os.path.join(contest.get_absolute_url(), 'team/join/'))
+        return redirect(join_view, contest_id)
 
     team = contest.getUserTeam(request.user)
     attempts = team.getAttempts()
@@ -65,7 +67,7 @@ def submit_view(request, contest_id):
 def detail_view(request, contest_id, submission_id):
     print("Contest ID: %i | Attempt ID: %i" % (contest_id, submission_id))
     checkUserProfileInRequest(request)
-    template_name = 'user/views/contests/submission.html'
+    template_name = 'user/views/contests/submissions/submission.html'
     context={}
 
     attempt = getAttemptByID(submission_id)
