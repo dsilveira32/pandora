@@ -180,6 +180,12 @@ class Contest(models.Model):
     def userHasAccess(self, user):
         return not not self.group_set.filter(users__exact=user)
 
+    def getGroups(self):
+        return self.group_set.all()
+
+    def getSubmissions(self):
+        return self.attempt_set.all()
+
 
 class Test(models.Model):
     name = models.CharField(max_length=512, null=False, blank=True)
@@ -252,6 +258,11 @@ class C_Specification(Specification):
             )
         ]
 
+    def getFields(self):
+        return self._meta.get_fields()
+
+    def getAttribute(self, name):
+        return self.__getattribute__(name)
 
 # models.Q(
 #                   contest__isnull=False and test__isnull=True

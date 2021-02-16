@@ -1,9 +1,5 @@
 {% extends "user/layouts/contests/detail_layout.html" %}
 {% block contestDetailContent %}
-    {% if team_submission_details.attempt.id %}
-        {% include "user/components/contests/submissions/details.html" %}
-    {% else %}
-        {% include "user/components/contests/submissions/form.html" %}
-    {% endif %}
+    {% include "user/components/contests/submissions/form.html" %}
     {% include "user/components/contests/submissions/history.html" %}
 {% endblock %}

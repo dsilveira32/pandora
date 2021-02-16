@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render
 
 from administration.context_functions import *
@@ -39,12 +40,19 @@ def detail_dashboard_view(request, contest_id):
 	template_name = 'admin/views/contests/detail_dashboard.html'
 	context = {}
 	contest = getContestByID(contest_id)
+	submission_count = contest.attempt_set.count()
+	team_count = contest.team_set.count()
+	test_count = contest.test_set.count()
+
+	# TODO: find a better way to get the user count, maybe its not necessary if prof doesnt want it
+	groups = contest.getGroups()
+	users = User.objects.filter(group__in=groups)
+	user_count = 0
+	for u in users:
+		user_count += 1
+
 	context.update(getAdminContestDetailLayoutContext(contest))
-
-	# For list.html
-	teams = structureTeamsData(contest.getTeams())
-	context.update(getAdminTeamListContext(teams))
-
+	context.update(getAdminContestDashboardCardsContext(contest, submission_count, team_count, test_count, user_count))
 	return render(request, template_name, context)
 
 # Admin Contest Specification

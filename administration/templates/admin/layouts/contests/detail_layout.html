@@ -20,7 +20,7 @@
             <h5>{{ admin_contest_detail_layout.contest.short_name }}
                 - {{ admin_contest_detail_layout.contest.title }}</h5>
         </div>
-        <a class="btn btn-primary btn-sm {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
+        <a class="btn btn-primary btn-sm {% if '/tests' not in request.path and '/teams' not in request.path and '/submissions' not in request.path%}active{% endif %}"
            href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">
             Dashboard
         </a>
@@ -31,6 +31,10 @@
         <a class="btn btn-primary btn-sm {% if '/teams' in request.path %}active{% endif %}"
            href="{% url 'manager_contests_detail_teams' admin_contest_detail_layout.contest.id %}">
             Teams
+        </a>
+        <a class="btn btn-primary btn-sm {% if '/submissions' in request.path %}active{% endif %}"
+           href="{% url 'manager_contests_detail_submissions' admin_contest_detail_layout.contest.id %}">
+            Submissions
         </a>
         <hr>
         {% block contestDetailContent %}

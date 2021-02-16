@@ -16,18 +16,18 @@ def join_view(request, contest_id):
     context = {}
     template_name = 'user/views/contests/teams/join.html'
 
-    contest = getContestByID(id)
+    contest = getContestByID(contest_id)
 
     join_form = TeamJoinForm(request.POST or None if 'submit_join_form' in request.POST else None)
     if join_form.is_valid():
         if join_form.submit(request.user, contest):
-            return redirect(contest_views.detail_dashboard_view, id)
+            return redirect(contest_views.detail_dashboard_view, contest_id)
 
 
     create_form = TeamCreateForm(request.POST or None if 'submit_create_form' in request.POST else None)
     if create_form.is_valid():
         if create_form.submit(request.user, contest):
-            return redirect(contest_views.detail_dashboard_view, id)
+            return redirect(contest_views.detail_dashboard_view, contest_id)
 
     context.update(getContestDetailLayoutContext(contest))
     context.update(getTeamJoinFormContext(create_form, join_form))

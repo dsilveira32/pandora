@@ -18,7 +18,7 @@
             {% for a in team_submission_history.attempts %}
                 <tr>
                     <td><a class="btn btn-sm btn-outline-secondary"
-                           href="{{ a.get_absolute_url }}">{{ forloop.revcounter }}</a></td>
+                           href="{% url 'contest_attempt_view' a.contest.id a.id %}">{{ forloop.revcounter }}</a></td>
                     <td>{{ a.user.username }}</td>
                     <td>{{ a.date }}</td>
                     <td>{{ a.comment }}</td>

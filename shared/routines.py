@@ -11,7 +11,6 @@ from django.core.files import File
 import diff_match_patch
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
-
 from shared.models import Classification, Attempt, Contest, UserContestDateException, \
     Group, Profile
 from shared.utils import *
