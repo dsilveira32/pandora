@@ -1,12 +1,12 @@
 {% extends "admin/layouts/contests/detail_layout.html" %}
 {% block contestDetailContent %}
-<div class="container-fluid">
-    <div class="offset-3 col-6">
-        {% include "admin/components/contests/teams/form.html" %}
+    <div class="container-fluid">
+        <div class="offset-3 col-6">
+            {% include "admin/components/contests/teams/form.html" %}
+        </div>
+        <hr>
+        <div class="col-12">
+            {% include "admin/components/contests/teams/manager.html" %}
+        </div>
     </div>
-    <hr>
-    <div class="col-12">
-        {% include "admin/components/contests/teams/manager.html" %}
-    </div>
-</div>
 {% endblock %}

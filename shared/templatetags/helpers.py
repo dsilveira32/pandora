@@ -1,4 +1,8 @@
+import json
+
 from django import template
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -8,3 +12,8 @@ register = template.Library()
 def call_method(obj, method_name, *args):
     method = getattr(obj, method_name)
     return method(*args)
+
+
+@register.filter(is_safe=True)
+def js(obj):
+    return mark_safe(json.dumps(obj, sort_keys=True, indent=1, cls=DjangoJSONEncoder))

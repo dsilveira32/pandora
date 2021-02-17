@@ -1,0 +1,12 @@
+{% extends "admin/layouts/base_layout.html" %}
+{% block pageContent %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Contests</li>
+        </ol>
+    </nav>
+    <div class="container-fluid">
+        {% block contestContent %}
+        {% endblock %}
+    </div>
+{% endblock %}

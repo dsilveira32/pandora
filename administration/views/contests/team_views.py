@@ -23,15 +23,16 @@ def dashboard_view(request, contest_id):
 
 # Admin team detail dashboard view
 @superuser_only
-def detail_dashboard_view(request, contest_id, team_id):
-	template_name = 'admin/views/contests/teams/admin_contest_detail_team_edit.html'
+def detail_view(request, contest_id, team_id):
+	template_name = 'admin/views/contests/teams/detail.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
 	team = Team.getById(team_id)
-	context.update(getAdminTeamDetailContext(team))
+	submissions = team.getAttempts()
 
-
+	context.update(getAdminContestDetailLayoutContext(contest))
+	context.update(getAdminContestsTeamsDetailContext(team))
+	context.update(getAdminContestSubmissionListContext(submissions))
 	return render(request, template_name, context)
 
 

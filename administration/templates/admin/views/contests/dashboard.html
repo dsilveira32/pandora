@@ -1,25 +1,9 @@
-{% extends "admin/layouts/base_layout.html" %}
-{% block pageContent %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Contests</li>
-        </ol>
-    </nav>
-    <div class="container-fluid">
-        <nav class="navbar navbar-expand nav-pills">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContestUser"
-                    aria-controls="navbarContestUser" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarContestUser">
-                <a class="nav-link active" href="{% url 'manager_contests_create' %}">
-                    <i class="fas fa-plus-circle"></i>
-                    Create Contest
-                </a>
-            </div>
-        </nav>
-        <hr>
-        {% include "admin/components/contests/list.html" %}
-    </div>
+{% extends "admin/layouts/contests/non_detail_layout.html" %}
+{% block contestContent %}
+    <a class="btn btn-primary btn-sm" href="{% url 'manager_contests_create' %}">
+        <i class="fas fa-plus-circle"></i>
+        Create Contest
+    </a>
+    <hr>
+    {% include "admin/components/contests/list.html" %}
 {% endblock %}

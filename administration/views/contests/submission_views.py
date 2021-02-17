@@ -13,6 +13,7 @@ def dashboard_view(request, contest_id):
 
     context.update(getAdminContestDetailLayoutContext(contest))
     context.update(getAdminContestSubmissionListContext(submissions))
+    context.update(getAdminContestSubmissionChartContext(submissions))
 
     return render(request, template_name, context)
 

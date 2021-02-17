@@ -1,6 +1,9 @@
 {% extends "admin/layouts/contests/detail_layout.html" %}
 {% block contestDetailContent %}
     <div class="col-12">
+        {% include 'admin/components/contests/submissions/chart.html' %}
+    </div>
+    <div class="col-12">
         {% include "admin/components/contests/submissions/list.html" %}
     </div>
 {% endblock %}

@@ -71,7 +71,7 @@ def getAdminTeamListContext(teams):
 
 
 # For detail.html
-def getAdminTeamDetailContext(team):
+def getAdminContestsTeamsDetailContext(team):
     """Context for detail.html
     REQUIRED IN ALL VIEWS THAT EXTEND detail.html
     Parameters
@@ -82,7 +82,7 @@ def getAdminTeamDetailContext(team):
        team_list
     """
     return {
-        'admin_team_detail': {
+        'admin_contests_teams_detail': {
             'team': team,
         }
     }
@@ -277,5 +277,13 @@ def getAdminContestSubmissionListContext(submissions):
     return {
         'admin_contests_submissions_list': {
             'submissions': submissions,
+        }
+    }
+
+# For admin/components/contests/submissions/chart.html
+def getAdminContestSubmissionChartContext(submissions):
+    return {
+        'admin_contests_submissions_chart': {
+            'submissions': list(submissions.values()),
         }
     }

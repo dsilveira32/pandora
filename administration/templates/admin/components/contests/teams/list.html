@@ -19,17 +19,22 @@
                         <td>{{ team.id }} </td>
                         <td>{{ team.name }} </td>
                         <td>
-                                {% if team.getUsers %}
-                                    {% for member in team.getUsers %}
-                                        <a class="btn btn-sm btn-info"
-                                           href="{% url "admin_users_user_form" member.id %}"><i class="fas fa-user"></i> {{ member.profile.number }}
-                                            - {{ member.get_full_name }}</a>
-                                    {% endfor %}
-                                {% else %}
-                                    No users assigned yet.
-                                {% endif %}
+                            {% if team.getUsers %}
+                                {% for member in team.getUsers %}
+                                    <a class="btn btn-sm btn-info"
+                                       href="{% url "admin_users_user_form" member.id %}"><i
+                                            class="fas fa-user"></i> {{ member.profile.number }}
+                                        - {{ member.get_full_name }}</a>
+                                {% endfor %}
+                            {% else %}
+                                No users assigned yet.
+                            {% endif %}
                         </td>
                         <td>
+                            <a class="btn btn-sm btn-info"
+                               href="{% url 'manager_contests_detail_team_detail' team.contest.id team.id %}">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a class="btn btn-sm btn-warning"
                                href="{% url 'manager_contests_detail_team_edit' team.contest.id team.id %}">
                                 <i class="fas fa-pencil-alt"></i>
