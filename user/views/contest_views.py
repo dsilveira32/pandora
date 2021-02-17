@@ -10,7 +10,7 @@ def user_has_contest(function):
 
     def _inner(request, *args, **kwargs):
         contest_id = kwargs.get('contest_id')
-        contest = Contest.getContestByID(contest_id)
+        contest = Contest.getByID(contest_id)
         if contest:
                if contest.userHasAccess(request.user):
                    return function(request, *args, **kwargs)

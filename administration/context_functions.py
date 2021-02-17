@@ -33,6 +33,7 @@ def getAdminContestListContext(contests):
         }
     }
 
+
 # For detail_layout.html
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
 def getAdminContestDetailLayoutContext(contest):
@@ -272,6 +273,7 @@ def getAdminContestDashboardCardsContext(contest, submission_count, team_count, 
         }
     }
 
+
 # For admin/components/contests/submissions/list.html
 def getAdminContestSubmissionListContext(submissions):
     return {
@@ -285,5 +287,29 @@ def getAdminContestSubmissionChartContext(submissions):
     return {
         'admin_contests_submissions_chart': {
             'submissions': list(submissions.values()),
+        }
+    }
+
+
+
+# For admin/components/contests/submissions/details.html
+def getAdminContestSubmissionDetailsContext(contest, user, team, attempt, n_passed, n_tests, mandatory_passed,
+                                            n_mandatory, passed_diff, n_diff, results, min_passed_grade):
+    return {
+        'admin_contests_submissions_details': {
+            'contest': contest,
+            'user': user,
+            'team': team,
+            'team_members': team.getUsers(),
+            'attempt': attempt,
+            'maxsize': 2147483647,
+            'n_passed': n_passed,
+            'n_total': n_tests,
+            'mandatory_passed': mandatory_passed,
+            'mandatory_total': n_mandatory,
+            'general_passed': passed_diff,
+            'n_general': n_diff,
+            'results': results,
+            'min_grade': min_passed_grade
         }
     }

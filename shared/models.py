@@ -107,7 +107,7 @@ class Contest(models.Model):
         return cls.objects.filter(group__users__exact=request.user).distinct()
 
     @classmethod
-    def getContestByID(cls, contest_id):
+    def getByID(cls, contest_id):
         return cls.objects.get(id=contest_id)
 
     def getUsers(self):
@@ -360,6 +360,9 @@ class Attempt(models.Model):
     cpu_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
     static_analysis = models.TextField(blank=True, null=True)
 
+    def getID(self):
+        return self.id
+
     def getContest(self):
         return self.contest
 
@@ -382,8 +385,8 @@ class Attempt(models.Model):
         return "/contests/%i/attempt/%i/" % (self.contest.id, self.id)
 
     @classmethod
-    def getById(cls, id):
-        return cls.objects.get(id=id).first()
+    def getByID(cls, id):
+        return cls.objects.get(id=id)
 
 
 class SafeExecError(models.Model):
@@ -405,6 +408,11 @@ class Classification(models.Model):
     result = models.IntegerField(null=False, default=0)
     diff = models.TextField(default='')
 
+    def getTest(self):
+        return self.test
+
+    def getOutput(self):
+        return self.test
 
 """
 class TeamMember(models.Model):

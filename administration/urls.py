@@ -38,6 +38,8 @@ urlpatterns = [
          name='manager_contests_detail_team_edit'),
     path('contests/<int:contest_id>/submissions/', submission_views.dashboard_view,
          name='manager_contests_detail_submissions'),
+    path('contests/<int:contest_id>/submissions/<int:attempt_id>', submission_views.details_view,
+         name='manager_contests_detail_submissions_details'),
 
     # GROUPS
     path('groups/', group_views.dashboard_view, name="admin_groups_home"),
