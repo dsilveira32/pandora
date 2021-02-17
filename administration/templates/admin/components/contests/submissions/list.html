@@ -16,14 +16,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for o in admin_contests_submissions_list.submissions %}
+                {% for submission in admin_contests_submissions_list.submissions %}
                     <tr>
-                        <td>{{ o.id }}</td>
-                        <td>{{ o.grade }}</td>
-                        <td>{{ o.team.name }}</td>
-                        <td>{{ o.date }}</td>
+                        <td>{{ submission.id }}</td>
+                        <td>{{ submission.grade }}</td>
+                        <td>{{ submission.team.name }}</td>
+                        <td>{{ submission.date }}</td>
                         <td>
-                            <a class="btn btn-primary btn-sm" href="REPLACE_ME">View</a>
+                            <a class="btn btn-primary btn-sm" href="{% url "manager_contests_detail_submissions_details" admin_contest_detail_layout.contest.id submission.getID %}">View</a>
                         </td>
                     </tr>
                 {% endfor %}

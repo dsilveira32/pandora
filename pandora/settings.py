@@ -38,9 +38,7 @@ INSTALLED_APPS = [
     'administration',
     'shared',
     'social_django',
-    'fontawesome-free',
-    'chartjs',
-    'django_feather'
+    'fontawesome-free'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

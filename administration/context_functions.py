@@ -33,6 +33,7 @@ def getAdminContestListContext(contests):
         }
     }
 
+
 # For detail_layout.html
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
 def getAdminContestDetailLayoutContext(contest):
@@ -51,6 +52,7 @@ def getAdminContestDetailLayoutContext(contest):
         }
     }
     return context
+
 
 # For list.html
 def getAdminTeamListContext(teams):
@@ -87,6 +89,7 @@ def getAdminTeamDetailContext(team):
         }
     }
 
+
 # For form.html
 def getAdminTestFormContext(contest, form):
     """Context for form.html
@@ -106,12 +109,14 @@ def getAdminTestFormContext(contest, form):
         }
     }
 
+
 def getAdminTestListContext(tests):
     return {
         'admin_test_list': {
             'tests': tests
         }
     }
+
 
 # For detail_layout.html
 def getAdminGroupDetailLayoutContext(group):
@@ -142,6 +147,7 @@ def getAdminGroupListContext(groups):
         }
     }
 
+
 # For list.html
 def getAdminGroupUserListContext(user_profiles):
     """Context for list.html
@@ -155,6 +161,7 @@ def getAdminGroupUserListContext(user_profiles):
             'user_profiles': user_profiles
         }
     }
+
 
 # For form.html
 def getAdminCreateGroupFormContext(form):
@@ -182,6 +189,7 @@ def getAdminSpecificationFormContext(form):
         }
     }
 
+
 # For admin/users/list.html
 def getAdminUsersListContext(users):
     return {
@@ -189,6 +197,7 @@ def getAdminUsersListContext(users):
             'users': users
         }
     }
+
 
 # For admin/users/form.html
 def getAdminUsersFormContext(userForm, profileForm):
@@ -199,6 +208,7 @@ def getAdminUsersFormContext(userForm, profileForm):
         }
     }
 
+
 # For admin/users/form.html
 def getAdminUserDetailLayoutContext(user):
     return {
@@ -206,6 +216,7 @@ def getAdminUserDetailLayoutContext(user):
             'user': user
         }
     }
+
 
 # For admin/components/groups/contests_manager
 def getAdminGroupsContestsManagerContext(contests, contests_in):
@@ -226,6 +237,7 @@ def getAdminGroupUserManagerContext(users_not_in_group, users_in_group):
         }
     }
 
+
 # For admin/components/groups/dashboard_cards.html
 def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, closed_contest_count):
     return {
@@ -237,6 +249,7 @@ def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, cl
         }
     }
 
+
 # For /contests/teams/form.html
 def getAdminContestsTeamsFormContext(form):
     return {
@@ -244,6 +257,7 @@ def getAdminContestsTeamsFormContext(form):
             'form': form
         }
     }
+
 
 # For /contests/teams/manager.html
 def getAdminContestsTeamsManagerContext(users_out, users_in, team):
@@ -254,10 +268,6 @@ def getAdminContestsTeamsManagerContext(users_out, users_in, team):
             'team': team
         }
     }
-
-
-
-
 
 
 # For admin/components/contests/dashboard_cards.html
@@ -272,10 +282,34 @@ def getAdminContestDashboardCardsContext(contest, submission_count, team_count, 
         }
     }
 
+
 # For admin/components/contests/submissions/list.html
 def getAdminContestSubmissionListContext(submissions):
     return {
         'admin_contests_submissions_list': {
             'submissions': submissions,
+        }
+    }
+
+
+# For admin/components/contests/submissions/details.html
+def getAdminContestSubmissionDetailsContext(contest, user, team, attempt, n_passed, n_tests, mandatory_passed,
+                                            n_mandatory, passed_diff, n_diff, results, min_passed_grade):
+    return {
+        'admin_contests_submissions_details': {
+            'contest': contest,
+            'user': user,
+            'team': team,
+            'team_members': team.getUsers(),
+            'attempt': attempt,
+            'maxsize': 2147483647,
+            'n_passed': n_passed,
+            'n_total': n_tests,
+            'mandatory_passed': mandatory_passed,
+            'mandatory_total': n_mandatory,
+            'general_passed': passed_diff,
+            'n_general': n_diff,
+            'results': results,
+            'min_grade': min_passed_grade
         }
     }

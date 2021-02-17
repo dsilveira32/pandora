@@ -365,13 +365,11 @@ def getContestTeamJoinContext(contest, teams, form):
 
 # For details.html
 # REQUIRED IN ALL VIEWS THAT EXTEND submission.html
-def getTeamSubmissionDetailsContext(contest, user, team, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, min_passed_grade):
+def getTeamSubmissionDetailsContext(contest, user, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, min_passed_grade):
     return {
         'team_submission_details': {
             'contest': contest,
             'user': user,
-            'team': team,
-            'team_members': team.getUsers(),
             'attempt': attempt,
             'maxsize': 2147483647,
             'n_passed': n_passed,
