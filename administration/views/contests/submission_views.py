@@ -35,7 +35,7 @@ def details_view(request, contest_id, attempt_id):
 
     results
 
-    for res in results:
+    """for res in results:
         print(pandora.settings.MEDIA_ROOT)
         print(res.test.output_file)
         res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
@@ -46,7 +46,7 @@ def details_view(request, contest_id, attempt_id):
             res.obtained_output = ''
         res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
                                errors='strict')
-
+    """
     context.update(getAdminContestDetailLayoutContext(contest))
     context.update(getAdminContestSubmissionDetailsContext(contest, request.user, team, attempt, n_passed, n_tests, mandatory_passed,
                                             n_mandatory, passed_diff, n_diff, results, 9))
