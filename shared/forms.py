@@ -85,6 +85,8 @@ class C_SpecificationCreateForm(forms.ModelForm):
 
 
 class CreateContestModelForm(forms.ModelForm):
+    start_date = forms.CharField(required=True)
+    end_date = forms.CharField(required=True)
     class Meta:
         model = Contest
         # widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
