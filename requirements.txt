@@ -5,5 +5,4 @@ social-auth-core==3.2.0
 diff-match-patch==20200713
 fontawesome-free==5.15.2
 coolname==1.1.0
-django-chartjs==2.2.1
 django-feather==0.2.6
