@@ -1,3 +1,4 @@
+import sys
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
@@ -5,7 +6,7 @@ from django.utils.encoding import smart_text
 from shared.routines import *
 from shared.forms import AttemptModelForm
 from user.context_functions import *
-
+from shared.tasks import run_tests
 
 # SUMISSION VIEW
 from user.views.contest_views import user_has_contest
@@ -53,8 +54,18 @@ def submit_view(request, contest_id):
     submitted, attempt = form.submit(request.user, can_submit, contest, team)
     print_variable_debug(attempt)
     if submitted and attempt:
-        handle_uploaded_file(attempt, attempt.file, contest)
-        return redirect(detail_view, contest_id, attempt.id)
+        print("Before celery")
+        download_task = run_tests.delay(attempt.id, contest.id)
+        # Get ID
+        task_id = download_task.task_id
+        print("TaskID: " + task_id)
+        # Print Task ID
+        print(f'Celery Task ID: {task_id}')
+        # Return demo view with Task ID
+        context.update({'task_id': task_id})
+        context.update({'atempt_id': attempt.id})
+
+        return render(request, 'user/views/contests/submissions/progress.html', context)
 
     context.update(getContestDetailLayoutContext(contest))
     context.update(getContestFormContext(contest, form))
@@ -67,7 +78,7 @@ def submit_view(request, contest_id):
 def detail_view(request, contest_id, submission_id):
     print("Contest ID: %i | Attempt ID: %i" % (contest_id, submission_id))
     checkUserProfileInRequest(request)
-    template_name = 'user/views/contests/submissions/submission.html'
+    template_name = 'user/views/contests/submissions/details.html'
     context={}
 
     attempt = getAttemptByID(submission_id)
@@ -99,8 +110,9 @@ def detail_view(request, contest_id, submission_id):
                                errors='strict')
 
     # res.diff = ' '.join(map(str, res.diff))
-    context.update(getTeamSubmissionDetailsContext(contest, request.user, team, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, "9"))
     context.update(getContestDetailLayoutContext(contest))
+
+    context.update(getTeamSubmissionDetailsContext(contest, request.user, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, "9"))
     context.update(getTeamSubmissionHistoryContext(team.getAttempts()))
     return render(request, template_name, context)
 

@@ -240,128 +240,7 @@ def check_out_files(f, contest, files_max_length):
     # if the files have some problem, return an empty list
     return []
 
-# compile the program
-def compile(contest, paths):
-    lflags = ''
-    cflags = ''
 
-    if contest.linkage_flags:
-        lflags = contest.linkage_flags
-
-    if contest.compile_flags:
-        cflags = contest.compile_flags
-
-    compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + paths['obj'] + ' ' + lflags
-    print('compilation: ' + compile_cmd)
-    output = check_output(compile_cmd, paths['dir'])
-    print(output)
-    print(output[0])
-    if output[0] != '':  # Output variable correction because the output is like (('', None), 0) not ('', None)
-        return False, output[0]
-
-    return True, "Compilation OK"
-
-
-# build the execution command
-def run_cmd(test, paths, data_files, test_idx):
-    if test.override_exec_options:
-        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = test.getDetails()
-    else:
-        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = test.getContest().getTestDetails()
-
-    if test.run_arguments:
-        run_args = str(test.run_arguments)
-    else:
-        run_args = ''
-
-    if test.check_leak:
-        check_leak = settings.VALGRIND_EXEC
-    else:
-        check_leak = ''
-
-    for data_file in data_files:
-        run_args = run_args.replace("<" + data_file.file_name + ">", data_file.user_copy)
-
-    ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
-
-    exec_cmd = '/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o ' + paths['test_time'][test_idx]
-    exec_cmd += ' /usr/bin/timeout ' + str(clock)
-    exec_cmd += " ./" + paths['obj'] + ' ' + run_args
-    exec_cmd += " <" + test.input_file.path + ' | ' + ascii_path
-    exec_cmd += " 1>" + paths['test_stdout'][test_idx]
-    return exec_cmd
-
-
-def run_test(record, paths, data_files, i):
-    test = record.test
-    paths['test_time'].append(os.path.join(paths['dir'], 'test' + str(i) + '.time'))
-    paths['test_stdout'].append(os.path.join(paths['dir'], 'test' + str(i) + '.stdout'))
-
-    exec_cmd = run_cmd(record.test, paths, data_files, i)
-    print('exec cmd is:')
-    print(exec_cmd)
-    time_started = datetime.datetime.now()  # Save start time.
-    check_output(exec_cmd, paths['dir'])
-    record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000,
-                                  0)  # Get execution time.
-
-    f = open(paths['test_stdout'][i])
-    record.output.save(paths['test_stdout'][i], File(f))
-    f.close()
-
-    f = open(paths['test_time'][i], "r")
-    lines = f.readlines()
-    print(lines)
-    f.close()
-    os.remove(paths['test_time'][i])
-    time_info = lines[0].split(" ")
-    # format:
-    # %U %K %p %e %M %x
-    # K      Average total (data+stack+text) memory use of the process, in Kilobytes.
-    # M      Maximum resident set size of the process during its lifetime, in Kilobytes.
-    # U      Total number of CPU-seconds that the process used directly (in user mode), in seconds.
-    # e      Elapsed real (wall clock) time used by the process, in seconds.
-    # p      Average unshared stack size of the process, in Kilobytes.
-    # x      Exit status of the command.
-    # elapsed = lines[1].split(" ")
-    record.memory_usage = int(time_info[4]) - 512
-    record.elapsed_time = float(time_info[3])
-
-    # uses the diff tool
-    with open(paths['test_stdout'][i]) as ff:
-        fromlines = ff.readlines()
-    with open(test.output_file.path) as tf:
-        tolines = tf.readlines()
-
-    dmp = diff_match_patch.diff_match_patch()
-
-    str1 = " ".join(fromlines)
-    str2 = " ".join(tolines)
-    print(str2)
-    is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
-
-    diffs = dmp.diff_main(str1, str2)
-    # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
-    record.diff = dmp.diff_prettyHtml(diffs)
-
-    if int(time_info[5]) == 124:
-        record.result = 2
-    else:
-        record.result = 0 if is_same == True else 1
-
-    # results meaning:
-    # 0 - passed
-    # 1 - output is different than expected - wrong answer
-    # 2 - timeout
-    # 3 ...
-    # 4 ...
-    os.remove(paths['test_stdout'][i])
-    return record.result
-
-
-def static_analysis(paths):
-    output = check_output(settings.STATIC_ANALYZER, paths['dir'])
-    return output[0]
 
 
 def unzip(paths):
@@ -369,26 +248,7 @@ def unzip(paths):
     return ret
 
 
-def extract(f):
-    src_path = os.path.abspath(f.path)
-    src_base = os.path.basename(src_path)
-    (src_name, ext) = os.path.splitext(src_base)
 
-    paths = {
-        'src': src_path,
-        'base': src_base,
-        'name': src_name,
-        'ext': ext,
-        'dir': os.path.dirname(src_path),
-        'obj': src_name + '.out',
-        'test_time': [],
-        'test_stdout': [],
-    }
-
-    if ext == '.zip':
-        unzip(paths)
-
-    return paths
 
 
 def handle_uploaded_file(atempt, f, contest):
@@ -722,3 +582,148 @@ def getUserProfilesFromGroup(group):
     # TODO: Probably a better way to do this and save reading the users
     users = group.users.all()
     return Profile.objects.filter(user__in=users)
+
+
+
+### CELERY FUNCTIONS IN USE
+
+def extract(f):
+    src_path = os.path.abspath(f.path)
+    src_base = os.path.basename(src_path)
+    (src_name, ext) = os.path.splitext(src_base)
+
+    paths = {
+        'src': src_path,
+        'base': src_base,
+        'name': src_name,
+        'ext': ext,
+        'dir': os.path.dirname(src_path),
+        'obj': src_name + '.out',
+        'test_time': [],
+        'test_stdout': [],
+    }
+
+    if ext == '.zip':
+        unzip(paths)
+
+    return paths
+
+# compile the program
+def compile(contest, paths):
+    lflags = ''
+    cflags = ''
+
+    if contest.linkage_flags:
+        lflags = contest.linkage_flags
+
+    if contest.compile_flags:
+        cflags = contest.compile_flags
+
+    compile_cmd = 'gcc ' + cflags + ' ' + '*.c ' + ' -I ' + './src/*.c ' + ' -o ' + paths['obj'] + ' ' + lflags
+    print('compilation: ' + compile_cmd)
+    output = check_output(compile_cmd, paths['dir'])
+    print(output)
+    print(output[0])
+    if output[0] != '':  # Output variable correction because the output is like (('', None), 0) not ('', None)
+        return False, output[0]
+
+    return True, "Compilation OK"
+
+# build the execution command
+def run_cmd(test, paths, data_files, test_idx):
+    if test.override_exec_options:
+        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = test.getDetails()
+    else:
+        cpu, mem, space, min_uid, max_uid, core, n_proc, f_size, stack, clock = test.getContest().getTestDetails()
+
+    if test.run_arguments:
+        run_args = str(test.run_arguments)
+    else:
+        run_args = ''
+
+    if test.check_leak:
+        check_leak = settings.VALGRIND_EXEC
+    else:
+        check_leak = ''
+
+    for data_file in data_files:
+        run_args = run_args.replace("<" + data_file.file_name + ">", data_file.user_copy)
+
+    ascii_path = os.path.join(settings.MEDIA_ROOT, "ascii")
+
+    exec_cmd = '/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o ' + paths['test_time'][test_idx]
+    exec_cmd += ' /usr/bin/timeout ' + str(clock)
+    exec_cmd += " ./" + paths['obj'] + ' ' + run_args
+    exec_cmd += " <" + test.input_file.path + ' | ' + ascii_path
+    exec_cmd += " 1>" + paths['test_stdout'][test_idx]
+    return exec_cmd
+
+def run_test(record, paths, data_files, i):
+    test = record.test
+    paths['test_time'].append(os.path.join(paths['dir'], 'test' + str(i) + '.time'))
+    paths['test_stdout'].append(os.path.join(paths['dir'], 'test' + str(i) + '.stdout'))
+
+    exec_cmd = run_cmd(record.test, paths, data_files, i)
+    print('exec cmd is:')
+    print(exec_cmd)
+    time_started = datetime.datetime.now()  # Save start time.
+    check_output(exec_cmd, paths['dir'])
+    record.execution_time = round((datetime.datetime.now() - time_started).microseconds / 1000,
+                                  0)  # Get execution time.
+
+    f = open(paths['test_stdout'][i])
+    record.output.save(paths['test_stdout'][i], File(f))
+    f.close()
+
+    f = open(paths['test_time'][i], "r")
+    lines = f.readlines()
+    print(lines)
+    f.close()
+    os.remove(paths['test_time'][i])
+    time_info = lines[0].split(" ")
+    # format:
+    # %U %K %p %e %M %x
+    # K      Average total (data+stack+text) memory use of the process, in Kilobytes.
+    # M      Maximum resident set size of the process during its lifetime, in Kilobytes.
+    # U      Total number of CPU-seconds that the process used directly (in user mode), in seconds.
+    # e      Elapsed real (wall clock) time used by the process, in seconds.
+    # p      Average unshared stack size of the process, in Kilobytes.
+    # x      Exit status of the command.
+    # elapsed = lines[1].split(" ")
+    record.memory_usage = int(time_info[4]) - 512
+    record.elapsed_time = float(time_info[3])
+
+    # uses the diff tool
+    with open(paths['test_stdout'][i]) as ff:
+        fromlines = ff.readlines()
+    with open(test.output_file.path) as tf:
+        tolines = tf.readlines()
+
+    dmp = diff_match_patch.diff_match_patch()
+
+    str1 = " ".join(fromlines)
+    str2 = " ".join(tolines)
+    print(str2)
+    is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
+
+    diffs = dmp.diff_main(str1, str2)
+    # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
+    record.diff = dmp.diff_prettyHtml(diffs)
+
+    if int(time_info[5]) == 124:
+        record.result = 2
+    else:
+        record.result = 0 if is_same == True else 1
+
+    # results meaning:
+    # 0 - passed
+    # 1 - output is different than expected - wrong answer
+    # 2 - timeout
+    # 3 ...
+    # 4 ...
+    os.remove(paths['test_stdout'][i])
+    return record.result
+
+def static_analysis(paths):
+    output = check_output(settings.STATIC_ANALYZER, paths['dir'])
+    return output[0]
