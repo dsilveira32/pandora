@@ -9,22 +9,20 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 import shared
-
 from .validators import validate_file_extension
 
 
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
-    filename = "src.%s" % (ext)
-    return os.path.join('submitions/', '%s/' % instance.contest.short_name, 'user_%s/' % instance.user.id,
-                        'submition_%s/' % time.strftime("%Y%m%d%H%M%S"), filename)
+    filename = "src.%s" % ext
+    print(instance)
+    return os.path.join('submissions/', str(instance.id), filename)
 
 
 def get_tests_path(instance, filename):
     ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    return os.path.join('contests/%s' % instance.contest.short_name, 'tests/', filename)
-
+    filename = "test.%s" % ext
+    return os.path.join('tests/', str(instance.id), filename)
 
 def get_contest_detail_path(instance, filename):
     ext = filename.split('.')[-1]
@@ -200,6 +198,26 @@ class Test(models.Model):
     # TODO: Ver com o prof o que fazer com esta merda xD
     type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 
+    def getID(self):
+        return self.id
+
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            saved_in_file = self.input_file
+            saved_out_file = self.output_file
+            self.input_file = None
+            self.output_file = None
+            super(Test, self).save(*args, **kwargs)
+            self.input_file = saved_in_file
+            self.output_file = saved_out_file
+
+        super(Test, self).save(*args, **kwargs)
+
+    def getOutFileContent(self):
+        with open(self.output_file.path) as f:
+            lines = f.readlines()
+        return lines
+
     def getContestSpecifications(self):
         try:
             if self.contest.language == 'C':
@@ -360,6 +378,15 @@ class Attempt(models.Model):
     cpu_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
     static_analysis = models.TextField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            saved_file = self.file
+            self.file = None
+            super(Attempt, self).save(*args, **kwargs)
+            self.file = saved_file
+
+        super(Attempt, self).save(*args, **kwargs)
+
     def getID(self):
         return self.id
 
@@ -383,6 +410,9 @@ class Attempt(models.Model):
 
     def get_absolute_url(self):
         return "/contests/%i/attempt/%i/" % (self.contest.id, self.id)
+
+    def getTimedOutClassifications(self):
+        return self.getClassifications().filter(timeout=True).all()
 
     @classmethod
     def getByID(cls, id):

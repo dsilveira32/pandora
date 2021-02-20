@@ -3,34 +3,39 @@
 
 <!-- Download Status -->
 <div class="container" style="padding-top: 20px;">
-	<div class="card border rounded shadow-sm">		
-		<div class="text-center" style="font-size: 14px">
-			<div id="progress-bar-message">
-			Code analysis Progress
-			</div>
-		</div>
-		<div class='progress-wrapper' style="padding-top: 10px;">
+	<div class="card border rounded shadow-sm">
+        <div class="card-body">
+            <div class="text-center" style="font-size: 14px">
+                <div class="progress mb-4">
+                    <div id='progress-bar' class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div id="progress-bar-message">
+                    Code analysis Progress
+                </div>
+            </div>
+        </div>
+		<!-- <div class='progress-wrapper' style="padding-top: 10px;">
 		  <div id='progress-bar' class='progress-bar progress-bar-striped' role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
-		</div>
+		</div> -->
 		<div id="celery-result"></div>
 	</div>
 </div>
 <script type="text/javascript">
 	function processProgress(progressBarElement, progressBarMessageElement, progress) {
+	    console.log(progress)
         progressBarElement.style.width = progress.percent + "%";
-        var description = progress.description || "Starting download";
-        progressBarMessageElement.innerHTML = description;
+        progressBarMessageElement.innerHTML = progress.description || "Starting download";
     }
 
 	function processResult(resultElement, result) {
-		window.location.replace('/contests/attempt/{{ atempt_id }}')
+		window.location.replace("{% url 'contest_attempt_view' constest_id attempt_id %}")
 	}
 
 	// Progress Bar (JQuery)
 	$(function () {
 	    console.log("{{ task_id }}")
 		var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
-		console.log(progressUrl)
+
 		CeleryProgressBar.initProgressBar(progressUrl, {
 			onProgress: processProgress,
 			onResult: processResult,

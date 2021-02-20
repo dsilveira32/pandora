@@ -17,7 +17,7 @@ from shared.utils import *
 
 
 # check output function
-def check_output(command, cwd):
+def exec(command, cwd):
     process = subprocess.Popen(
         command,
         shell=True,
@@ -727,3 +727,38 @@ def run_test(record, paths, data_files, i):
 def static_analysis(paths):
     output = check_output(settings.STATIC_ANALYZER, paths['dir'])
     return output[0]
+
+############################
+#### DO NOT DELETE THIS ####
+############################
+
+def read_file(file):
+    f = open(file)
+    data = f.read()
+    f.close()
+    return data
+
+def read_file_lines(file):
+    # uses the diff tool
+    with open(file) as f:
+        lines = f.readlines()
+    return lines
+
+def get_diffs(fromlines, tolines):
+    dmp = diff_match_patch.diff_match_patch()
+    str1 = " ".join(fromlines)
+    str2 = " ".join(tolines)
+    is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
+    diffs = dmp.diff_main(str1, str2)
+    HTMLdiff = dmp.diff_prettyHtml(diffs) # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
+    return is_same, diffs, HTMLdiff
+def run_docker(data_path, image, timout, test_id, attempt_id):
+    exec(
+        "docker run --rm -i --env to=" + str(timout)
+        + " --env tid=" + str(test_id)
+        + " --env sid=" + str(attempt_id)
+        + " -v " + data_path + "/:/disco "+image,
+        data_path
+    )
+
+

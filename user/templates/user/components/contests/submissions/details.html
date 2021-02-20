@@ -1,6 +1,13 @@
 {% load static from staticfiles %}
 
 <div class="row justify-content-center align-items-center">
+{% if team_submission_details.attempt.getTimedOutClassifications.count >= 2 %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            You've reached the maximum timeouts possible. Some tests might not have been ran.
+        </div>
+    </div>
+{% endif %}
     <div class="col-md-6">
         <div class="card border rounded shadow-sm mb-4 mt-4">
             <div class="card-body">
@@ -88,7 +95,7 @@
                         <th>Weight</th>
                         <th>Time(ms)/Mem(kiB)</th>
                         <th>Type</th>
-                        <th>Result</th>
+                        <th>Passed</th>
                         <th>Info</th>
                         <th>Args</th>
                         <th>Input</th>
@@ -102,8 +109,8 @@
                             <td>{{ r.test.weight_pct|floatformat }} &#37;</td>
                             <td>{{ r.execution_time }}/{{ r.memory_usage }}</td>
                             <td>{% if r.test.mandatory %}Mandatory{% else %}General{% endif %}</td>
-                            <td>{% if r.passed %}<span class="oi oi-check text-success"></span>{% else %}
-                                <span class="oi oi-x text-danger"></span>{% endif %}</td>
+                            <td>{% if r.passed %}<i class="fas fa-check-circle text-success"></i>{% else %}
+                                <i class="fas fa-times-circle text-danger"></i>{% endif %}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                         data-target="#modal-error{{ forloop.counter }}">More
@@ -290,19 +297,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-<pre>
-{% if r.result == 0 %}
-    OK
-{% elif r.result == 1 %}
-    Wrong Answer
-    Output different than expected
-{% elif r.result == 2 %}
-    Time Limit Exceeded
-{% elif r.result == 4 %}
-    Time Limit Exceeded
-    Reached the 2 Timeouts Limit. Aborting the test execution.
-{% endif %}
-</pre>
+                    <pre>{{ r.error_description }}</pre>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -27,15 +27,75 @@ from .routines import run_test
 
 
 @shared_task(bind=True)
-def run_tests(self, atempt_id, contest_id):
-    print("......... CELERY IN PROGRESS...........")
+def run_tests(self, attempt_id):
+    # docker build -t c_spec_test /home/nunes/Desktop/simulation/
+    # docker run --rm -i --env to=10 --env tid=0 --env sid=3 -v /home/nunes/Desktop/simulation/:/disco c_spec_test
+    data_path = settings.LOCAL_STATIC_CDN_PATH
     progress_recorder = ProgressRecorder(self)
-    steps = 4
-    progress_recorder.set_progress(0, steps, description="A")
-    progress_recorder.set_progress(1, steps, description="B")
-    progress_recorder.set_progress(2, steps, description="C")
-    progress_recorder.set_progress(3, steps, description="D")
-    progress_recorder.set_progress(steps, steps, description="All Done")
+    attempt = Attempt.getByID(attempt_id)
+    tests = attempt.getContest().getTests()
+    progress_recorder.set_progress(1, tests.count() + 3, "Running compilation")
+    print("Init")
+    # Run compilation
+    run_docker(data_path, "c_spec_test", 10, 0, attempt.id)
+    #Checking compilation
+    compilation_output = read_file(os.path.join(data_path, 'submission_results', str(attempt.id), 'compilation.result'))
+    mandatory_failed = False
+    pct = 0
+    timeouts = 0
+    if "Ok" in compilation_output:
+        attempt.compile_error = False
+        attempt.save()
+        # Run tests
+        i = 1
+        for test in tests:
+            if timeouts < 2:
+                progress_recorder.set_progress(i+2, tests.count() + 3, "Running test "+str(i))
+                run_docker(data_path, "c_spec_test", 10, test.getID(), attempt.id)
+                classification = Classification()
+                classification.attempt = attempt
+                classification.test = test
+                classification.timeout = False
+                classification.result = 0
+                test_check = read_file(os.path.join(data_path, 'submission_results', str(attempt.id), str(test.getID()) + ".test"))
+                if "Ok" in test_check:
+                    program_out_file = os.path.join(data_path, 'submission_results', str(attempt.id), str(test.getID()) + ".out")
+                    program_out = read_file_lines(program_out_file)
+                    ref_out = test.getOutFileContent()
+                    is_same, diffs, diff = get_diffs(program_out, ref_out)
+                    print(diffs)
+                    print(diff)
+                    if is_same:
+                        pct += test.weight_pct
+                        print("Test passed!")
+                        classification.passed = True
+                        classification.output = program_out_file
+                        classification.diff = diff
+                    else:
+                        if test.mandatory:
+                            mandatory_failed = True
+                        classification.passed = False
+                        classification.output = program_out_file
+                        classification.diff = diff
+                else:
+                    classification.error_description = test_check
+                    if 'Timeout' in test_check:
+                        classification.timeout = True
+                        timeouts += 1
+                i += 1
+                print('saving')
+                classification.save()
+                print('saved')
+    else:
+        compilation_stdout = read_file(
+            os.path.join(data_path, 'submission_results', str(attempt.id), 'compilation.stdout'))
+        print(compilation_stdout)
+        attempt.compile_error = True
+        attempt.error_description = compilation_stdout
+        attempt.save()
+    progress_recorder.set_progress(tests.count() + 2, tests.count() + 3, "Almost there...")
+    attempt.grade = (round(pct / 100 * attempt.getContest().max_classification, 0), 0)[mandatory_failed]
+    attempt.save()
     """
     atempt = Attempt.objects.get(id=atempt_id)
     contest = Contest.objects.get(id=contest_id)

@@ -16,6 +16,8 @@ class AttemptModelForm(forms.ModelForm):
         model = Attempt
         fields = ['file', 'comment']
 
+
+
     def submit(self, user, can_submit, contest, team):
         if can_submit and self.is_valid():
             obj = self.save(commit=False)
@@ -32,7 +34,6 @@ class AttemptModelForm(forms.ModelForm):
             return True, obj
         return False, None
 
-
 class CreateTestModelForm(forms.ModelForm):
     override_default_specifications = forms.BooleanField(required=False, initial=False,
                                                          label='Override contest programming language specifications?')
@@ -47,11 +48,14 @@ class CreateTestModelForm(forms.ModelForm):
             If override specs is true redirect to the specs creation page
         """
         if self.is_valid():
+            override_specs = False
+            if 'override_default_specifications' in self.data:
+                override_specs = True
             test = self.save(commit=False)
             test.contest = contest
             test.save()
-            return True, not not self.data['override_default_specifications']
-        return False, False
+            return True, override_specs, test
+        return False, False, None
 
 
 class C_SpecificationCreateForm(forms.ModelForm):
