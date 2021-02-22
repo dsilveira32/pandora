@@ -12,30 +12,8 @@ import diff_match_patch
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 from shared.models import Classification, Attempt, Contest, UserContestDateException, \
-    Group, Profile
+    Group, Profile, Test
 from shared.utils import *
-
-
-# check output function
-def exec(command, cwd):
-    process = subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        universal_newlines=True,
-        cwd=cwd
-    )
-    stdout, stderr = process.communicate()
-    print("****** RUNING *******")
-    print(cwd + "/" + command)
-    print("Output: ", stdout)
-    print("*********************")
-
-    ret_code = process.poll()
-    return stdout, ret_code
-
-
 
 
 # handle functions
@@ -150,6 +128,7 @@ def deleting_previous_unzips(extract_dir):
     if os.path.exists(path_to_dir_to_remove):
         os.rmdir(path_to_dir_to_remove)
 
+
 # unzip zip file
 def unzip_zip_file(zip_path, f, in_out):
     extract_dir = os.path.dirname(zip_path) + '/temp' + str(in_out)
@@ -169,6 +148,7 @@ def unzip_zip_file(zip_path, f, in_out):
     print_variable_debug("File " + str(file_name) + " unzipped")
 
     return
+
 
 # check in files
 def check_in_files(f, contest):
@@ -241,14 +221,9 @@ def check_out_files(f, contest, files_max_length):
     return []
 
 
-
-
 def unzip(paths):
     output, ret = check_output('unzip ' + paths['src'], paths['dir'])
     return ret
-
-
-
 
 
 def handle_uploaded_file(atempt, f, contest):
@@ -357,7 +332,7 @@ def handle_uploaded_file(atempt, f, contest):
     atempt.grade = 0
 
     compile_error, error_description = compile(contest, paths)
-    print("error_description: "+error_description)
+    print("error_description: " + error_description)
     atempt.error_description = error_description
     atempt.compile_error = not compile_error
     atempt.save()
@@ -426,12 +401,14 @@ def handle_uploaded_file(atempt, f, contest):
 
     cleanup_past_attempts(atempt.team, atempt)
 
+
 def checkIfUserIsSuperUser(request):
     return request.user.is_superuser
 
 
 def getContestByID(id):
     return get_object_or_404(Contest, id=id)
+
 
 def getAttemptByID(id):
     return get_object_or_404(Attempt, id=id)
@@ -481,8 +458,6 @@ def getAllContestAttemptsRanking(contest):
     return Attempt.objects.raw(query)
 
 
-
-
 def structureTeamsData(teams):
     for t in teams:
         t.members = t.getUsers()
@@ -505,15 +480,6 @@ def structureTeamsData(teams):
         for m in t.members:
             m.nAtempts = t.attempts.filter(user=m).count()
     return teams
-
-
-
-
-
-
-
-
-
 
 
 def checkUsersDateExceptions(request, contest):
@@ -543,21 +509,21 @@ def checkUsersDateExceptions(request, contest):
 
 
 def __get_zip_file_path(zip_file):
-	zip_path = os.path.abspath(zip_file.path)
-	return str(os.path.dirname(zip_path)) + "/temp"
+    zip_path = os.path.abspath(zip_file.path)
+    return str(os.path.dirname(zip_path)) + "/temp"
 
 
 def atoi(text):
-	return int(text) if text.isdigit() else text
+    return int(text) if text.isdigit() else text
+
 
 def natural_keys(text):
-	'''
-	alist.sort(key=natural_keys) sorts in human order
-	http://nedbatchelder.com/blog/200712/human_sorting.html
-	(See Toothy's implementation in the comments)
-	'''
-	return [ atoi(c) for c in re.split(r'(\d+)', text) ]
-
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [atoi(c) for c in re.split(r'(\d+)', text)]
 
 
 ##########
@@ -574,6 +540,7 @@ def getGroupsForAdmin(request):
     else:
         return getGroupsForUser(request)
 
+
 def getGroupByID(id):
     return get_object_or_404(Group, id=id)
 
@@ -582,7 +549,6 @@ def getUserProfilesFromGroup(group):
     # TODO: Probably a better way to do this and save reading the users
     users = group.users.all()
     return Profile.objects.filter(user__in=users)
-
 
 
 ### CELERY FUNCTIONS IN USE
@@ -608,6 +574,7 @@ def extract(f):
 
     return paths
 
+
 # compile the program
 def compile(contest, paths):
     lflags = ''
@@ -628,6 +595,7 @@ def compile(contest, paths):
         return False, output[0]
 
     return True, "Compilation OK"
+
 
 # build the execution command
 def run_cmd(test, paths, data_files, test_idx):
@@ -657,6 +625,7 @@ def run_cmd(test, paths, data_files, test_idx):
     exec_cmd += " <" + test.input_file.path + ' | ' + ascii_path
     exec_cmd += " 1>" + paths['test_stdout'][test_idx]
     return exec_cmd
+
 
 def run_test(record, paths, data_files, i):
     test = record.test
@@ -724,9 +693,11 @@ def run_test(record, paths, data_files, i):
     os.remove(paths['test_stdout'][i])
     return record.result
 
+
 def static_analysis(paths):
     output = check_output(settings.STATIC_ANALYZER, paths['dir'])
     return output[0]
+
 
 ############################
 #### DO NOT DELETE THIS ####
@@ -738,11 +709,13 @@ def read_file(file):
     f.close()
     return data
 
+
 def read_file_lines(file):
     # uses the diff tool
     with open(file) as f:
         lines = f.readlines()
     return lines
+
 
 def get_diffs(fromlines, tolines):
     dmp = diff_match_patch.diff_match_patch()
@@ -750,15 +723,78 @@ def get_diffs(fromlines, tolines):
     str2 = " ".join(tolines)
     is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
     diffs = dmp.diff_main(str1, str2)
-    HTMLdiff = dmp.diff_prettyHtml(diffs) # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
+    HTMLdiff = dmp.diff_prettyHtml(
+        diffs)  # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
     return is_same, diffs, HTMLdiff
-def run_docker(data_path, image, timout, test_id, attempt_id):
-    exec(
-        "docker run --rm -i --env to=" + str(timout)
-        + " --env tid=" + str(test_id)
-        + " --env sid=" + str(attempt_id)
-        + " -v " + data_path + "/:/disco "+image,
-        data_path
+
+
+def exec_command(command, cwd):
+    process = subprocess.Popen(
+        command,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        cwd=cwd
     )
+    stdout, stderr = process.communicate()
+    print("****** RUNING *******")
+    print(cwd + "/" + command)
+    print("Output: ", stdout)
+    print("*********************")
+
+    ret_code = process.poll()
+    return stdout, ret_code
+
+
+# DOCKER FUNCTIONS #
+
+def get_docker_env_vars(attempt_id, test_id, specifications):
+    ignored_attributes = ['contest', 'test', 'id']
+    string = ' --env attempt=' + str(attempt_id) + ' --env test=' + str(test_id)
+    for field in specifications.getFields():
+        if field.name not in ignored_attributes:
+            if field.name is 'cpu':
+                string += ' --cpus=' + str(specifications.getAttribute(field.name))
+            elif field.name is 'mem':
+                string += ' --memory=' + str(specifications.getAttribute(field.name)) + "m"
+            elif specifications.getAttribute(field.name) is None:
+                string += ' --env ' + str(field.name) + '=""'
+            else:
+                v = specifications.getAttribute(field.name)
+                value = str(v) if isinstance(v,int) else '"' + str(v) + '"'
+                string += ' --env ' + str(field.name) + '=' + value
+    string += ' '
+    return string
+
+def run_test_in_docker(test_id, attempt_id, compilation:bool):
+    data_path = settings.LOCAL_STATIC_CDN_PATH
+    attempt = Attempt.getByID(attempt_id)
+    contest = attempt.getContest()
+    specifications = contest.getSpecifications()
+    # Test id 0 means compilation
+    if test_id > 0:
+        test = Test.getByID(test_id)
+        test_specifications = test.getSpecifications()
+        if test_specifications is not None:
+            specifications = test_specifications
+
+    if specifications:
+        language = contest.getLanguage()
+        if language == 'C':
+            image = 'c_spec_test'
+        else:
+            print('Language not recognized. This is a problem')
+            return
+
+        docker_command = "docker run --rm -i"
+        docker_command += get_docker_env_vars(attempt_id, 0 if compilation else test_id, specifications)
+        docker_command += " -v " + data_path + "/:/disco " + image
+        exec_command(docker_command, data_path)
+    else:
+        print("No specifications for ")
+        print(attempt)
+        print(contest)
+
 
 

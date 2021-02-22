@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 import shared
 from .validators import validate_file_extension
@@ -75,9 +76,11 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 
 
 class Specification(models.Model):
+
     cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
-    mem = models.PositiveIntegerField(default=32768)  # <kbytes>		Default: 32768 kbyte(s)
+    mem = models.PositiveIntegerField(default=4,validators=[MinValueValidator(4), MaxValueValidator(512)])  # <Mbytes>		Default: 32768 kbyte(s)
     run_arguments = models.CharField(max_length=512, null=True, blank=True)
+    timeout = models.PositiveIntegerField(default=10) # <seconds>
 
     class Meta:
         abstract = True
@@ -110,6 +113,9 @@ class Contest(models.Model):
 
     def getUsers(self):
         return Group.objects.get(contests__exact=self).getUsers()
+
+    def getLanguage(self):
+        return self.language
 
     def getSpecifications(self):
         try:
@@ -198,6 +204,10 @@ class Test(models.Model):
     # TODO: Ver com o prof o que fazer com esta merda xD
     type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 
+    @classmethod
+    def getByID(cls, id):
+        return Test.objects.get(id=id)
+
     def getID(self):
         return self.id
 
@@ -255,18 +265,18 @@ class C_Specification(Specification):
     test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='c_specifications')
 
     compile_flags = models.CharField(max_length=120, blank=True, default="-Wall")
-    linkage_flags = models.CharField(max_length=120, blank=True, default="-lt")
+    linkage_flags = models.CharField(max_length=120, blank=True, default="-lc")
 
-    space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
-    maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
-    core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
+    # space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
+    # minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
+    # maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
+    # core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
+    # nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
     fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-    stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-    clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
-    chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
-    check_leak = models.BooleanField(null=False, default=False)
+    # stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+    # clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
+    # chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
+    # check_leak = models.BooleanField(null=False, default=False)
 
     class Meta:
         constraints = [
@@ -367,6 +377,7 @@ class Attempt(models.Model):
     file = models.FileField(upload_to=get_file_path, blank=False, null=False, max_length=512,
                             validators=[validate_file_extension])
     # auto_generated = models.BooleanField(null=False, default=False, blank=False)
+    done = models.BooleanField(null=False, default=False)
     comment = models.CharField(null=True, max_length=128, blank=True)
     compile_error = models.BooleanField(null=False, default=False, blank=True)
     failed_mandatory_test = models.BooleanField(null=False, default=False, blank=True)
@@ -414,9 +425,85 @@ class Attempt(models.Model):
     def getTimedOutClassifications(self):
         return self.getClassifications().filter(timeout=True).all()
 
+    def run(self, progress_recorder):
+        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs
+        from pandora import settings
+        if self.done:
+            return False
+        data_path = settings.LOCAL_STATIC_CDN_PATH
+        contest = self.getContest()
+        tests = contest.getTests()
+        progress_recorder.set_progress(1, tests.count() + 3, "Running compilation")
+        print("Init")
+        # Run compilation
+        run_test_in_docker(0, self.id, True)
+        # Checking compilation
+        compilation_output = read_file(
+            os.path.join(data_path, 'submission_results', str(self.id), 'compilation.result'))
+        mandatory_failed = False
+        pct = 0
+        timeouts = 0
+        if "Ok" in compilation_output:
+            self.compile_error = False
+            self.save()
+            # Run tests
+            i = 1
+            for test in tests:
+                if timeouts < 2:
+                    progress_recorder.set_progress(i + 2, tests.count() + 3, "Running test " + str(i))
+                    run_test_in_docker(test.getID(), self.id, False)
+                    classification = Classification()
+                    classification.attempt = self
+                    classification.test = test
+                    classification.timeout = False
+                    classification.result = 0
+                    test_check = read_file(
+                        os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".test"))
+                    if "Ok" in test_check:
+                        program_out_file = os.path.join(data_path, 'submission_results', str(self.id),
+                                                        str(test.getID()) + ".out")
+                        program_out = read_file_lines(program_out_file)
+                        ref_out = test.getOutFileContent()
+                        is_same, diffs, diff = get_diffs(program_out, ref_out)
+                        print(diffs)
+                        print(diff)
+                        if is_same:
+                            pct += test.weight_pct
+                            print("Test passed!")
+                            classification.passed = True
+                            classification.output = program_out_file
+                            classification.diff = diff
+                        else:
+                            if test.mandatory:
+                                mandatory_failed = True
+                            classification.passed = False
+                            classification.output = program_out_file
+                            classification.diff = diff
+                    else:
+                        classification.error_description = test_check
+                        if 'Timeout' in test_check:
+                            classification.timeout = True
+                            timeouts += 1
+                    i += 1
+                    print('saving')
+                    classification.save()
+                    print('saved')
+        else:
+            compilation_stdout = read_file(
+                os.path.join(data_path, 'submission_results', str(self.id), 'compilation.stdout'))
+            print(compilation_stdout)
+            self.compile_error = True
+            self.error_description = compilation_stdout
+            self.save()
+        progress_recorder.set_progress(tests.count() + 2, tests.count() + 3, "Almost there...")
+        self.grade = (round(pct / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
+        self.save()
+
     @classmethod
     def getByID(cls, id):
         return cls.objects.get(id=id)
+
+
 
 
 class SafeExecError(models.Model):
