@@ -376,7 +376,7 @@ class Attempt(models.Model):
     date = models.DateTimeField(auto_now_add=True, blank=True)
     file = models.FileField(upload_to=get_file_path, blank=False, null=False, max_length=512,
                             validators=[validate_file_extension])
-    # auto_generated = models.BooleanField(null=False, default=False, blank=False)
+    auto_generated = models.BooleanField(null=False, default=False, blank=False)
     done = models.BooleanField(null=False, default=False)
     comment = models.CharField(null=True, max_length=128, blank=True)
     compile_error = models.BooleanField(null=False, default=False, blank=True)
