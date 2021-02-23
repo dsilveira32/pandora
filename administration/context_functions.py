@@ -176,9 +176,10 @@ def getAdminCreateContestFormContext(form):
 
 
 # For admin_test_specification_form.html
-def getAdminSpecificationFormContext(form):
+def getAdminSpecificationFormContext(form, test):
     return {
         'admin_test_specification_form': {
+            'test': test,
             'form': form
         }
     }

@@ -1,13 +1,13 @@
 {% load static from staticfiles %}
 
 <div class="row">
-    <div class="offset-3 col-md-6">
+    <div class="offset-1 col-md-10">
         <div class="card border rounded shadow-sm mb-4 mt-4">
             <div class="card-body">
                 <h5 class="car-title mb-2 text-primary">Results summary for attempt
                     #{{ admin_contests_submissions_details.attempt.id }}</h5>
                 <p class="card-text mb-auto">
-                <table class="table">
+                <table class="table table table-bordered">
                     <tbody>
                     <tr>
                         <td>Compilation</td>
@@ -26,7 +26,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="text-left badge bg-dark text-white p-2 text-monospace font-weight-normal rounded-sm w-100">{{ admin_contests_submissions_details.attempt.error_description }}</span>
+                            <pre class="bg-dark rounded-sm text-white p-2">{{ admin_contests_submissions_details.attempt.error_description }}</pre>
                             <!--<button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                     data-target="#modal-compilation">Open
                             </button> -->
@@ -65,8 +65,10 @@
                     </tr>
                     <tr>
                         <td>Static Analysis</td>
-                        <td colspan="3">
-                            <pre><span class="text-left badge bg-dark text-white p-2 text-monospace font-weight-normal rounded-sm w-100">{{ admin_contests_submissions_details.attempt.static_analysis }}</span></pre>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <pre class="bg-dark rounded-sm text-white p-2">{{ admin_contests_submissions_details.attempt.static_analysis }}</pre>
                             <!-- <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
                                     data-target="#modal-analysis">Open
                             </button> -->

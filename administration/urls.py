@@ -12,6 +12,8 @@ urlpatterns = [
     # New urls / views
 
     # CONTESTS
+
+    path('', contest_views.dashboard_view, name='manager_home'),
     path('contests/', contest_views.dashboard_view, name='manager_contests_home'),
     path('contests/create/', contest_views.create_view, name='manager_contests_create'),
     path('contests/<int:contest_id>/', contest_views.detail_dashboard_view,
@@ -22,7 +24,7 @@ urlpatterns = [
          name='manager_contests_detail_tests'),
     path('contests/<int:contest_id>/tests/create', test_views.create_view,
          name='manager_contests_detail_tests_create'),
-    path('contests/<int:contest_id>/tests/<int:test_id>', test_views.detail_view,
+    path('contests/<int:contest_id>/tests/<int:test_id>', test_views.detail_edit_view,
          name='manager_contests_detail_tests_edit'),
     path('contests/<int:contest_id>/tests/<int:test_id>/specification',
          test_views.detail_specification_view, name='manager_contest_detail_test_detail_specification'),

@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Sum
 from django.shortcuts import render
 from shared.routines import *
 from administration.context_functions import *
@@ -15,7 +16,7 @@ def dashboard_view(request, contest_id):
 
 	contest = getContestByID(contest_id)
 	contest_tests = contest.getTests()
-
+	contest_tests.weightSum = Test.objects.aggregate(Sum('weight_pct'))["weight_pct__sum"]
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	context.update(getAdminTestListContext(contest_tests))
@@ -96,8 +97,8 @@ def detail_specification_view(request, contest_id, test_id):
 		form = form_type(request.POST or None)
 	if form.is_valid():
 		if form.submit(test):
-			return redirect(detail_view, contest_id, test_id)
-	context.update(getAdminSpecificationFormContext(form))
+			return redirect(dashboard_view, contest_id)
+	context.update(getAdminSpecificationFormContext(form, test))
 	return render(request, template_name, context)
 
 # Admin create test view
@@ -111,8 +112,11 @@ def detail_edit_view(request, contest_id, test_id):
 	form = CreateTestModelForm(request.POST or None, instance=test)
 
 	if form.is_valid():
-		if form.submit(contest):
-			return redirect(detail_view, contest_id, test_id)
+		submit_passed, override, test = form.submit(contest)
+		if submit_passed:
+			if override:
+				return redirect(detail_specification_view, contest.id, test.getID())
+			return redirect(dashboard_view, contest_id)
 
 	context.update(getAdminTestFormContext(contest, form))
 	return render(request, template_name, context)
