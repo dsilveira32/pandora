@@ -1,83 +1,55 @@
-<form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
-    <div class='row'>
-        <div class="col-md-12">
-            <div class="card border rounded shadow-sm mb-4 mt-4">
-                <div class="card-body">
-                    <h5 class="car-title mb-2 text-primary">Tests</h5>
-                    <p class="card-text mb-auto">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
-                            <thead class="text-center">
+<div class='row'>
+    <div class="col-md-12">
+        <div class="card border rounded shadow-sm mb-4 mt-4">
+            <div class="card-body">
+                <h5 class="car-title mb-2 text-primary">Tests</h5>
+                <p class="card-text mb-auto">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
+                        <thead class="text-center">
+                        <tr>
+                            <th>Test #</th>
+                            <th>Test ID</th>
+                            <th>Test Name</th>
+                            <th>Mandatory</th>
+                            <th>Weight</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-center">
+                        {% for t in admin_test_list.tests %}
                             <tr>
-                                <th>Test #</th>
-                                <th>Test ID</th>
-                                <th>Test Name</th>
-                                <th>Mandatory</th>
-                                <th>Weight</th>
-                                <th>Run arguments</th>
-                                <th>Check leak</th>
-                                <th>Type of feedback</th>
-                                <th>Actions</th>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ t.id }}</td>
+                                <td>{{ t.name }}</td>
+                                <td>
+                                    {% if t.mandatory == True %}
+                                        <i class="fa fa-check-circle text-success"></i>
+                                    {% else %}
+                                        <i class="fa fa-times-circle text-danger"></i>
+                                    {% endif %}
+
+                                </td>
+                                <td>
+                                    {{ t.weight_pct }}
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-info"
+                                            href="{% url 'manager_contests_detail_tests_detail' t.contest.id t.id %}">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-warning"
+                                       href="{% url 'manager_contests_detail_tests_detail' t.contest.id t.id %}">
+                                        <i class="fa fa-pencil-alt"></i>
+                                    </a>
+                                </td>
                             </tr>
-                            </thead>
-                            <tbody class="text-center">
-                            {% for t in admin_test_list.tests %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>{{ t.id }}</td>
-                                    <td>{{ t.name }}</td>
-                                    <td>
-                                        {% if t.mandatory == True %}
-                                            <input type="checkbox" value='{{ t.id }}' id="mandatory"
-                                                   name="mandatory"
-                                                   checked>
-                                        {% else %}
-                                            <input type="checkbox" value='{{ t.id }}' id="mandatory"
-                                                   name="mandatory">
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" name="weight_pct" value="{{ t.weight_pct }}">
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="run_arguments"
-                                               value="{{ t.run_arguments|default_if_none:'' }}">
-                                    </td>
-                                    <td>
-                                        {% if t.check_leak == True %}
-                                            <input type="checkbox" class="form-control" value='{{ t.id }}' id="check_leak"
-                                                   name="check_leak"
-                                                   checked>
-
-                                        {% else %}
-                                            <input type="checkbox" value='{{ t.id }}' id="check_leak"
-                                                   name="check_leak">
-                                        {% endif %}
-                                    </td>
-
-                                    <td>
-                                        <input type="number" class="form-control" name="type_of_feedback"
-                                               value="{{ t.type_of_feedback }}">
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-sm btn-warning" href="{% url 'manager_contests_detail_tests_edit' t.contest.id t.id%}">
-                                            <i class="fa fa-pencil-alt"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-danger" type="button">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="text-right">
-                        <input type="submit" value="Save" class="btn btn-success ">
-                    </p>
-                    </p>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+                </p>
             </div>
         </div>
     </div>
-</form>
+</div>

@@ -12,38 +12,34 @@ from shared.models import Test
 def dashboard_view(request, contest_id):
 	template_name = 'admin/views/contests/tests/dashboard.html'
 	context = {}
-
 	contest = getContestByID(contest_id)
 	contest_tests = contest.getTests()
-
-	context.update(getAdminContestDetailLayoutContext(contest))
-
+	context.update(getAdminTestsNonDetailLayoutContext(contest))
 	context.update(getAdminTestListContext(contest_tests))
+	return render(request, template_name, context)
+
+
+@superuser_only
+def list_edit_view(request, contest_id):
+	template_name = 'admin/views/contests/tests/list_edit.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	contest_tests = contest.getTests()
 	form = TestForm(request.POST or None)
 	if form.is_valid():
 		with transaction.atomic():
 			mandatory_ids = request.POST.getlist('mandatory')
-			check_leak_ids = request.POST.getlist('check_leak')
-			contest_tests.filter(pk__in=mandatory_ids).update(mandatory = True)
-			contest_tests.exclude(pk__in=mandatory_ids).update(mandatory = False)
-			contest_tests.filter(pk__in=check_leak_ids).update(check_leak = True)
-			contest_tests.exclude(pk__in=check_leak_ids).update(check_leak = False)
-
-			type_of_feedback_list = request.POST.getlist('type_of_feedback')
-			run_arguments_list = request.POST.getlist('run_arguments')
+			contest_tests.filter(pk__in=mandatory_ids).update(mandatory=True)
+			contest_tests.exclude(pk__in=mandatory_ids).update(mandatory=False)
 			weight_pct_list = request.POST.getlist('weight_pct')
-
 			idx = 0
 			for t in contest_tests:
-				t.type_of_feedback = type_of_feedback_list[idx]
-				t.run_arguments = run_arguments_list[idx]
 				t.weight_pct = weight_pct_list[idx]
-
 				idx = idx + 1
 				t.save()
 
-		contest_tests = contest.test_set.all()
-		form = TestForm()
+	context.update(getAdminTestsNonDetailLayoutContext(contest))
+	context.update(getAdminTestsListEditFormContext(contest_tests))
 	return render(request, template_name, context)
 
 # Admin create test view
