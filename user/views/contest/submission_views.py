@@ -55,15 +55,17 @@ def submit_view(request, contest_id):
     print_variable_debug(attempt)
     if submitted and attempt:
         print("Before celery")
-        download_task = run_tests.delay(attempt.id, contest.id)
+        download_task = run_tests.delay(attempt.id)
         # Get ID
         task_id = download_task.task_id
         print("TaskID: " + task_id)
         # Print Task ID
         print(f'Celery Task ID: {task_id}')
         # Return demo view with Task ID
+        context.update(getContestDetailLayoutContext(contest))
         context.update({'task_id': task_id})
-        context.update({'atempt_id': attempt.id})
+        context.update({'constest_id': contest.id})
+        context.update({'attempt_id': attempt.id})
 
         return render(request, 'user/views/contests/submissions/progress.html', context)
 

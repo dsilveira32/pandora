@@ -143,3 +143,8 @@ VALGRIND_EXEC = '/usr/bin/valgrind --error-exitcode=77 --leak-check=full -q'
 # Celery Settings
 BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+
+# Celery Configuration Options
+CELERY_TIMEZONE = "Europe/Lisbon"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60

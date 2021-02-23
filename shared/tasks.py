@@ -27,15 +27,13 @@ from .routines import run_test
 
 
 @shared_task(bind=True)
-def run_tests(self, atempt_id, contest_id):
-    print("......... CELERY IN PROGRESS...........")
+def run_tests(self, attempt_id):
+    # docker build -t c_spec_test /home/nunes/Desktop/simulation/
+    # docker run --rm -i --env to=10 --env tid=0 --env sid=3 -v /home/nunes/Desktop/simulation/:/disco c_spec_test
     progress_recorder = ProgressRecorder(self)
-    steps = 4
-    progress_recorder.set_progress(0, steps, description="A")
-    progress_recorder.set_progress(1, steps, description="B")
-    progress_recorder.set_progress(2, steps, description="C")
-    progress_recorder.set_progress(3, steps, description="D")
-    progress_recorder.set_progress(steps, steps, description="All Done")
+    attempt = Attempt.getByID(attempt_id)
+    attempt.run(progress_recorder)
+
     """
     atempt = Attempt.objects.get(id=atempt_id)
     contest = Contest.objects.get(id=contest_id)

@@ -50,86 +50,13 @@ def create_view(request, contest_id):
 	context.update(getAdminContestDetailLayoutContext(contest))
 
 	form = CreateTestModelForm(request.POST or None, request.FILES or None)
-	# Delete this function when json tests are added
-	test_id = 0
-
 	# TODO A melhorar
 	if form.is_valid():
-		obj = form.save(commit=False)
-		zip_in = obj.input_file
-		zip_out = obj.output_file
-		a_ok = True
-		if '.zip' in str(zip_in) and '.zip' in str(zip_out):
-			in_files = check_in_files(zip_in, contest)
-			in_files.sort(key=natural_keys)
-			n_tests = len(in_files)
-			out_files = check_out_files(zip_out, contest, n_tests)
-			out_files.sort(key=natural_keys)
-
-			if len(in_files) > 0 and len(out_files) > 0:
-				for i in range(len(in_files)):
-					if not in_files[i].split('.')[0] == out_files[i].split('.')[0]:
-						a_ok = False
-			else:
-				a_ok = False
-
-			if a_ok:
-				weight = 100 / n_tests
-				benchmark = True
-				test_number = 0
-
-				for i in range(n_tests):
-					test_number += 1
-					form = CreateTestModelForm(request.POST or None, request.FILES or None)
-					# test = form.save(commit=False)
-					test = Test()
-					test.contest = contest
-					test.weight_pct = weight
-					path = __get_zip_file_path(zip_in) + "/in/" + str(in_files[i])
-					f = open(path)
-					test.input_file.save(in_files[i], File(f))
-					f.close()
-					path = __get_zip_file_path(zip_in) + "/out/" + str(out_files[i])
-					f = open(path)
-
-					test.output_file.save(out_files[i], File(f))
-					f.close()
-					if in_files[i].split('.')[1] == "in":
-						test.use_for_time_benchmark = False
-						test.use_for_memory_benchmark = False
-						test.mandatory = False
-						test.type_of_feedback = 1
-					elif in_files[i].split('.')[1] == "inh":
-						test.use_for_time_benchmark = False
-						test.use_for_memory_benchmark = False
-						test.mandatory = False
-						test.type_of_feedback = 2
-					elif in_files[i].split('.')[1] == "inm":
-
-						if not benchmark:
-							test.use_for_time_benchmark = False
-							test.use_for_memory_benchmark = False
-							test.mandatory = True
-						else:
-							test.use_for_time_benchmark = True
-							test.use_for_memory_benchmark = True
-							test.mandatory = True
-							benchmark = False
-
-						test.type_of_feedback = 1
-					elif in_files[i].split('.')[1] == "inmh":
-						test.use_for_time_benchmark = not not benchmark
-						test.use_for_memory_benchmark = not not benchmark
-						test.mandatory = not benchmark
-						benchmark = not benchmark
-
-						test.type_of_feedback = 2
-					test.save()
-					test_id = test.id
-		if a_ok:
-			if request.POST.get('override_default_specifications', False):
-				return redirect(detail_specification_view, contest.id, test_id)
-			return redirect(detail_view, contest.id, test_id)
+		submit_passed, override, test = form.submit(contest)
+		if submit_passed:
+			if override:
+				return redirect(detail_specification_view, contest.id, test.getID())
+			return redirect(detail_view, contest.id, test.getID())
 
 	###########################
 	context.update(getAdminTestFormContext(contest, form))
@@ -152,7 +79,7 @@ def detail_view(request, contest_id, test_id):
 # Admin Test Specification
 @superuser_only
 def detail_specification_view(request, contest_id, test_id):
-	template_name = 'views/contests/detail_specification.html'
+	template_name = 'admin/views/contests/tests/detail_specification.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	context.update(getAdminContestDetailLayoutContext(contest))
