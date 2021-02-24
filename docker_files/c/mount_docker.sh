@@ -1,1 +1,1 @@
-sudo docker build -t c_spec_test .
+docker build -t c_spec_test .
