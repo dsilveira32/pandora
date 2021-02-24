@@ -1,15 +1,29 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 
 from shared.forms import GroupJoinForm
 from user.context_functions import *
 
-# TODO create user_has_group decorator
+from user.views.general import user_approval_required
+
+
+def user_belongs_to_group(function):
+    """Limit view to users that belong to the group."""
+
+    def _inner(request, *args, **kwargs):
+        group_id = kwargs.get('group_id')
+        group = Group.getByID(group_id)
+        if group:
+               if group.hasUser(request.user):
+                   return function(request, *args, **kwargs)
+        raise PermissionDenied
+
+    return _inner
 
 ##########
 # GROUPS #
 ##########
-from user.views.general import user_approval_required
 
 
 @login_required
@@ -45,6 +59,7 @@ def join_view(request):
 
 @login_required
 @user_approval_required
+@user_belongs_to_group
 def detail_dashboard_view(request, group_id):
     template_name = 'user/views/groups/detail.html'
     context = {}

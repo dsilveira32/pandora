@@ -50,6 +50,7 @@ def list_edit_view(request, contest_id):
 	return render(request, template_name, context)
 
 # Admin create test view
+@superuser_only
 def create_view(request, contest_id):
 	template_name = 'admin/views/contests/tests/create.html'
 	context = {}
@@ -71,6 +72,7 @@ def create_view(request, contest_id):
 
 
 # Admin create test view
+@superuser_only
 def detail_view(request, contest_id, test_id):
 	template_name = 'admin/views/contests/tests/detail_dashboard.html'
 	context = {}
@@ -104,6 +106,7 @@ def detail_specification_view(request, contest_id, test_id):
 	return render(request, template_name, context)
 
 # Admin create test view
+@superuser_only
 def detail_edit_view(request, contest_id, test_id):
 	template_name = 'admin/views/contests/tests/detail_edit.html'
 	context = {}

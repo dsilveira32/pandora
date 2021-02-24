@@ -7,7 +7,7 @@ from user.views.general import user_approval_required
 
 
 def contest_is_open(function):
-    """Limit view when the constest is closed."""
+    """Block view when the contest is closed."""
 
     def _inner(request, *args, **kwargs):
         contest_id = kwargs.get('contest_id')
@@ -19,7 +19,8 @@ def contest_is_open(function):
 
     return _inner
 
-def user_has_contest(function):
+
+def user_has_access_to_contest(function):
     """Limit view to users that have access to the contest."""
 
     def _inner(request, *args, **kwargs):
@@ -50,7 +51,7 @@ def dashboard_view(request):
 # CONTEST VIEW
 @login_required
 @user_approval_required
-@user_has_contest
+@user_has_access_to_contest
 def detail_dashboard_view(request, contest_id):
     #checkUserProfileInRequest(request)
     context = {}

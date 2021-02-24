@@ -1,5 +1,6 @@
 import sys
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.encoding import smart_text
@@ -9,17 +10,34 @@ from user.context_functions import *
 from shared.tasks import run_tests
 
 # SUMISSION VIEW
-from user.views.contest_views import user_has_contest, contest_is_open
-from user.views.contest.team_views import join_view
+from user.views.contest_views import user_has_access_to_contest, contest_is_open
+from user.views.contest.team_views import join_view, user_has_team
 
-# TODO: Create user_has_submission decorator
 from user.views.general import user_approval_required
+
+
+def user_owns_submission(function):
+    """
+    Limit view to users that belong to the team
+    that made the submission.
+    """
+
+    def _inner(request, *args, **kwargs):
+        submission_id = kwargs.get('submission_id')
+        submission = Attempt.getByID(submission_id)
+        if submission:
+            if submission.getTeam().hasUser(request.user):
+                return function(request, *args, **kwargs)
+        raise PermissionDenied
+
+    return _inner
 
 
 @login_required
 @user_approval_required
-@user_has_contest
+@user_has_access_to_contest
 @contest_is_open
+@user_has_team
 def submit_view(request, contest_id):
     checkUserProfileInRequest(request)
     template_name = 'user/views/contests/submissions/submission.html'
@@ -77,7 +95,8 @@ def submit_view(request, contest_id):
 
 @login_required
 @user_approval_required
-@user_has_contest
+@user_has_access_to_contest
+@user_owns_submission
 def detail_view(request, contest_id, submission_id):
     print("Contest ID: %i | Attempt ID: %i" % (contest_id, submission_id))
     checkUserProfileInRequest(request)
