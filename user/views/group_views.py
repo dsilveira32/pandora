@@ -46,7 +46,10 @@ def join_view(request):
 @login_required
 @user_approval_required
 def detail_dashboard_view(request, group_id):
-    template_name = 'doesnt_exist_yet.html'
-
+    template_name = 'user/views/groups/detail.html'
     context = {}
+    group = Group.objects.get(id=group_id)
+    contests = group.getContests()
+    context.update(getUserGroupDetailLayout(group))
+    context.update(getContestListContext(contests))
     return render(request, template_name, context)

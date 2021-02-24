@@ -314,3 +314,15 @@ def getAdminContestSubmissionDetailsContext(contest, user, team, attempt, n_pass
             'min_grade': min_passed_grade
         }
     }
+
+def getAdminTestsListEditFormContext(tests):
+    return {
+        'admin_list_edit_form': {
+            'tests': tests
+        }
+    }
+
+def getAdminTestsNonDetailLayoutContext(contest):
+    context = {}
+    context.update(getAdminContestDetailLayoutContext(contest))
+    return context

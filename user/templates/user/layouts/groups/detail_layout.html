@@ -8,7 +8,7 @@
             </li>
             {% if user_group_detail_layout.group %}
             <li class="breadcrumb-item active">
-                <a href="{% url 'user_groups_detail_dashboard' user_group_detail_layout.group.id %}">{{ user_group_detail_layout.group.short_name }}</a>
+                <a href="{% url 'user_groups_detail_dashboard' user_group_detail_layout.group.id %}">{{ user_group_detail_layout.group.name }}</a>
             </li>
             {% endif %}
             {% if user_group_detail_layout.subpage %}
@@ -17,6 +17,7 @@
         </ol>
     </nav>
     <div class="container-fluid">
+        <hr>
         {% block groupDetailContent %}
         {% endblock %}
     </div>
