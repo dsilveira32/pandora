@@ -219,6 +219,26 @@ def getContestRankingsContext(attempts):
     }
 
 
+# For rankings.html
+def getContestSingleRankingContext(attempt, rank):
+    """Context for single_ranking.html
+    REQUIRED IN ALL VIEWS THAT EXTEND single_ranking.html
+    Parameters
+    ----------
+        attempt : Attempt
+        rank: int
+    return
+    ----------
+       contest_rankings
+    """
+    return {
+        'single_ranking': {
+            'attempt': attempt,
+            'rank': rank
+        }
+    }
+
+
 # For test_chooser.html
 def getTestChooserContext(tests):
     """Context for test_chooser.html

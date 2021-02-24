@@ -55,6 +55,9 @@
     // Call the dataTables jQuery plugin
     $(document).ready(function () {
         $('.dataTablePandora').DataTable();
+        $('.dataTablePandoraReversed').DataTable({
+            "order": [[ 0, "desc" ]]
+        })
         tablesSelectors("in")
         tablesSelectors("out")
     });

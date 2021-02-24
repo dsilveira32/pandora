@@ -468,6 +468,8 @@ class Attempt(models.Model):
                         os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".time"))
                     # Reading only the first line of the file
                     classification.elapsed_time, classification.memory_usage = read_benchmakrs(test_time_file[0])
+                    self.memory_benchmark += int(classification.memory_usage)
+                    self.time_benchmark += float(classification.elapsed_time)
                     test_program_out_file = os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".out")
                     if "Ok" in test_check_file:
                         program_out = read_file_lines(test_program_out_file)

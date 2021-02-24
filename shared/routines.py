@@ -454,8 +454,30 @@ def getAllContestAttemptsRanking(contest):
             "           order by grade desc, attempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
             "                       cpu_time asc"
     # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
-
     return Attempt.objects.raw(query)
+
+
+def getAllContestAttemptsSingleRanking(contest, team):
+    # TODO Make it better
+    query = "SELECT att.*, maxs.attempts, maxs.team_id FROM (" \
+            "select max(id) as id," \
+            "count(id) as attempts," \
+            "team_id from " \
+            "shared_attempt" \
+            " where contest_id = " + str(contest.id) + \
+            "   group by team_id)" \
+            "       maxs inner join shared_attempt att on att.id = maxs.id" \
+            "           order by grade desc, attempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
+            "                       cpu_time asc"
+    # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
+    attempts = Attempt.objects.raw(query)
+    rank = 1
+    if team:
+        for att in attempts:
+            if att.team == team:
+                return att, rank
+            rank += 1
+    return None, 0
 
 
 def structureTeamsData(teams):
@@ -723,7 +745,8 @@ def read_benchmakrs(line):
     total_memory = column[0]
     maximum_resident_size = column[1]
     user_mode_cpu_seconds = column[2]
-    elapsed_time = round(float(column[3])*1000,0)
+    print(column[3])
+    elapsed_time = int(float(column[3])*1000)
     average_unshared_stack_size = int(column[4]) - 512
     exit_code = column[5]
     return str(elapsed_time), str(average_unshared_stack_size)
