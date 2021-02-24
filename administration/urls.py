@@ -18,6 +18,8 @@ urlpatterns = [
     path('contests/create/', contest_views.create_view, name='manager_contests_create'),
     path('contests/<int:contest_id>/', contest_views.detail_dashboard_view,
          name='manager_contests_detail_dashboard'),
+    path('contests/<int:contest_id>/edit', contest_views.edit_view,
+         name='manager_contest_edit'),
     path('contests/<int:contest_id>/specification', contest_views.detail_specification_view,
          name="manager_contest_detail_specification"),
     path('contests/<int:contest_id>/tests', test_views.dashboard_view,

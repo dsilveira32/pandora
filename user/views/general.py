@@ -4,7 +4,7 @@ from django.shortcuts import render
 from shared.routines import *
 from shared.forms import ProfileEditForm, UserEditForm
 from user.context_functions import *
-
+from user.views import contest_views
 
 
 def user_approval_required(function):
@@ -25,6 +25,7 @@ def user_approval_required(function):
 @login_required
 @user_approval_required
 def dashboard_view(request):
+    return redirect(contest_views.dashboard_view)
     template_name = 'user/views/dashboard.html'
     context = {}
     contests = getContestsForUser(request)

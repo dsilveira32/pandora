@@ -6,7 +6,7 @@ from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from shared.forms import CreateContestModelForm, TestForm, CreateTestModelForm
+from shared.forms import ContestModelForm, TestForm, CreateTestModelForm
 from shared.models import Test
 from shared.routines import *
 from django.db import transaction
@@ -54,7 +54,7 @@ def admin_choose_test(request, id):
 def admin_contest_creation(request):
 	template_name = 'contest/admin_contest_creation_form.html'
 
-	contest_form = CreateContestModelForm(request.POST or None, request.FILES or None)
+	contest_form = ContestModelForm(request.POST or None, request.FILES or None)
 	print_form_info_debug(contest_form)
 	# test_form = CreateTestModelForm(request.POST or None)
 	# print("-----------------------------------The form for the test is: " + str(test_form) +

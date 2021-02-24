@@ -5,6 +5,20 @@ from shared.routines import *
 from user.context_functions import *
 from user.views.general import user_approval_required
 
+
+def contest_is_open(function):
+    """Limit view when the constest is closed."""
+
+    def _inner(request, *args, **kwargs):
+        contest_id = kwargs.get('contest_id')
+        contest = Contest.getByID(contest_id)
+        if contest:
+               if contest.isOpen():
+                   return function(request, *args, **kwargs)
+        raise PermissionDenied
+
+    return _inner
+
 def user_has_contest(function):
     """Limit view to users that have access to the contest."""
 

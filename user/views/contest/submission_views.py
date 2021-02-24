@@ -9,7 +9,7 @@ from user.context_functions import *
 from shared.tasks import run_tests
 
 # SUMISSION VIEW
-from user.views.contest_views import user_has_contest
+from user.views.contest_views import user_has_contest, contest_is_open
 from user.views.contest.team_views import join_view
 
 # TODO: Create user_has_submission decorator
@@ -19,6 +19,7 @@ from user.views.general import user_approval_required
 @login_required
 @user_approval_required
 @user_has_contest
+@contest_is_open
 def submit_view(request, contest_id):
     checkUserProfileInRequest(request)
     template_name = 'user/views/contests/submissions/submission.html'

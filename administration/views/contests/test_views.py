@@ -37,12 +37,14 @@ def list_edit_view(request, contest_id):
 			contest_tests.filter(pk__in=mandatory_ids).update(mandatory=True)
 			contest_tests.exclude(pk__in=mandatory_ids).update(mandatory=False)
 			weight_pct_list = request.POST.getlist('weight_pct')
+			name_list = request.POST.getlist('name')
 			idx = 0
 			for t in contest_tests:
 				t.weight_pct = weight_pct_list[idx]
+				t.name = name_list[idx]
 				idx = idx + 1
 				t.save()
-
+			return redirect(dashboard_view, contest_id)
 	context.update(getAdminTestsNonDetailLayoutContext(contest))
 	context.update(getAdminTestsListEditFormContext(contest_tests))
 	return render(request, template_name, context)

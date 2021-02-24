@@ -88,7 +88,7 @@ class C_SpecificationCreateForm(forms.ModelForm):
         return True
 
 
-class CreateContestModelForm(forms.ModelForm):
+class ContestModelForm(forms.ModelForm):
     start_date = forms.CharField(required=True)
     end_date = forms.CharField(required=True)
     class Meta:
@@ -96,18 +96,19 @@ class CreateContestModelForm(forms.ModelForm):
         # widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
         fields = "__all__"
 
-    def submit(self, request):
+    def submit(self, contest_id=0):
         if self.is_valid():
             # Saves the contest and creates a new default
             # specification for the contest.
             # TODO: Maybe make this atomic
             contest = self.save(commit=False)
             contest.save()
-            c = Contest.objects.get(id=contest.id)
-            spec_type = c.getSpecificationType()
-            specs = spec_type()
-            specs.contest = c
-            specs.save()
+            print(contest_id)
+            if contest_id is 0:
+                spec_type = contest.getSpecificationType()
+                specs = spec_type()
+                specs.contest = contest
+                specs.save()
             return True
         return False
 

@@ -1,10 +1,17 @@
 {% if contest_submit_attempt_button.team %}
-    <a class="btn btn-primary w-100 py-3" href="{% url 'contest_attempt_form_view' contest_submit_attempt_button.contest.id %}">
-        <i class="fas fa-plus-circle"></i>
-        Submit new attempt
-    </a>
+    {% if contest_submit_attempt_button.contest.isOpen %}
+        <a class="btn btn-primary w-100 py-3"
+           href="{% url 'contest_attempt_form_view' contest_submit_attempt_button.contest.id %}">
+            <i class="fas fa-plus-circle"></i>
+            Submit new attempt
+        </a>
+    {% else %}
+        <div class="alert alert-info">The contest is not opened. Please contact the administrator.</div>
+    {% endif %}
 {% else %}
     <div class="alert alert-danger w-100 py-3 text-center">
-        You need to <a href="">create</a> or <a href="{% url 'user_contest_team_join_view' contest_submit_attempt_button.contest.id %}">join</a> a team before submitting.
+        You need to <a href="">create</a> or <a
+            href="{% url 'user_contest_team_join_view' contest_submit_attempt_button.contest.id %}">join</a> a team
+        before submitting.
     </div>
 {% endif %}

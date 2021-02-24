@@ -31,10 +31,12 @@
                         <a class="btn btn-md btn-block btn-secondary" href="{% url 'social:begin' 'github' %}">
                             <i class="fab fa-github"></i> Sign in with GitHub
                         </a>
+                        {% comment %}
                         <hr>
                         <div class="text-center">
                             Don't have an account? Register&nbsp;<a href="{% url 'register' %}">here</a>.
                         </div>
+                        {% endcomment %}
                         <!-- <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p> -->
                     </form>
                 </div>

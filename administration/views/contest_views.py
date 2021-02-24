@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from administration.context_functions import *
 from administration.views.general import superuser_only
-from shared.forms import CreateContestModelForm
+from shared.forms import ContestModelForm
 
 from shared.routines import *
 #############################
@@ -26,7 +26,7 @@ def dashboard_view(request):
 def create_view(request):
 	template_name = 'admin/views/contests/create.html'
 	context = {}
-	form = CreateContestModelForm(request.POST or None)
+	form = ContestModelForm(request.POST or None)
 	if form.is_valid():
 		if form.submit(request):
 			return redirect(dashboard_view)
@@ -74,5 +74,18 @@ def detail_specification_view(request, contest_id):
 		if form.submit(contest):
 			return redirect(detail_dashboard_view, contest_id)
 	context.update(getAdminSpecificationFormContext(form))
+	return render(request, template_name, context)
+
+# Admin Contest Edit
+@superuser_only
+def edit_view(request, contest_id):
+	template_name = 'admin/views/contests/edit.html'
+	context = {}
+	contest = Contest.getByID(contest_id)
+	form = ContestModelForm(request.POST or None, instance=contest)
+	if form.is_valid():
+		if form.submit(contest_id=contest.id):
+			return redirect(dashboard_view)
+	context.update(getAdminCreateContestFormContext(form))
 	return render(request, template_name, context)
 
