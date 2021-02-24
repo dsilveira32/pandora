@@ -426,7 +426,7 @@ class Attempt(models.Model):
         return self.getClassifications().filter(timeout=True).all()
 
     def run(self, progress_recorder):
-        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs
+        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs, read_benchmakrs
         from pandora import settings
         if self.done:
             return False
@@ -453,37 +453,43 @@ class Attempt(models.Model):
             for test in tests:
                 if timeouts < 2:
                     progress_recorder.set_progress(i + 2, tests.count() + 3, "Running test " + str(i))
-                    run_test_in_docker(test.getID(), self.id, False)
+                    # Create a new Classification
                     classification = Classification()
                     classification.attempt = self
                     classification.test = test
                     classification.timeout = False
                     classification.result = 0
-                    test_check = read_file(
+                    # Run Docker
+                    run_test_in_docker(test.getID(), self.id, False)
+                    # Read files
+                    test_check_file = read_file(
                         os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".test"))
-                    if "Ok" in test_check:
-                        program_out_file = os.path.join(data_path, 'submission_results', str(self.id),
-                                                        str(test.getID()) + ".out")
-                        program_out = read_file_lines(program_out_file)
+                    test_time_file = read_file_lines(
+                        os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".time"))
+                    # Reading only the first line of the file
+                    classification.elapsed_time, classification.memory_usage = read_benchmakrs(test_time_file[0])
+                    test_program_out_file = os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".out")
+                    if "Ok" in test_check_file:
+                        program_out = read_file_lines(test_program_out_file)
                         ref_out = test.getOutFileContent()
-                        is_same, diffs, diff = get_diffs(program_out, ref_out)
+                        are_equals, diffs, diff = get_diffs(program_out, ref_out)
                         print(diffs)
                         print(diff)
-                        if is_same:
+                        if are_equals: # Test passed
                             pct += test.weight_pct
                             print("Test passed!")
                             classification.passed = True
-                            classification.output = program_out_file
+                            classification.output = test_program_out_file
                             classification.diff = diff
                         else:
                             if test.mandatory:
                                 mandatory_failed = True
                             classification.passed = False
-                            classification.output = program_out_file
+                            classification.output = test_program_out_file
                             classification.diff = diff
                     else:
-                        classification.error_description = test_check
-                        if 'Timeout' in test_check:
+                        classification.error_description = test_check_file
+                        if 'Timeout' in test_check_file:
                             classification.timeout = True
                             timeouts += 1
                     i += 1

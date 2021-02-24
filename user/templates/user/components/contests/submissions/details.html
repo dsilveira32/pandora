@@ -30,7 +30,9 @@
                             {% endif %}
                         </td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-compilation">Open</button>
+                            {% if team_submission_details.attempt.compile_error %}
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-compilation">Show</button>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
@@ -70,13 +72,12 @@
                         <td></td>
                         <td>
                             <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                    data-target="#modal-analysis">Open
+                                    data-target="#modal-analysis">Show
                             </button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                </p>
             </div>
         </div>
     </div>
@@ -93,7 +94,7 @@
                     <tr>
                         <th>Test #</th>
                         <th>Weight</th>
-                        <th>Time(ms)/Mem(kiB)</th>
+                        <th>Time(ms) / Mem(kiB)</th>
                         <th>Type</th>
                         <th>Passed</th>
                         <th>Info</th>
@@ -107,7 +108,7 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ r.test.weight_pct|floatformat }} &#37;</td>
-                            <td>{{ r.execution_time }}/{{ r.memory_usage }}</td>
+                            <td>{{ r.elapsed_time|floatformat:"0" }} / {{ r.memory_usage }}</td>
                             <td>{% if r.test.mandatory %}Mandatory{% else %}General{% endif %}</td>
                             <td>{% if r.passed %}<i class="fas fa-check-circle text-success"></i>{% else %}
                                 <i class="fas fa-times-circle text-danger"></i>{% endif %}</td>

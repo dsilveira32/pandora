@@ -710,6 +710,25 @@ def read_file(file):
     return data
 
 
+def read_benchmakrs(line):
+    column = line.split(" ")
+    # format:
+    # %U %K %p %e %M %x
+    # 0 K      Average total (data+stack+text) memory use of the process, in Kilobytes.
+    # 1 M      Maximum resident set size of the process during its lifetime, in Kilobytes.
+    # 2 U      Total number of CPU-seconds that the process used directly (in user mode), in seconds.
+    # 3 e      Elapsed real (wall clock) time used by the process, in seconds.
+    # 4 p      Average unshared stack size of the process, in Kilobytes.
+    # 5 x      Exit status of the command.
+    total_memory = column[0]
+    maximum_resident_size = column[1]
+    user_mode_cpu_seconds = column[2]
+    elapsed_time = round(float(column[3])*1000,0)
+    average_unshared_stack_size = int(column[4]) - 512
+    exit_code = column[5]
+    return str(elapsed_time), str(average_unshared_stack_size)
+
+
 def read_file_lines(file):
     # uses the diff tool
     with open(file) as f:
@@ -762,12 +781,13 @@ def get_docker_env_vars(attempt_id, test_id, specifications):
                 string += ' --env ' + str(field.name) + '=""'
             else:
                 v = specifications.getAttribute(field.name)
-                value = str(v) if isinstance(v,int) else '"' + str(v) + '"'
+                value = str(v) if isinstance(v, int) else '"' + str(v) + '"'
                 string += ' --env ' + str(field.name) + '=' + value
     string += ' '
     return string
 
-def run_test_in_docker(test_id, attempt_id, compilation:bool):
+
+def run_test_in_docker(test_id, attempt_id, compilation: bool):
     data_path = settings.LOCAL_STATIC_CDN_PATH
     attempt = Attempt.getByID(attempt_id)
     contest = attempt.getContest()
@@ -796,6 +816,3 @@ def run_test_in_docker(test_id, attempt_id, compilation:bool):
         print("No specifications for ")
         print(attempt)
         print(contest)
-
-
-
