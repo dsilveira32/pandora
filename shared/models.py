@@ -590,6 +590,11 @@ class Group(models.Model):
     def hasUser(self, user):
         return self.users.filter(id=user.id).exists()
 
+
     @classmethod
     def getGroupsForUser(cls, request):
         return cls.objects.filter(users__exact=request.user)
+
+    @classmethod
+    def getByID(cls, group_id):
+        return cls.objects.get(id=group_id)
