@@ -790,6 +790,7 @@ def run_test_in_docker(test_id, attempt_id, compilation:bool):
         docker_command = "docker run --rm -i"
         docker_command += get_docker_env_vars(attempt_id, 0 if compilation else test_id, specifications)
         docker_command += " -v " + data_path + "/:/disco " + image
+        print(docker_command)
         exec_command(docker_command, data_path)
     else:
         print("No specifications for ")

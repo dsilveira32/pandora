@@ -438,8 +438,7 @@ class Attempt(models.Model):
         # Run compilation
         run_test_in_docker(0, self.id, True)
         # Reading static analisys
-        self.static_analysis = read_file(
-            os.path.join(data_path, 'submission_results', str(self.id), 'static.out'))
+        self.static_analysis = read_file(os.path.join(data_path, 'submission_results', str(self.id), 'static.out'))
         # Checking compilation
         compilation_output = read_file(
             os.path.join(data_path, 'submission_results', str(self.id), 'compilation.result'))
