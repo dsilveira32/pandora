@@ -5,7 +5,7 @@ from django.shortcuts import render
 from shared.forms import GroupJoinForm
 from user.context_functions import *
 
-from user.views.general import user_approval_required
+from user.views.general import user_approval_required, user_complete_profile_required
 
 
 def user_belongs_to_group(function):
@@ -27,6 +27,7 @@ def user_belongs_to_group(function):
 
 
 @login_required
+@user_complete_profile_required
 @user_approval_required
 def dashboard_view(request):
     template_name = 'user/views/groups/dashboard.html'
@@ -39,6 +40,7 @@ def dashboard_view(request):
 
 
 @login_required
+@user_complete_profile_required
 @user_approval_required
 def join_view(request):
     template_name = 'user/views/groups/join.html'
@@ -58,6 +60,7 @@ def join_view(request):
     return render(request, template_name, context)
 
 @login_required
+@user_complete_profile_required
 @user_approval_required
 @user_belongs_to_group
 def detail_dashboard_view(request, group_id):

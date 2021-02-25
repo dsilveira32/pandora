@@ -86,7 +86,7 @@ AUTHENTICATION_BACKENDS = (
 LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'user_dashboard'
 
 
 # Password validation
