@@ -1,0 +1,11 @@
+{% extends "admin/layouts/contests/tests/non_detail_layout.html" %}
+{% block testDetailBreadcrumbs %}
+    <li class="breadcrumb-item active">
+        <a href="{% url 'manager_contests_detail_tests_detail' admin_test_detail_layout.test.contest.id admin_test_detail_layout.test.id %}">
+            {{ admin_test_detail_layout.test.name }}
+        </a>
+    </li>
+{% endblock %}
+
+{% block testContent %}
+{% endblock %}

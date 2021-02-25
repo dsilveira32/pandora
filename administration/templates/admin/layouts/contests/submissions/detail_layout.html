@@ -1,0 +1,11 @@
+{% extends "admin/layouts/contests/submissions/non_detail_layout.html" %}
+{% block submissionDetailBreadcrumbs %}
+    <li class="breadcrumb-item active">
+        <a href="{% url 'manager_contests_detail_team_detail' admin_submission_detail_layout.submission.contest.id admin_submission_detail_layout.submission.id %}">
+            {{ admin_submission_detail_layout.submission.id }}
+        </a>
+    </li>
+{% endblock %}
+
+{% block submissionContent %}
+{% endblock %}

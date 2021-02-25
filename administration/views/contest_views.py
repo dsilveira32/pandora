@@ -17,7 +17,7 @@ def dashboard_view(request):
 	context = {}
 	contests = getContestsForAdmin(request)
 
-
+	context.update(getAdminContestNonDetailLayoutContext())
 	context.update(getAdminContestListContext(contests))
 	return render(request, template_name, context)
 
@@ -30,6 +30,8 @@ def create_view(request):
 	if form.is_valid():
 		if form.submit(request):
 			return redirect(dashboard_view)
+
+	context.update(getAdminContestNonDetailLayoutContext())
 	context.update(getAdminCreateContestFormContext(form))
 	return render(request, template_name, context)
 
@@ -61,7 +63,6 @@ def detail_specification_view(request, contest_id):
 	template_name = 'admin/views/contests/detail_specification.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
 	specs = contest.getSpecifications()
 	form_type = contest.getSpecificationFormType()
 	if specs:
@@ -73,6 +74,8 @@ def detail_specification_view(request, contest_id):
 	if form.is_valid():
 		if form.submit(contest):
 			return redirect(detail_dashboard_view, contest_id)
+
+	context.update(getAdminContestDetailLayoutContext(contest))
 	context.update(getAdminSpecificationFormContext(form))
 	return render(request, template_name, context)
 
@@ -86,6 +89,8 @@ def edit_view(request, contest_id):
 	if form.is_valid():
 		if form.submit(contest_id=contest.id):
 			return redirect(dashboard_view)
+
+	context.update(getAdminContestDetailLayoutContext(contest))
 	context.update(getAdminCreateContestFormContext(form))
 	return render(request, template_name, context)
 
