@@ -38,6 +38,9 @@ def get_contest_code_path(instance, filename):
 def get_contest_data_path(instance, filename):
     return os.path.join('contests/%s' % instance.contest.short_name, 'data/', filename)
 
+def get_data_files_path(instance, filename):
+    return os.path.join('datafiles/', str(instance.contest.id), filename)
+
 
 def get_contest_ins_files_path(instance, filename):
     return os.path.join('contests/%s' % instance.short_name, 'src/temp/in', filename)
@@ -511,7 +514,7 @@ class Attempt(models.Model):
             self.error_description = compilation_stdout
             self.save()
         progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
-        #exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
+        exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
         self.grade = (round(pct / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
         self.save()
 
@@ -574,7 +577,7 @@ class UserContestDateException(models.Model):
 # TODO: Falar com o prof. esta classe e utilizada?
 class ContestTestDataFile(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-    data_file = models.FileField(upload_to=get_contest_data_path, blank=False, null=False, max_length=512)
+    data_file = models.FileField(upload_to=get_data_files_path, blank=False, null=False, max_length=512)
     file_name = models.CharField(max_length=150, blank=False)
     unique_together = ('contest', 'file_name')
 

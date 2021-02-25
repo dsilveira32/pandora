@@ -30,6 +30,7 @@ catch() {
 		fi
 		
 		if [ "$1" == "153" ]; then #filesize excceded error code
+		  echo "Output is too big"
 			echo "Error: Output is too big!" > /disco/submission_results/$attempt_id/$test_id.test ;
 		fi
 		
@@ -47,7 +48,7 @@ catch() {
 mkdir -p /disco/submission_results/$attempt_id/
 cp -r /disco/tmp/$attempt_id/* /usr/src/compiled/ || :
 cp -r /disco/datafiles/$contest_id/* /usr/src/compiled/ || :
-ulimit -f $fsize # 5Mb limit
+ulimit -f $fsize
 trap 'catch $? $attempt_id' EXIT
 cd /disco/submissions/$attempt_id/
 
