@@ -14,7 +14,7 @@ def dashboard_view(request, contest_id):
     contest = getContestByID(contest_id)
     submissions = contest.getSubmissions()
 
-    context.update(getAdminContestDetailLayoutContext(contest))
+    context.update(getAdminSubmissionNonDetailLayoutContext(contest))
     context.update(getAdminContestSubmissionListContext(submissions))
     context.update(getAdminContestSubmissionChartContext(submissions))
 
@@ -47,7 +47,7 @@ def details_view(request, contest_id, attempt_id):
         res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
                                errors='strict')
     """
-    context.update(getAdminContestDetailLayoutContext(contest))
+    context.update(getAdminSubmissionDetailLayoutContext(contest, attempt))
     context.update(getAdminContestSubmissionDetailsContext(contest, request.user, team, attempt, n_passed, n_tests, mandatory_passed,
                                             n_mandatory, passed_diff, n_diff, results, 9))
     return render(request, template_name, context)

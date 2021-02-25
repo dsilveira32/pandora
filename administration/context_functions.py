@@ -2,19 +2,105 @@
 #      CONTEXT FUNCTIONS    #
 #############################
 
-# Create one of these for each component that requires data,
-# then call this and update context with the function
-# return in the view in order to use the component
+#############################
+#          LAYOUTS          #
+#############################
 
-# TODO:
-#   The following components doesnt have context Getter:
-#       contest_admin_menu - Doesnt need context
-#       contest_chooser - Dont know what is it
-#       contest_creation
-#       error_message_dialog_box
-#       team_detail
-#       team_join
-#       test_edition
+# CONTESTS #
+
+def getAdminContestNonDetailLayoutContext():
+    return {}
+
+def getAdminContestDetailLayoutContext(contest):
+    context = {
+        'admin_contest_detail_layout': {
+            'contest': contest,
+        }
+    }
+    context.update(getAdminContestNonDetailLayoutContext())
+    return context
+
+# TESTS #
+
+def getAdminTestsNonDetailLayoutContext(contest):
+    context = {
+        'admin_test_non_detail_layout': {
+            'contest': contest
+        }
+    }
+    context.update(getAdminContestDetailLayoutContext(contest))
+    return context
+
+def getAdminTestDetailLayoutContext(contest, test):
+    context = {
+        'admin_test_detail_layout': {
+            'test': test
+        }
+    }
+    context.update(getAdminTestsNonDetailLayoutContext(contest))
+    return context
+
+# TEAMS #
+
+def getAdminTeamNonDetailLayoutContext(contest):
+    context = {
+        'admin_team_non_detail_layout': {
+            'contest': contest
+        }
+    }
+    context.update(getAdminContestDetailLayoutContext(contest))
+    return context
+
+def getAdminTeamDetailLayoutContext(contest, team):
+    context = {
+        'admin_team_detail_layout': {
+            'team': team
+        }
+    }
+    context.update(getAdminTeamNonDetailLayoutContext(contest))
+    return context
+
+# SUBMISSIONS #
+
+def getAdminSubmissionNonDetailLayoutContext(contest):
+    context = {
+        'admin_submission_non_detail_layout': {
+            'contest': contest
+        }
+    }
+    context.update(getAdminContestDetailLayoutContext(contest))
+    return context
+
+def getAdminSubmissionDetailLayoutContext(contest, submission):
+    context = {
+        'admin_submission_detail_layout': {
+            'submission': submission
+        }
+    }
+    context.update(getAdminSubmissionNonDetailLayoutContext(contest))
+    return context
+
+# GROUPS #
+
+def getAdminGroupDetailLayoutContext(group):
+    return {
+        'admin_group_detail_layout': {
+            'group': group
+        }
+    }
+
+# USERS #
+
+def getAdminUserDetailLayoutContext(user):
+    return {
+        'admin_user_detail_layout': {
+            'user': user
+        }
+    }
+
+#############################
+#         COMPONENTS        #
+#############################
 
 # For list.html
 def getAdminContestListContext(contests):
@@ -34,24 +120,6 @@ def getAdminContestListContext(contests):
     }
 
 
-# For detail_layout.html
-# REQUIRED IN ALL VIEWS THAT EXTEND contest_detail_layout.html
-def getAdminContestDetailLayoutContext(contest):
-    """Context for contest_detail_layout.html
-    REQUIRED IN ALL VIEWS THAT EXTEND detail_layout.html
-    Parameters
-    ----------
-        contest : Contest
-    return
-    ----------
-        admin_contest_detail_layout
-    """
-    context = {
-        'admin_contest_detail_layout': {
-            'contest': contest,
-        }
-    }
-    return context
 
 # For list.html
 def getAdminTeamListContext(teams):
@@ -114,19 +182,6 @@ def getAdminTestListContext(tests):
         }
     }
 
-# For detail_layout.html
-def getAdminGroupDetailLayoutContext(group):
-    """Context for detail_layout.html
-       REQUIRED IN ALL VIEWS THAT INCLUDE detail_layout.html
-       Parameters
-       ----------
-           group : Group
-       """
-    return {
-        'admin_group_detail_layout': {
-            'group': group
-        }
-    }
 
 
 # For list.html
@@ -176,10 +231,9 @@ def getAdminCreateContestFormContext(form):
 
 
 # For admin_test_specification_form.html
-def getAdminSpecificationFormContext(form, test):
+def getAdminSpecificationFormContext(form):
     return {
         'admin_test_specification_form': {
-            'test': test,
             'form': form
         }
     }
@@ -201,13 +255,6 @@ def getAdminUsersFormContext(userForm, profileForm):
         }
     }
 
-# For admin/users/form.html
-def getAdminUserDetailLayoutContext(user):
-    return {
-        'admin_user_detail_layout': {
-            'user': user
-        }
-    }
 
 # For admin/components/groups/contests_manager
 def getAdminGroupsContestsManagerContext(contests, contests_in):
@@ -322,7 +369,10 @@ def getAdminTestsListEditFormContext(tests):
         }
     }
 
-def getAdminTestsNonDetailLayoutContext(contest):
-    context = {}
-    context.update(getAdminContestDetailLayoutContext(contest))
-    return context
+
+def getAdminTestDetailsContext(test):
+    return {
+        'admin_test_details': {
+            'test': test
+        }
+    }

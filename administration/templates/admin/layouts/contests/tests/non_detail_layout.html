@@ -1,17 +1,27 @@
 {% extends "admin/layouts/contests/detail_layout.html" %}
-{% block contestDetailContent %}
+{% block subContestBreadcrumbs %}
+    <li class="breadcrumb-item active">
+        <a href="{% url 'manager_contests_detail_tests' admin_test_non_detail_layout.contest.id %}">
+            Tests
+        </a>
+    </li>
+    {% block testDetailBreadcrumbs %}
+    {% endblock %}
+{% endblock %}
+{% block contestContent %}
     <div class="col-12">
         <div>
-            <a class="btn btn-primary btn-sm {% if 'create' not in request.path and 'edit' not in request.path %}active{% endif %}" type="button"
-               href="{% url 'manager_contests_detail_tests'  admin_contest_detail_layout.contest.id %}">Dashboard
+            <a class="btn btn-primary btn-sm {% if 'create' not in request.path and 'edit' not in request.path %}active{% endif %}"
+               type="button"
+               href="{% url 'manager_contests_detail_tests'  admin_test_non_detail_layout.contest.id %}">Dashboard
             </a>
             <a class="btn btn-primary btn-sm {% if 'tests/edit' in request.path %}active{% endif %}"
                type="button"
-               href="{% url 'manager_contests_detail_tests_list_edit'  admin_contest_detail_layout.contest.id %}">Test
+               href="{% url 'manager_contests_detail_tests_list_edit'  admin_test_non_detail_layout.contest.id %}">Test
                 Manager
             </a>
             <a class="btn btn-primary btn-sm {% if 'create' in request.path %}active{% endif %}" type="button"
-               href="{% url 'manager_contests_detail_tests_create'  admin_contest_detail_layout.contest.id %}">Create
+               href="{% url 'manager_contests_detail_tests_create'  admin_test_non_detail_layout.contest.id %}">Create
                 Test</a>
         </div>
     </div>

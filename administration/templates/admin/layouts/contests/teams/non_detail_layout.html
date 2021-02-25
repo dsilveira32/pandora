@@ -1,0 +1,14 @@
+{% extends "admin/layouts/contests/detail_layout.html" %}
+{% block subContestBreadcrumbs %}
+    <li class="breadcrumb-item active">
+        <a href="{% url 'manager_contests_detail_teams' admin_team_non_detail_layout.contest.id %}">
+            Teams
+        </a>
+    </li>
+    {% block teamDetailBreadcrumbs %}
+    {% endblock %}
+{% endblock %}
+{% block contestContent %}
+    {% block teamContent %}
+    {% endblock %}
+{% endblock %}

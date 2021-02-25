@@ -55,7 +55,6 @@ def create_view(request, contest_id):
 	template_name = 'admin/views/contests/tests/create.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
 
 	form = CreateTestModelForm(request.POST or None, request.FILES or None)
 	# TODO A melhorar
@@ -67,6 +66,7 @@ def create_view(request, contest_id):
 			return redirect(detail_view, contest.id, test.getID())
 
 	###########################
+	context.update(getAdminTestsNonDetailLayoutContext(contest))
 	context.update(getAdminTestFormContext(contest, form))
 	return render(request, template_name, context)
 
@@ -77,10 +77,9 @@ def detail_view(request, contest_id, test_id):
 	template_name = 'admin/views/contests/tests/detail_dashboard.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
-
-	test = Test.objects.get(contest_id=contest_id, id=test_id)
-
+	test = Test.getByID(test_id)
+	context.update(getAdminTestDetailLayoutContext(contest, test))
+	context.update(getAdminTestDetailsContext(test))
 	return render(request, template_name, context)
 
 
@@ -91,7 +90,6 @@ def detail_specification_view(request, contest_id, test_id):
 	template_name = 'admin/views/contests/tests/detail_specification.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
 	test = Test.objects.get(id=test_id)
 	specs = test.getSpecifications()
 	form_type = test.getSpecificationFormType()
@@ -102,7 +100,9 @@ def detail_specification_view(request, contest_id, test_id):
 	if form.is_valid():
 		if form.submit(test):
 			return redirect(dashboard_view, contest_id)
-	context.update(getAdminSpecificationFormContext(form, test))
+
+	context.update(getAdminTestDetailLayoutContext(contest, test))
+	context.update(getAdminSpecificationFormContext(form))
 	return render(request, template_name, context)
 
 # Admin create test view
@@ -111,7 +111,6 @@ def detail_edit_view(request, contest_id, test_id):
 	template_name = 'admin/views/contests/tests/detail_edit.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
 
 	test = Test.objects.get(contest_id=contest_id, id=test_id)
 	form = CreateTestModelForm(request.POST or None, instance=test)
@@ -123,5 +122,6 @@ def detail_edit_view(request, contest_id, test_id):
 				return redirect(detail_specification_view, contest.id, test.getID())
 			return redirect(dashboard_view, contest_id)
 
+	context.update(getAdminTestDetailLayoutContext(contest, test))
 	context.update(getAdminTestFormContext(contest, form))
 	return render(request, template_name, context)

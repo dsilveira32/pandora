@@ -1,4 +1,4 @@
-    {% load helpers %}
+{% load helpers %}
 <!-- Some cards -->
 <div class="col-3">
     <div class="card border-left-success shadow h-100 py-2">
@@ -78,15 +78,13 @@
 </div>
 
 
-
-
 <!-- Details -->
 
 <div class="col-6">
     <div class="card border rounded shadow-sm mb-4 mt-4">
         <div class="card-body text-center">
-            <h5 class="card-title mb-2 text-primary">Details</h5>
-            <p class="lead my-3">{{ admin_contests_dashboard_cards.contest.description }}</p>
+
+            <h5 class="car-title mb-2 text-primary ">Details</h5>
             <p class="card-text mb-auto">
             <table class="table">
                 <tbody>
@@ -124,6 +122,14 @@
                     </strong>
                 </a>
             {% endif %}
+            <a class="d-inline-block mb-1 mt-2 btn btn-warning" href="{% url 'manager_contest_edit' admin_contests_dashboard_cards.contest.id %}">
+                <strong >
+                    Edit Contest
+                </strong>
+            </a>
+            <a class="d-inline-block mb-1 mt-2 btn btn-info" href="{% url "manager_contests_extract_grades" admin_contests_dashboard_cards.contest.id %}">
+                <strong><i class="fas fa-file-csv"></i> Extract grades</strong>
+            </a>
             </p>
         </div>
     </div>
@@ -151,8 +157,8 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="{% url 'manager_contest_detail_specification' admin_contests_dashboard_cards.contest.id %}">
-                <strong class="d-inline-block mb-1 btn btn-warning">
+            <a class="d-inline-block mb-1 btn btn-warning" href="{% url 'manager_contest_detail_specification' admin_contests_dashboard_cards.contest.id %}">
+                <strong >
                     Edit Default Specifications
                 </strong>
             </a>
