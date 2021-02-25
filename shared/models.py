@@ -426,15 +426,20 @@ class Attempt(models.Model):
         return self.getClassifications().filter(timeout=True).all()
 
     def run(self, progress_recorder):
-        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs, read_benchmakrs
+        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs, read_benchmakrs, exec_command
         from pandora import settings
         if self.done:
             return False
         data_path = settings.LOCAL_STATIC_CDN_PATH
         contest = self.getContest()
         tests = contest.getTests()
-        progress_recorder.set_progress(1, tests.count() + 3, "Running compilation")
+
+        total_steps = 1 + tests.count() + 1
+
+        progress_recorder.set_progress(0, total_steps, "Running compilation")
         print("Init")
+        exec_command("mkdir ./tmp/" + str(self.id) + "/", data_path)
+        exec_command("mkdir ./tmp/"+str(self.id)+"/", data_path)
         # Run compilation
         run_test_in_docker(0, self.id, True)
         # Reading static analisys
@@ -452,7 +457,7 @@ class Attempt(models.Model):
             i = 1
             for test in tests:
                 if timeouts < 2:
-                    progress_recorder.set_progress(i + 2, tests.count() + 3, "Running test " + str(i))
+                    progress_recorder.set_progress(i, total_steps, "Running test " + str(i))
                     # Create a new Classification
                     classification = Classification()
                     classification.attempt = self
@@ -505,7 +510,8 @@ class Attempt(models.Model):
             self.compile_error = True
             self.error_description = compilation_stdout
             self.save()
-        progress_recorder.set_progress(tests.count() + 2, tests.count() + 3, "Almost there...")
+        progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
+        #exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
         self.grade = (round(pct / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
         self.save()
 
