@@ -48,7 +48,8 @@ urlpatterns = [
          name='manager_contests_detail_submissions_details'),
     path('contests/<int:contest_id>/extract_grades', contest_views.extract_grades,
          name='manager_contests_extract_grades'),
-
+    path('contests/<int:contest_id>/extract_files', contest_views.extract_zip,
+         name='manager_contests_extract_files'),
     # GROUPS
     path('groups/', group_views.dashboard_view, name="admin_groups_home"),
     path('groups/create', group_views.create_view, name='admin_group_create'),
