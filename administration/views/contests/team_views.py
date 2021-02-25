@@ -12,28 +12,16 @@ def dashboard_view(request, contest_id):
 	template_name = 'admin/views/contests/teams/dashboard.html'
 	context = {}
 	contest = getContestByID(contest_id)
-	context.update(getAdminContestDetailLayoutContext(contest))
 
 	# For list.html
 	teams = structureTeamsData(contest.getTeams())
+
+	context.update(getAdminTeamNonDetailLayoutContext(contest))
 	context.update(getAdminTeamListContext(teams))
 
 	return render(request, template_name, context)
 
 
-# Admin team detail dashboard view
-@superuser_only
-def detail_view(request, contest_id, team_id):
-	template_name = 'admin/views/contests/teams/detail.html'
-	context = {}
-	contest = getContestByID(contest_id)
-	team = Team.getById(team_id)
-	submissions = team.getAttempts()
-
-	context.update(getAdminContestDetailLayoutContext(contest))
-	context.update(getAdminContestsTeamsDetailContext(team))
-	context.update(getAdminContestSubmissionListContext(submissions))
-	return render(request, template_name, context)
 
 
 # Admin team detail dashboard view
@@ -47,8 +35,23 @@ def create_view(request, contest_id):
 		if form.submit(request.user, contest):
 			return redirect("manager_contests_detail_teams", contest_id=contest_id)
 	context.update(getAdminContestsTeamsFormContext(form))
-	context.update(getAdminContestDetailLayoutContext(contest))
+	context.update(getAdminTeamNonDetailLayoutContext(contest))
 	return render(request, template_name, context)
+
+# Admin team detail dashboard view
+@superuser_only
+def detail_view(request, contest_id, team_id):
+	template_name = 'admin/views/contests/teams/detail.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	team = Team.getById(team_id)
+	submissions = team.getAttempts()
+
+	context.update(getAdminTeamDetailLayoutContext(contest, team))
+	context.update(getAdminContestsTeamsDetailContext(team))
+	context.update(getAdminContestSubmissionListContext(submissions))
+	return render(request, template_name, context)
+
 
 # Admin team detail dashboard view
 @superuser_only
@@ -72,9 +75,7 @@ def edit_view(request, contest_id, team_id):
 		if form_manager.is_valid():
 			form_manager.submit(team)
 
+	context.update(getAdminTeamDetailLayoutContext(contest, team))
 	context.update(getAdminContestsTeamsFormContext(form))
-	context.update(getAdminContestDetailLayoutContext(contest))
-
 	context.update(getAdminContestsTeamsManagerContext(users_out, team.getUsers(), team))
-
 	return render(request, template_name, context)

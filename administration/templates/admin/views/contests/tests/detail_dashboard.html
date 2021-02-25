@@ -1,4 +1,6 @@
-{% extends "admin/layouts/contests/detail_layout.html" %}
-{% block contestDetailContent %}
-    <h1>create a dashboard...</h1>
+{% extends "admin/layouts/contests/tests/detail_layout.html" %}
+{% block testContent %}
+    <div class="row">
+        {% include 'admin/components/contests/tests/details.html' %}
+    </div>
 {% endblock %}

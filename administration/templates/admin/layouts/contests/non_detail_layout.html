@@ -2,10 +2,15 @@
 {% block pageContent %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Contests</li>
+            <li class="breadcrumb-item active">
+                <a href="{% url 'manager_contests_home' %}">Contests</a>
+            </li>
+            {% block contestDetailBreadcrumbs %}
+            {% endblock %}
         </ol>
     </nav>
     <div class="container-fluid">
+        <hr>
         {% block contestContent %}
         {% endblock %}
     </div>

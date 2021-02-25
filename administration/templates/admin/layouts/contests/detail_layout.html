@@ -1,21 +1,14 @@
-{% extends "admin/layouts/base_layout.html" %}
-{% block pageContent %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active">
-                <a href="{% url 'manager_contests_home' %}">Contests</a>
-            </li>
-            {% if admin_contest_detail_layout.contest %}
-                <li class="breadcrumb-item active">
-                    <a href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">{{ admin_contest_detail_layout.contest.short_name }}</a>
-                </li>
-            {% endif %}
-            {% if admin_contest_detail_layout.subpage %}
-                <li class="breadcrumb-item " aria-current="page">{{ admin_contest_detail_layout.subpage }}</li>
-            {% endif %}
-        </ol>
-    </nav>
-    <div class="container-fluid">
+{% extends "admin/layouts/contests/non_detail_layout.html" %}
+
+{% block contestDetailBreadcrumbs %}
+    <li class="breadcrumb-item active">
+        <a href="{% url 'manager_contests_detail_dashboard' admin_contest_detail_layout.contest.id %}">{{ admin_contest_detail_layout.contest.short_name }}</a>
+    </li>
+    {% block subContestBreadcrumbs %}
+    {% endblock %}
+{% endblock %}
+{% block contestContent %}
+        {% comment %}
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h5>{{ admin_contest_detail_layout.contest.short_name }}
                 - {{ admin_contest_detail_layout.contest.title }}</h5>
@@ -36,9 +29,5 @@
            href="{% url 'manager_contests_detail_submissions' admin_contest_detail_layout.contest.id %}">
             Submissions
         </a>
-        <hr>
-        {% block contestDetailContent %}
-        {% endblock %}
-    </div>
-
+          {% endcomment %}
 {% endblock %}
