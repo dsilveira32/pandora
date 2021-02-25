@@ -1,5 +1,8 @@
 import csv
+import io
+
 from django.contrib.auth.models import User
+from django.db.models import Max
 from django.shortcuts import render
 
 from administration.context_functions import *
@@ -174,5 +177,5 @@ def extract_zip(request, id):
     zip_buffer.seek(0)
 
     resp = HttpResponse(zip_buffer, content_type='application/zip')
-    resp['Content-Disposition'] = 'attachment; filename = %s' % 'bla.zip'
+    resp['Content-Disposition'] = 'attachment; filename = %s' % str(contest_obj.short_name)+'.zip'
     return resp
