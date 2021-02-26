@@ -151,9 +151,9 @@ def extract_grades(request, contest_id):
 
 # extract grades
 @superuser_only
-def extract_zip(request, id):
+def extract_zip(request, contest_id):
     # get the contest
-    contest_obj = get_object_or_404(Contest, id=id)
+    contest_obj = Contest.getByID(contest_id)
     qs = Attempt.objects.filter(contest=contest_obj).values('team_id').annotate(id=Max('id'))
     qs2 = Attempt.objects.filter(id__in=qs.values('id'))
 
