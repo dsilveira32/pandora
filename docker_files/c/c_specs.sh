@@ -23,31 +23,37 @@ run_arguments=$9"
 set -e
 #trap 'catch erro par2 par3' EXIT	
 
-catch() {	
+catch() {
+  echo "== $1 == Erro catched"
 	if [ "$1" != "0" ]; then
 		if [ "$1" == "124" ]; then #timeout error code
-			echo "Error: Timeout!" > /disco/submission_results/$attempt_id/$test_id.test ;
+			echo "Error: Timeout!" > /disco/submission_results/$2/$3.test ;
 		fi
 		
 		if [ "$1" == "153" ]; then #filesize excceded error code
 		  echo "Output is too big"
-			echo "Error: Output is too big!" > /disco/submission_results/$attempt_id/$test_id.test ;
+			echo "Error: Output is too big!" > /disco/submission_results/$2/$3.test ;
 		fi
 		
 		if [ "$1" == "1" ]; then #compilation error code
-			echo "Error" > /disco/submission_results/$attempt_id/compilation.result
+			echo "Error" > /disco/submission_results/$2/compilation.result
 		fi
-		chmod -R 0777 /disco/submission_results/$attempt_id/ ; exit 0
+		chmod -R 0777 /disco/submission_results/$2/
+		cp -r ./* /disco/tmp/$2/ 2>/dev/null || :
+		chmod -R 0777 /disco/tmp/$2/
+		exit 0
     #echo "Test error: Unexpected error $1 ocurred"  #> /disco/submission_results/$attempt_id/$test_id.test ; exit 0 #> /disco/submission_results/$attempt_id/$test_id.out ; exit 0
 	else
-		chmod -R 0777 /disco/submission_results/$attempt_id/
+		chmod -R 0777 /disco/submission_results/$2/
+		cp -r ./* /disco/tmp/$2/ 2>/dev/null || :
+		chmod -R 0777 /disco/tmp/$2/
 	fi
 
 }
 
 mkdir -p /disco/submission_results/$attempt_id/
-cp -r /disco/tmp/$attempt_id/* /usr/src/compiled/ || :
-cp -r /disco/datafiles/$contest_id/* /usr/src/compiled/ || :
+cp -r /disco/tmp/$attempt_id/* /usr/src/compiled/ 2>/dev/null || :
+cp -r /disco/datafiles/$contest_id/* /usr/src/compiled/ 2>/dev/null  || :
 ulimit -f $fsize
 trap 'catch $? $attempt_id' EXIT
 cd /disco/submissions/$attempt_id/
@@ -66,8 +72,8 @@ if [ "$test_id" != "0" ]; then #test
 	echo "Running Test"
 	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo Ok > /disco/submission_results/$attempt_id/$test_id.test"
 	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo "Ok" > /disco/submission_results/$attempt_id/$test_id.test
-	cp -r ./* /disco/tmp/$attempt_id/ || :
 fi
+
 #arr=(`echo ${3}`);
 # for test in "${arr[@]}";
 		# do
