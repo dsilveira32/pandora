@@ -48,9 +48,12 @@ class CreateMassTestsForm(forms.Form):
         zip_file = file
         processed_files = []
         valid_extensions = ['in', 'out']
-
-
         with zipfile.ZipFile(zip_file, 'r') as z:
+            nfiles=0
+            for file in z.namelist():
+                if file.split('.')[-1] == "in":
+                    nfiles +=1
+
             for f in z.namelist():
                 for f2 in z.namelist():
                     fname, fextension = f.split('.')[0], f.split('.')[-1]
@@ -62,6 +65,7 @@ class CreateMassTestsForm(forms.Form):
                                     test = Test()
                                     test.contest = contest
                                     test.name = 'MASS_GENERATED'
+                                    test.weight_pct = round(100/nfiles, 2)
                                     # TODO: MAKE THIS ATOMIC
                                     test.save()
                                     if fextension == 'in':

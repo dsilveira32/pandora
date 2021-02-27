@@ -54,9 +54,9 @@ catch() {
 mkdir -p /disco/submission_results/$attempt_id/
 cp -r /disco/tmp/$attempt_id/* /usr/src/compiled/ 2>/dev/null || :
 cp -r /disco/datafiles/$contest_id/* /usr/src/compiled/ 2>/dev/null  || :
+cd /disco/submissions/$attempt_id/
 ulimit -f $fsize
 trap 'catch $? $attempt_id' EXIT
-cd /disco/submissions/$attempt_id/
 
 echo "Running Static analisys"
 cppcheck --enable=all --check-config /disco/submissions/$attempt_id/ > /disco/submission_results/$attempt_id/static.out
