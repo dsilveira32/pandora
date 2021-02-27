@@ -1,8 +1,11 @@
+import base64
 import os
 import zipfile
 
 from django import forms
 from django.contrib.auth.models import User
+from django.core.files import File
+from django.core.files.base import ContentFile
 
 from shared.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification
@@ -19,8 +22,6 @@ class AttemptModelForm(forms.ModelForm):
     class Meta:
         model = Attempt
         fields = ['file', 'comment']
-
-
 
     def submit(self, user, can_submit, contest, team):
         if can_submit and self.is_valid():
@@ -39,6 +40,7 @@ class AttemptModelForm(forms.ModelForm):
             return True, obj
         return False, None
 
+
 class CreateMassTestsForm(forms.Form):
     file = forms.FileField()
 
@@ -46,30 +48,33 @@ class CreateMassTestsForm(forms.Form):
         zip_file = file
         processed_files = []
         valid_extensions = ['in', 'out']
+
+
         with zipfile.ZipFile(zip_file, 'r') as z:
             for f in z.namelist():
                 for f2 in z.namelist():
                     fname, fextension = f.split('.')[0], f.split('.')[-1]
                     f2name, f2extension = f2.split('.')[0], f2.split('.')[-1]
-
                     if fname == f2name:
                         if fname not in processed_files:
                             if fextension != f2extension:
                                 if fextension in valid_extensions and f2extension in valid_extensions:
-                                    print(fname + fextension)
-                                    print(f2name + f2extension)
                                     test = Test()
-                                    test.name = 'MASS_GENERATED'
                                     test.contest = contest
-                                    if fextension == 'in':
-                                        test.input_file = f
-                                        test.output_file = f2
-                                    else:
-                                        test.input_file = f2
-                                        test.output_file = f
+                                    test.name = 'MASS_GENERATED'
+                                    # TODO: MAKE THIS ATOMIC
                                     test.save()
+                                    if fextension == 'in':
+                                        input_file = ContentFile(z.read(f).decode())
+                                        output_file = ContentFile(z.read(f2).decode())
+                                    else:
+                                        input_file = ContentFile(z.read(f2).decode())
+                                        output_file = ContentFile(z.read(f).decode())
+                                    test.input_file.save('test.in', input_file)
+                                    test.output_file.save('test.out', output_file)
                                     processed_files.append(fname)
-        print(processed_files)
+
+
 
 class TestModelForm(forms.ModelForm):
     override_default_specifications = forms.BooleanField(required=False, initial=False,
@@ -126,6 +131,7 @@ class C_SpecificationModelForm(forms.ModelForm):
 class ContestModelForm(forms.ModelForm):
     start_date = forms.CharField(required=True)
     end_date = forms.CharField(required=True)
+
     class Meta:
         model = Contest
         # widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
@@ -153,6 +159,7 @@ class UserModelForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name']
 
+
 class ProfileModelForm(forms.ModelForm):
     number = forms.IntegerField(required=True, label='Student Number')
     gprd = forms.BooleanField(required=True, initial=False,
@@ -170,7 +177,7 @@ class AdminUserModelForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username','email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser']
+        fields = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser']
 
     def submit(self):
         if not self.is_valid():
@@ -179,6 +186,7 @@ class AdminUserModelForm(forms.ModelForm):
         user = self.save(commit=False)
         user.save()
         return True, user
+
 
 class AdminUserProfileModelForm(forms.ModelForm):
     class Meta:
@@ -253,6 +261,7 @@ class AdminTeamCreateForm(forms.ModelForm):
     name = forms.CharField(required=True, label='Team Name')
     join_code = forms.SlugField(required=True, label='Join code')
     include_user = forms.BooleanField(required=False, label='Include me on team')
+
     class Meta:
         model = Team
         fields = ['name', 'join_code']
@@ -278,6 +287,7 @@ class AdminTeamCreateForm(forms.ModelForm):
         if self.data.get("include_user"):
             team.users.add(user)
         return True
+
 
 class TestForm(forms.Form):
     pass
@@ -353,7 +363,6 @@ class UserRegisterForm(forms.ModelForm):
             self.add_error('email', 'There is already a user with this email.')
             return False, None
 
-
         user = self.save(commit=False)
         user.set_password(user.password)
         user.username = user.email
@@ -386,6 +395,7 @@ class ProfileRegisterForm(forms.ModelForm):
 class TeamMemberForm(object):
     pass
 
+
 class GroupAddUserForm(forms.Form):
     def submit(self, group):
         action = self.data.get("action")
@@ -408,7 +418,6 @@ class GroupAddContestForm(forms.Form):
                     group.contests.add(contest)
                 if action == "removecontest":
                     group.contests.remove(contest)
-
 
 
 class UserListForm(forms.Form):
@@ -436,9 +445,11 @@ class AdminTeamManagerForm(forms.Form):
                 if action == "removeuser":
                     team.users.remove(user)
 
+
 class AdminTeamEditForm(forms.ModelForm):
     name = forms.CharField(required=True, label='Team Name')
     join_code = forms.SlugField(required=True, label='Join code')
+
     class Meta:
         model = Team
         fields = ['name', 'join_code']
@@ -453,7 +464,8 @@ class AdminTeamEditForm(forms.ModelForm):
             self.add_error('name', 'The name you entered is already in use by other team')
             return False
         # Check if the team join code is already in use
-        team = Team.objects.exclude(id=self.instance.getId()).filter(join_code=self.data['join_code'], contest=contest).exists()
+        team = Team.objects.exclude(id=self.instance.getId()).filter(join_code=self.data['join_code'],
+                                                                     contest=contest).exists()
         if team:
             self.add_error('join_code', 'The code you entered is already in use by other team.')
             return False
