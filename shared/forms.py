@@ -1,8 +1,11 @@
+import os
+
 from django import forms
 from django.contrib.auth.models import User
 
 from shared.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification
+from .routines import extract, unzip
 
 
 class DateInputWidget(forms.DateTimeInput):
@@ -16,8 +19,6 @@ class AttemptModelForm(forms.ModelForm):
         model = Attempt
         fields = ['file', 'comment']
 
-
-
     def submit(self, user, can_submit, contest, team):
         if can_submit and self.is_valid():
             obj = self.save(commit=False)
@@ -25,6 +26,7 @@ class AttemptModelForm(forms.ModelForm):
             obj.contest = contest
             obj.team = team
             obj.save()
+            extract(obj.file)
             print_variables_debug([
                 "Object: " + str(obj),
                 "Object file: " + str(obj.file),
