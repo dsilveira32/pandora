@@ -1,0 +1,14 @@
+{% load crispy_forms_tags %}
+<div class="row justify-content-center align-items-center">
+    <div class="col-md-8">
+        <div class="card border rounded shadow-sm mb-4 mt-4">
+            <div class="card-body">
+                <h5 class="car-title mb-2 text-primary">Test Form</h5>
+                <form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
+                    {{ admin_test_mass_create_form.form|crispy }}
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

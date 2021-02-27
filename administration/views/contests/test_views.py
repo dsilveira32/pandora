@@ -5,7 +5,7 @@ from shared.routines import *
 from administration.context_functions import *
 from administration.views.general import superuser_only
 from shared.routines import __get_zip_file_path
-from shared.forms import TestForm, CreateTestModelForm
+from shared.forms import TestForm, CreateTestModelForm, CreateMassTestsForm
 from shared.models import Test
 
 
@@ -68,6 +68,25 @@ def create_view(request, contest_id):
 	###########################
 	context.update(getAdminTestsNonDetailLayoutContext(contest))
 	context.update(getAdminTestFormContext(contest, form))
+	return render(request, template_name, context)
+
+# Admin mass create test view
+@superuser_only
+def mass_create_view(request, contest_id):
+	template_name = 'admin/views/contests/tests/mass_create.html'
+	context = {}
+	contest = getContestByID(contest_id)
+
+	form = CreateMassTestsForm(request.POST or None, request.FILES or None)
+
+	if form.is_valid():
+		print(request.FILES['file'])
+		if form.submit(contest, request.FILES['file']):
+			return redirect(dashboard_view, contest.id)
+
+	###########################
+	context.update(getAdminTestsNonDetailLayoutContext(contest))
+	context.update(getAdminTestMassCreateFormContext(form))
 	return render(request, template_name, context)
 
 

@@ -1,4 +1,5 @@
 import os
+import zipfile
 
 from django import forms
 from django.contrib.auth.models import User
@@ -36,10 +37,41 @@ class AttemptModelForm(forms.ModelForm):
             return True, obj
         return False, None
 
+class CreateMassTestsForm(forms.Form):
+    file = forms.FileField()
+
+    def submit(self, contest, file):
+        zip_file = file
+        processed_files = []
+        valid_extensions = ['in', 'out']
+        with zipfile.ZipFile(zip_file, 'r') as z:
+            for f in z.namelist():
+                for f2 in z.namelist():
+                    fname, fextension = f.split('.')[0], f.split('.')[-1]
+                    f2name, f2extension = f2.split('.')[0], f2.split('.')[-1]
+
+                    if fname == f2name:
+                        if fname not in processed_files:
+                            if fextension != f2extension:
+                                if fextension in valid_extensions and f2extension in valid_extensions:
+                                    print(fname + fextension)
+                                    print(f2name + f2extension)
+                                    test = Test()
+                                    test.name = 'MASS_GENERATED'
+                                    test.contest = contest
+                                    if fextension == 'in':
+                                        test.input_file = f
+                                        test.output_file = f2
+                                    else:
+                                        test.input_file = f2
+                                        test.output_file = f
+                                    test.save()
+                                    processed_files.append(fname)
+        print(processed_files)
+
 class CreateTestModelForm(forms.ModelForm):
     override_default_specifications = forms.BooleanField(required=False, initial=False,
                                                          label='Override contest programming language specifications?')
-
     class Meta:
         model = Test
         exclude = ['contest']
@@ -58,6 +90,7 @@ class CreateTestModelForm(forms.ModelForm):
             test.save()
             return True, override_specs, test
         return False, False, None
+
 
 
 class C_SpecificationCreateForm(forms.ModelForm):
