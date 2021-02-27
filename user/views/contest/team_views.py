@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 from shared.models import Team
 from shared.routines import *
-from shared.forms import TeamJoinForm, TeamCreateForm
+from shared.forms import TeamJoinForm, TeamModelForm
 from user.context_functions import *
 from user.views import contest_views
 from user.views.general import user_approval_required
@@ -51,7 +51,7 @@ def join_view(request, contest_id):
             return redirect(contest_views.detail_dashboard_view, contest_id)
 
 
-    create_form = TeamCreateForm(request.POST or None if 'submit_create_form' in request.POST else None)
+    create_form = TeamModelForm(request.POST or None if 'submit_create_form' in request.POST else None)
     if create_form.is_valid():
         if create_form.submit(request.user, contest):
             return redirect(contest_views.detail_dashboard_view, contest_id)

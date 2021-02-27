@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from shared.routines import *
-from shared.forms import ProfileEditForm, UserEditForm
+from shared.forms import ProfileModelForm, UserModelForm
 from user.context_functions import *
 from user.views import contest_views
 
@@ -65,8 +65,8 @@ def dashboard_view(request):
 def profile_view(request):
     template_name = 'user/views/profile.html'
     context = {}
-    profile_form = ProfileEditForm(request.POST or None, instance=request.user.profile)
-    user_form = UserEditForm(request.POST or None, instance=request.user)
+    profile_form = ProfileModelForm(request.POST or None, instance=request.user.profile)
+    user_form = UserModelForm(request.POST or None, instance=request.user)
 
     if all((profile_form.is_valid(), user_form.is_valid())):
         profile_form.save()

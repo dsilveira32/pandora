@@ -34,7 +34,7 @@ class AttemptModelForm(forms.ModelForm):
             return True, obj
         return False, None
 
-class CreateTestModelForm(forms.ModelForm):
+class TestModelForm(forms.ModelForm):
     override_default_specifications = forms.BooleanField(required=False, initial=False,
                                                          label='Override contest programming language specifications?')
 
@@ -44,7 +44,7 @@ class CreateTestModelForm(forms.ModelForm):
 
     def submit(self, contest):
         """
-            returns (formSaved, overrideSpecs)
+            returns (formSaved, overrideSpecs, test)
             If override specs is true redirect to the specs creation page
         """
         if self.is_valid():
@@ -52,13 +52,14 @@ class CreateTestModelForm(forms.ModelForm):
             if 'override_default_specifications' in self.data:
                 override_specs = True
             test = self.save(commit=False)
+            print(test.input_file)
             test.contest = contest
             test.save()
             return True, override_specs, test
         return False, False, None
 
 
-class C_SpecificationCreateForm(forms.ModelForm):
+class C_SpecificationModelForm(forms.ModelForm):
     class Meta:
         model = C_Specification
         exclude = ['contest', 'test']
@@ -69,10 +70,8 @@ class C_SpecificationCreateForm(forms.ModelForm):
         print('hello!')
 
     def submit(self, obj):
-        print('im in submit')
 
         if not self.is_valid() or not obj:
-            print(9)
             return False
 
         spec = self.save(commit=False)
@@ -91,6 +90,7 @@ class C_SpecificationCreateForm(forms.ModelForm):
 class ContestModelForm(forms.ModelForm):
     start_date = forms.CharField(required=True)
     end_date = forms.CharField(required=True)
+
     class Meta:
         model = Contest
         # widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}
@@ -113,12 +113,12 @@ class ContestModelForm(forms.ModelForm):
         return False
 
 
-class UserEditForm(forms.ModelForm):
+class UserModelForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name']
 
-class ProfileEditForm(forms.ModelForm):
+class ProfileModelForm(forms.ModelForm):
     number = forms.IntegerField(required=True, label='Student Number')
     gprd = forms.BooleanField(required=True, initial=False,
                               label='Agree to share my information (name, email, number, username, grade) with the authors and other users of this application')
@@ -128,7 +128,7 @@ class ProfileEditForm(forms.ModelForm):
         fields = ['number', 'gprd']
 
 
-class AdminUserEditForm(forms.ModelForm):
+class AdminUserModelForm(forms.ModelForm):
     is_active = forms.BooleanField(required=False, label="Is Active")
     is_staff = forms.BooleanField(required=False, label="Is Staff")
     is_superuser = forms.BooleanField(required=False, label="Is Super User")
@@ -145,7 +145,7 @@ class AdminUserEditForm(forms.ModelForm):
         user.save()
         return True, user
 
-class AdminUserProfileEditForm(forms.ModelForm):
+class AdminUserProfileModelForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['number', 'gprd', 'valid']
@@ -185,7 +185,7 @@ class TeamJoinForm(forms.Form):
         return True
 
 
-class TeamCreateForm(forms.ModelForm):
+class TeamModelForm(forms.ModelForm):
     name = forms.CharField(required=True, label='Team Name')
     join_code = forms.SlugField(required=True, label='Join code')
 
@@ -248,7 +248,7 @@ class TestForm(forms.Form):
     pass
 
 
-class GroupCreateForm(forms.ModelForm):
+class GroupModelForm(forms.ModelForm):
     name = forms.CharField(required=True, label='Group Name')
     join_code = forms.SlugField(required=True, label='Join code')
     registration_open = forms.BooleanField(required=False, label='Open registration?')

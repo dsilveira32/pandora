@@ -10,13 +10,13 @@ from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 import shared
+from .storage import OverwriteStorage
 from .validators import validate_file_extension
 
 
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "src.%s" % ext
-    print(instance)
     return os.path.join('submissions/', str(instance.id), filename)
 
 
@@ -24,6 +24,7 @@ def get_tests_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "test.%s" % ext
     return os.path.join('tests/', str(instance.id), filename)
+
 
 def get_contest_detail_path(instance, filename):
     ext = filename.split('.')[-1]
@@ -68,6 +69,7 @@ class Profile(models.Model):
     def setValid(self, value: bool):
         self.valid = value
 
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -76,11 +78,11 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 
 
 class Specification(models.Model):
-
     cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
-    mem = models.PositiveIntegerField(default=4,validators=[MinValueValidator(4), MaxValueValidator(512)])  # <Mbytes>		Default: 32768 kbyte(s)
+    mem = models.PositiveIntegerField(default=4, validators=[MinValueValidator(4), MaxValueValidator(
+        512)])  # <Mbytes>		Default: 32768 kbyte(s)
     run_arguments = models.CharField(max_length=512, null=True, blank=True)
-    timeout = models.PositiveIntegerField(default=10) # <seconds>
+    timeout = models.PositiveIntegerField(default=10)  # <seconds>
 
     class Meta:
         abstract = True
@@ -132,9 +134,9 @@ class Contest(models.Model):
 
     def getSpecificationFormType(self):
         # Importing here avoids circular import
-        from shared.forms import C_SpecificationCreateForm
+        from shared.forms import C_SpecificationModelForm
         if self.language == 'C':
-            return C_SpecificationCreateForm
+            return C_SpecificationModelForm
         else:
             return None
 
@@ -197,11 +199,11 @@ class Contest(models.Model):
 class Test(models.Model):
     name = models.CharField(max_length=512, null=False, blank=True)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-    input_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
-    output_file = models.FileField(upload_to=get_tests_path, blank=False, null=False, max_length=512)
+    input_file = models.FileField(max_length=512, upload_to=get_tests_path, blank=False, null=False)
+    output_file = models.FileField(max_length=512, upload_to=get_tests_path, blank=False, null=False)
     mandatory = models.BooleanField(null=False, default=False)
     weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
-    # TODO: Ver com o prof o que fazer com esta merda xD
+
     type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 
     @classmethod
@@ -220,7 +222,15 @@ class Test(models.Model):
             super(Test, self).save(*args, **kwargs)
             self.input_file = saved_in_file
             self.output_file = saved_out_file
-
+        else:
+            try:
+                this = Test.objects.get(id=self.id)
+                if this.input_file != self.input_file:
+                    this.input_file.delete()
+                if this.output_file != self.output_file:
+                    this.output_file.delete()
+            except:
+                pass
         super(Test, self).save(*args, **kwargs)
 
     def getOutFileContent(self):
@@ -266,13 +276,13 @@ class C_Specification(Specification):
 
     compile_flags = models.CharField(max_length=120, blank=True, default="-Wall")
     linkage_flags = models.CharField(max_length=120, blank=True, default="-lc")
+    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
 
     # space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
     # minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
     # maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
     # core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
     # nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
-    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
     # stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
     # clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
     # chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
@@ -294,25 +304,6 @@ class C_Specification(Specification):
 
     def getAttribute(self, name):
         return self.__getattribute__(name)
-
-# models.Q(
-#                   contest__isnull=False and test__isnull=True
-#                                     or
-#                  contest__isnull=True and test_isnull=False
-#              ),
-
-# def checkAttempts(self, request, attempts):
-#	if self.max_submitions > 0:
-#		if attempts and attempts.count() >= self.max_submitions:
-#			messages.error(request, "You have reached the maximum number of submissions for this contest.")
-#			return False
-#	return True
-
-# def checkIsOpen(self, request):
-#	if not self.is_open:
-#		messages.error(request, "This contest is not active.")
-#		return False
-#	return True
 
 
 class Team(models.Model):
@@ -355,9 +346,11 @@ class Team(models.Model):
 
     def getMaxMembers(self):
         return self.contest.max_team_members
+
     @classmethod
     def getById(cls, id):
         return cls.objects.get(id=id)
+
 
 # TODO: Its possible to make this inside the Model?
 # get the team attempts
@@ -470,14 +463,15 @@ class Attempt(models.Model):
                     classification.elapsed_time, classification.memory_usage = read_benchmakrs(test_time_file[0])
                     self.memory_benchmark += int(classification.memory_usage)
                     self.time_benchmark += float(classification.elapsed_time)
-                    test_program_out_file = os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".out")
+                    test_program_out_file = os.path.join(data_path, 'submission_results', str(self.id),
+                                                         str(test.getID()) + ".out")
                     if "Ok" in test_check_file:
                         program_out = read_file_lines(test_program_out_file)
                         ref_out = test.getOutFileContent()
                         are_equals, diffs, diff = get_diffs(program_out, ref_out)
                         print(diffs)
                         print(diff)
-                        if are_equals: # Test passed
+                        if are_equals:  # Test passed
                             pct += test.weight_pct
                             print("Test passed!")
                             classification.passed = True
@@ -514,8 +508,6 @@ class Attempt(models.Model):
         return cls.objects.get(id=id)
 
 
-
-
 class SafeExecError(models.Model):
     description = models.CharField(null=False, max_length=128, unique=True, blank=False)
 
@@ -540,6 +532,7 @@ class Classification(models.Model):
 
     def getOutput(self):
         return self.test
+
 
 """
 class TeamMember(models.Model):
@@ -597,7 +590,6 @@ class Group(models.Model):
 
     def hasUser(self, user):
         return self.users.filter(id=user.id).exists()
-
 
     @classmethod
     def getGroupsForUser(cls, request):

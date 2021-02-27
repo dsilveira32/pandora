@@ -5,7 +5,7 @@ from shared.routines import *
 from administration.context_functions import *
 from administration.views.general import superuser_only
 from shared.routines import __get_zip_file_path
-from shared.forms import TestForm, CreateTestModelForm
+from shared.forms import TestForm, TestModelForm
 from shared.models import Test
 
 
@@ -56,7 +56,7 @@ def create_view(request, contest_id):
 	context = {}
 	contest = getContestByID(contest_id)
 
-	form = CreateTestModelForm(request.POST or None, request.FILES or None)
+	form = TestModelForm(request.POST or None, request.FILES or None)
 	# TODO A melhorar
 	if form.is_valid():
 		submit_passed, override, test = form.submit(contest)
@@ -113,7 +113,7 @@ def detail_edit_view(request, contest_id, test_id):
 	contest = getContestByID(contest_id)
 
 	test = Test.objects.get(contest_id=contest_id, id=test_id)
-	form = CreateTestModelForm(request.POST or None, instance=test)
+	form = TestModelForm(request.POST or None, request.FILES or None, instance=test)
 
 	if form.is_valid():
 		submit_passed, override, test = form.submit(contest)

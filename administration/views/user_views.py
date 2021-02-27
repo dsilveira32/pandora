@@ -28,8 +28,8 @@ def user_form_view(request, user_id):
     context = {}
     if User.objects.filter(id=user_id).exists():
         user = User.objects.get(id=user_id)
-        userForm = AdminUserEditForm(request.POST or None, instance=user)
-        profileForm = AdminUserProfileEditForm(request.POST or None, instance=user.profile)
+        userForm = AdminUserModelForm(request.POST or None, instance=user)
+        profileForm = AdminUserProfileModelForm(request.POST or None, instance=user.profile)
         if request.POST and userForm.is_valid() and profileForm.is_valid():
             is_submit_ok, user = userForm.submit()
             if is_submit_ok:
@@ -49,13 +49,13 @@ def user_form_view(request, user_id):
 def user_form_create_view(request):
     template_name = 'admin/views/users/user_form.html'
     context = {}
-    userForm = AdminUserEditForm(request.POST or None)
-    profileForm = AdminUserProfileEditForm(request.POST or None)
+    userForm = AdminUserModelForm(request.POST or None)
+    profileForm = AdminUserProfileModelForm(request.POST or None)
     if request.POST:
         if userForm.is_valid() and profileForm.is_valid():
             is_submit_ok, user = userForm.submit()
             if is_submit_ok:
-                profileForm = AdminUserProfileEditForm(request.POST or None, instance=user.profile)
+                profileForm = AdminUserProfileModelForm(request.POST or None, instance=user.profile)
                 if profileForm.submit():
                     return redirect("admin_users_home")
                 else:

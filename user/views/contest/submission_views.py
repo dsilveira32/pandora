@@ -91,6 +91,7 @@ def submit_view(request, contest_id):
     context.update(getContestDetailLayoutContext(contest))
     context.update(getContestFormContext(contest, form))
     context.update(getTeamSubmissionHistoryContext(attempts))
+    context.update(getContestSubmitAttemptButton(contest, team))
     return render(request, template_name, context)
 
 @login_required

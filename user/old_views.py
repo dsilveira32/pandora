@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from shared.forms import TeamMemberApprovalForm, \
-    ProfileEditForm, UserEditForm
+    ProfileModelForm, UserModelForm
 from .context_functions import *
 
 
@@ -245,16 +245,16 @@ def nonactive_view(request):
 
 @login_required
 def complete_profile_view(request):
-    profile_form = ProfileEditForm(request.POST or None, instance=request.user.profile)
-    user_form = UserEditForm(request.POST or None, instance=request.user)
+    profile_form = ProfileModelForm(request.POST or None, instance=request.user.profile)
+    user_form = UserModelForm(request.POST or None, instance=request.user)
 
     if all((profile_form.is_valid(), user_form.is_valid())):
         profile_form.save()
         user_form.save()
         return redirect('home')
     else:
-        user_form = UserEditForm(request.POST or None, instance=request.user)
-        profile_form = ProfileEditForm(request.POST or None, instance=request.user.profile)
+        user_form = UserModelForm(request.POST or None, instance=request.user)
+        profile_form = ProfileModelForm(request.POST or None, instance=request.user.profile)
 
     context = {'form': user_form,
                'form2': profile_form,

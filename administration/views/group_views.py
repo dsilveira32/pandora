@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from administration.context_functions import *
 from administration.views.general import superuser_only
-from shared.forms import GroupCreateForm, GroupAddUserForm, GroupAddContestForm
+from shared.forms import GroupModelForm, GroupAddUserForm, GroupAddContestForm
 
 from shared.routines import *
 
@@ -27,7 +27,7 @@ def dashboard_view(request):
 def create_view(request):
 	template_name = 'admin/views/groups/create.html'
 	context = {}
-	group_form = GroupCreateForm(request.POST or None)
+	group_form = GroupModelForm(request.POST or None)
 	if group_form.is_valid():
 		group = group_form.save(commit=False)
 		group.save()
@@ -101,7 +101,7 @@ def edit_view(request, group_id):
 	template_name = 'admin/views/groups/edit.html'
 	context = {}
 	group = getGroupByID(group_id)
-	group_form = GroupCreateForm(request.POST or None, instance=group)
+	group_form = GroupModelForm(request.POST or None, instance=group)
 	if group_form.is_valid():
 		group = group_form.save(commit=False)
 		group.save()
