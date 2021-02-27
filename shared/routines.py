@@ -221,9 +221,7 @@ def check_out_files(f, contest, files_max_length):
     return []
 
 
-def unzip(paths):
-    output, ret = check_output('unzip ' + paths['src'], paths['dir'])
-    return ret
+
 
 
 def handle_uploaded_file(atempt, f, contest):
@@ -575,26 +573,7 @@ def getUserProfilesFromGroup(group):
 
 ### CELERY FUNCTIONS IN USE
 
-def extract(f):
-    src_path = os.path.abspath(f.path)
-    src_base = os.path.basename(src_path)
-    (src_name, ext) = os.path.splitext(src_base)
 
-    paths = {
-        'src': src_path,
-        'base': src_base,
-        'name': src_name,
-        'ext': ext,
-        'dir': os.path.dirname(src_path),
-        'obj': src_name + '.out',
-        'test_time': [],
-        'test_stdout': [],
-    }
-
-    if ext == '.zip':
-        unzip(paths)
-
-    return paths
 
 
 # compile the program
@@ -796,9 +775,9 @@ def get_docker_env_vars(attempt_id, test_id, contest_id, specifications):
     string = ' --env attempt=' + str(attempt_id) + ' --env test=' + str(test_id) + ' --env contest=' + str(contest_id)
     for field in specifications.getFields():
         if field.name not in ignored_attributes:
-            if field.name is 'cpu':
+            if field.name == 'cpu':
                 string += ' --cpus=' + str(specifications.getAttribute(field.name))
-            elif field.name is 'mem':
+            elif field.name == 'mem':
                 string += ' --memory=' + str(specifications.getAttribute(field.name)) + "m"
             elif specifications.getAttribute(field.name) is None:
                 string += ' --env ' + str(field.name) + '=""'
@@ -838,3 +817,31 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
         print("No specifications for ")
         print(attempt)
         print(contest)
+
+def extract(f):
+    print(f.path)
+    src_path = os.path.abspath(f.path)
+    src_base = os.path.basename(src_path)
+    (src_name, ext) = os.path.splitext(src_base)
+
+    paths = {
+        'src': src_path,
+        'base': src_base,
+        'name': src_name,
+        'ext': ext,
+        'dir': os.path.dirname(src_path),
+        'obj': src_name + '.out',
+        'test_time': [],
+        'test_stdout': [],
+    }
+
+    if ext == '.zip':
+        print("Unziping files")
+        print(paths)
+        unzip(paths)
+
+    return paths
+
+def unzip(paths):
+    output, ret = exec_command('unzip ' + paths['src'], paths['dir'])
+    return ret

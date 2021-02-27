@@ -7,8 +7,8 @@ contest_id=$4
 fsize=$5
 compile_flags=$6
 linkage_flags=$7
-check_leak=$8
-run_arguments=$9
+run_arguments=$8
+check_leak=$9
 
 echo "timeout=$1
 attempt_id=$2
@@ -17,8 +17,8 @@ contest_id=$4
 fsize=$5
 compile_flags=$6
 linkage_flags=$7
-check_leak=$8
-run_arguments=$9"
+run_arguments=$8
+check_leak=$9"
 
 set -e
 #trap 'catch erro par2 par3' EXIT	
@@ -71,7 +71,7 @@ if [ "$test_id" != "0" ]; then #test
 	cd /usr/src/compiled
 	echo "Running Test"
 	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo Ok > /disco/submission_results/$attempt_id/$test_id.test"
-	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo "Ok" > /disco/submission_results/$attempt_id/$test_id.test
+	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program $run_arguments < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo "Ok" > /disco/submission_results/$attempt_id/$test_id.test
 fi
 
 #arr=(`echo ${3}`);

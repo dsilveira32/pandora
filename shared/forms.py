@@ -1,8 +1,12 @@
+import os
+import zipfile
+
 from django import forms
 from django.contrib.auth.models import User
 
 from shared.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification
+from .routines import extract, unzip
 
 
 class DateInputWidget(forms.DateTimeInput):
@@ -25,6 +29,7 @@ class AttemptModelForm(forms.ModelForm):
             obj.contest = contest
             obj.team = team
             obj.save()
+            extract(obj.file)
             print_variables_debug([
                 "Object: " + str(obj),
                 "Object file: " + str(obj.file),
@@ -33,6 +38,38 @@ class AttemptModelForm(forms.ModelForm):
             ])
             return True, obj
         return False, None
+
+class CreateMassTestsForm(forms.Form):
+    file = forms.FileField()
+
+    def submit(self, contest, file):
+        zip_file = file
+        processed_files = []
+        valid_extensions = ['in', 'out']
+        with zipfile.ZipFile(zip_file, 'r') as z:
+            for f in z.namelist():
+                for f2 in z.namelist():
+                    fname, fextension = f.split('.')[0], f.split('.')[-1]
+                    f2name, f2extension = f2.split('.')[0], f2.split('.')[-1]
+
+                    if fname == f2name:
+                        if fname not in processed_files:
+                            if fextension != f2extension:
+                                if fextension in valid_extensions and f2extension in valid_extensions:
+                                    print(fname + fextension)
+                                    print(f2name + f2extension)
+                                    test = Test()
+                                    test.name = 'MASS_GENERATED'
+                                    test.contest = contest
+                                    if fextension == 'in':
+                                        test.input_file = f
+                                        test.output_file = f2
+                                    else:
+                                        test.input_file = f2
+                                        test.output_file = f
+                                    test.save()
+                                    processed_files.append(fname)
+        print(processed_files)
 
 class TestModelForm(forms.ModelForm):
     override_default_specifications = forms.BooleanField(required=False, initial=False,
@@ -52,7 +89,6 @@ class TestModelForm(forms.ModelForm):
             if 'override_default_specifications' in self.data:
                 override_specs = True
             test = self.save(commit=False)
-            print(test.input_file)
             test.contest = contest
             test.save()
             return True, override_specs, test
@@ -90,7 +126,6 @@ class C_SpecificationModelForm(forms.ModelForm):
 class ContestModelForm(forms.ModelForm):
     start_date = forms.CharField(required=True)
     end_date = forms.CharField(required=True)
-
     class Meta:
         model = Contest
         # widgets = {'start_date': DateInputWidget(), 'end_date': DateInputWidget()}

@@ -26,6 +26,8 @@ urlpatterns = [
          name='manager_contests_detail_tests'),
     path('contests/<int:contest_id>/tests/create', test_views.create_view,
          name='manager_contests_detail_tests_create'),
+    path('contests/<int:contest_id>/tests/mass_create', test_views.mass_create_view,
+         name='manager_contests_detail_tests_mass_create'),
     path('contests/<int:contest_id>/tests/edit', test_views.list_edit_view,
          name='manager_contests_detail_tests_list_edit'),
     path('contests/<int:contest_id>/tests/<int:test_id>', test_views.detail_view,

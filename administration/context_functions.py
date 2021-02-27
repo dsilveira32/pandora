@@ -376,3 +376,11 @@ def getAdminTestDetailsContext(test):
             'test': test
         }
     }
+
+
+def getAdminTestMassCreateFormContext(form):
+    return {
+        'admin_test_mass_create_form': {
+            'form': form
+        }
+    }
