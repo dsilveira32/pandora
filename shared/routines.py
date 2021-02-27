@@ -791,9 +791,9 @@ def exec_command(command, cwd):
 
 # DOCKER FUNCTIONS #
 
-def get_docker_env_vars(attempt_id, test_id, specifications):
+def get_docker_env_vars(attempt_id, test_id, contest_id, specifications):
     ignored_attributes = ['contest', 'test', 'id']
-    string = ' --env attempt=' + str(attempt_id) + ' --env test=' + str(test_id)
+    string = ' --env attempt=' + str(attempt_id) + ' --env test=' + str(test_id) + ' --env contest=' + str(contest_id)
     for field in specifications.getFields():
         if field.name not in ignored_attributes:
             if field.name is 'cpu':
@@ -808,7 +808,6 @@ def get_docker_env_vars(attempt_id, test_id, specifications):
                 string += ' --env ' + str(field.name) + '=' + value
     string += ' '
     return string
-
 
 def run_test_in_docker(test_id, attempt_id, compilation: bool):
     data_path = settings.LOCAL_STATIC_CDN_PATH
@@ -831,7 +830,7 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
             return
 
         docker_command = "docker run --rm -i"
-        docker_command += get_docker_env_vars(attempt_id, 0 if compilation else test_id, specifications)
+        docker_command += get_docker_env_vars(attempt_id, 0 if compilation else test_id, contest.id, specifications)
         docker_command += " -v " + data_path + "/:/disco " + image
         print(docker_command)
         exec_command(docker_command, data_path)

@@ -39,6 +39,9 @@ def get_contest_code_path(instance, filename):
 def get_contest_data_path(instance, filename):
     return os.path.join('contests/%s' % instance.contest.short_name, 'data/', filename)
 
+def get_data_files_path(instance, filename):
+    return os.path.join('datafiles/', str(instance.contest.id), filename)
+
 
 def get_contest_ins_files_path(instance, filename):
     return os.path.join('contests/%s' % instance.short_name, 'src/temp/in', filename)
@@ -419,15 +422,20 @@ class Attempt(models.Model):
         return self.getClassifications().filter(timeout=True).all()
 
     def run(self, progress_recorder):
-        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs, read_benchmakrs
+        from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs, read_benchmakrs, exec_command
         from pandora import settings
         if self.done:
             return False
         data_path = settings.LOCAL_STATIC_CDN_PATH
         contest = self.getContest()
         tests = contest.getTests()
-        progress_recorder.set_progress(1, tests.count() + 3, "Running compilation")
+
+        total_steps = 1 + tests.count() + 1
+
+        progress_recorder.set_progress(0, total_steps, "Running compilation")
         print("Init")
+        exec_command("mkdir ./tmp/" + str(self.id) + "/", data_path)
+        exec_command("mkdir ./tmp/"+str(self.id)+"/", data_path)
         # Run compilation
         run_test_in_docker(0, self.id, True)
         # Reading static analisys
@@ -445,7 +453,7 @@ class Attempt(models.Model):
             i = 1
             for test in tests:
                 if timeouts < 2:
-                    progress_recorder.set_progress(i + 2, tests.count() + 3, "Running test " + str(i))
+                    progress_recorder.set_progress(i, total_steps, "Running test " + str(i))
                     # Create a new Classification
                     classification = Classification()
                     classification.attempt = self
@@ -460,7 +468,7 @@ class Attempt(models.Model):
                     test_time_file = read_file_lines(
                         os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".time"))
                     # Reading only the first line of the file
-                    classification.elapsed_time, classification.memory_usage = read_benchmakrs(test_time_file[0])
+                    classification.elapsed_time, classification.memory_usage = read_benchmakrs(test_time_file[1] if 'signal' in test_time_file[0] else test_time_file[0])
                     self.memory_benchmark += int(classification.memory_usage)
                     self.time_benchmark += float(classification.elapsed_time)
                     test_program_out_file = os.path.join(data_path, 'submission_results', str(self.id),
@@ -499,7 +507,8 @@ class Attempt(models.Model):
             self.compile_error = True
             self.error_description = compilation_stdout
             self.save()
-        progress_recorder.set_progress(tests.count() + 2, tests.count() + 3, "Almost there...")
+        progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
+        exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
         self.grade = (round(pct / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
         self.save()
 
@@ -561,7 +570,7 @@ class UserContestDateException(models.Model):
 # TODO: Falar com o prof. esta classe e utilizada?
 class ContestTestDataFile(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-    data_file = models.FileField(upload_to=get_contest_data_path, blank=False, null=False, max_length=512)
+    data_file = models.FileField(upload_to=get_data_files_path, blank=False, null=False, max_length=512)
     file_name = models.CharField(max_length=150, blank=False)
     unique_together = ('contest', 'file_name')
 

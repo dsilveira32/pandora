@@ -1,5 +1,8 @@
 import csv
+import io
+
 from django.contrib.auth.models import User
+from django.db.models import Max
 from django.shortcuts import render
 
 from administration.context_functions import *
@@ -148,9 +151,9 @@ def extract_grades(request, contest_id):
 
 # extract grades
 @superuser_only
-def extract_zip(request, id):
+def extract_zip(request, contest_id):
     # get the contest
-    contest_obj = get_object_or_404(Contest, id=id)
+    contest_obj = Contest.getByID(contest_id)
     qs = Attempt.objects.filter(contest=contest_obj).values('team_id').annotate(id=Max('id'))
     qs2 = Attempt.objects.filter(id__in=qs.values('id'))
 
@@ -174,5 +177,5 @@ def extract_zip(request, id):
     zip_buffer.seek(0)
 
     resp = HttpResponse(zip_buffer, content_type='application/zip')
-    resp['Content-Disposition'] = 'attachment; filename = %s' % 'bla.zip'
+    resp['Content-Disposition'] = 'attachment; filename = %s' % str(contest_obj.short_name)+'.zip'
     return resp

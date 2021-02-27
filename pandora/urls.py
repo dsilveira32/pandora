@@ -35,7 +35,7 @@ urlpatterns = [
     # path('signup/', register_view, name='register'),
     # re_path(r'^login/$', auth_views.LoginView.as_view(), name='login'),
     re_path(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
-	path('auth/', include('social_django.urls', namespace='social')),
+	re_path('oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^celery-progress/', include('celery_progress.urls'))
 	#path(
     #'logout/',

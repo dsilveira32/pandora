@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from shared.routines import *
 from user.context_functions import *
-from user.views.general import user_approval_required
+from user.views.general import user_approval_required, user_complete_profile_required
 
 
 def contest_is_open(function):
@@ -37,6 +37,7 @@ def user_has_access_to_contest(function):
 # HOME VIEW
 
 @login_required
+@user_complete_profile_required
 @user_approval_required
 def dashboard_view(request):
     template_name = 'user/views/contests/dashboard.html'
@@ -50,6 +51,7 @@ def dashboard_view(request):
 
 # CONTEST VIEW
 @login_required
+@user_complete_profile_required
 @user_approval_required
 @user_has_access_to_contest
 def detail_dashboard_view(request, contest_id):
