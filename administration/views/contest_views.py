@@ -35,7 +35,7 @@ def create_view(request):
 	context = {}
 	form = ContestModelForm(request.POST or None)
 	if form.is_valid():
-		if form.submit(request):
+		if form.submit():
 			return redirect(dashboard_view)
 
 	context.update(getAdminContestNonDetailLayoutContext())

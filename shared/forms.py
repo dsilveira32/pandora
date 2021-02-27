@@ -145,7 +145,8 @@ class ContestModelForm(forms.ModelForm):
             contest = self.save(commit=False)
             contest.save()
             print(contest_id)
-            if contest_id is 0:
+            if contest_id == 0:
+                print('creating specs')
                 spec_type = contest.getSpecificationType()
                 specs = spec_type()
                 specs.contest = contest

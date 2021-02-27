@@ -139,5 +139,6 @@ def detail_view(request, contest_id, submission_id):
 
     context.update(getTeamSubmissionDetailsContext(contest, request.user, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, "9"))
     context.update(getTeamSubmissionHistoryContext(team.getAttempts()))
+    context.update(getContestSubmitAttemptButton(contest, team))
     return render(request, template_name, context)
 

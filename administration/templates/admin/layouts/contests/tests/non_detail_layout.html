@@ -23,6 +23,10 @@
             <a class="btn btn-primary btn-sm {% if 'create' in request.path %}active{% endif %}" type="button"
                href="{% url 'manager_contests_detail_tests_create'  admin_test_non_detail_layout.contest.id %}">Create
                 Test</a>
+            <a class="btn btn-primary btn-sm {% if 'mass_create' in request.path %}active{% endif %}" type="button"
+               href="{% url 'manager_contests_detail_tests_mass_create'  admin_test_non_detail_layout.contest.id %}">
+                Mass Test Creation
+            </a>
         </div>
     </div>
     {% block testContent %}

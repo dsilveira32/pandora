@@ -34,7 +34,7 @@
             </li>
             {% endcomment %}
             <!-- Nav Item - Contests -->
-            <li class="nav-item {% if '/contests' in request.path %}active{% endif %}">
+            <li class="nav-item {% if '/contests' in request.path and 'groups' not in request.path %}active{% endif %}">
                 <a class="nav-link"
                    href="{% url 'manager_contests_home' %}">
                     <i class="fas fa-fw fa-clipboard"></i>
