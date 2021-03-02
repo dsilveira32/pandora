@@ -71,7 +71,7 @@ else # Run test
 	cd /usr/src/compiled
 	echo "Running Test"
 	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo Ok > /disco/submission_results/$attempt_id/$test_id.test"
-	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program $run_arguments < /disco/tests/$test_id/test.in > /disco/submission_results/$attempt_id/$test_id.out && echo "Ok" > /disco/submission_results/$attempt_id/$test_id.test
+	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program $run_arguments < /disco/tests/$test_id/test.in | ascii > /disco/submission_results/$attempt_id/$test_id.out && echo "Ok" > /disco/submission_results/$attempt_id/$test_id.test
 fi
 
 #arr=(`echo ${3}`);
