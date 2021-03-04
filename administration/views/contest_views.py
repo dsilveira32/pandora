@@ -54,7 +54,7 @@ def detail_dashboard_view(request, contest_id):
 	submission_count = contest.attempt_set.count()
 	team_count = contest.team_set.count()
 	test_count = contest.test_set.count()
-
+	ranked_attempts = getAllContestAttemptsRanking(contest)
 	# TODO: find a better way to get the user count, maybe its not necessary if prof doesnt want it
 	groups = contest.getGroups()
 	users = User.objects.filter(group__in=groups)
@@ -62,6 +62,7 @@ def detail_dashboard_view(request, contest_id):
 	for u in users:
 		user_count += 1
 
+	context.update(getAdminContestRankingsContext(ranked_attempts))
 	context.update(getAdminContestDetailLayoutContext(contest))
 	context.update(getAdminContestDashboardCardsContext(contest, submission_count, team_count, test_count, user_count))
 	return render(request, template_name, context)

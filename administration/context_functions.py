@@ -384,3 +384,11 @@ def getAdminTestMassCreateFormContext(form):
             'form': form
         }
     }
+
+# For rankings.html
+def getAdminContestRankingsContext(attempts):
+    return {
+        'admin_contest_rankings': {
+            'attempts': attempts
+        }
+    }
