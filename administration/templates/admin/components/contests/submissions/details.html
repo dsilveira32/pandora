@@ -104,25 +104,25 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                <button type="button" class="btn btn-sm btn-{% if r.test.view_error %}primary{% else %}secondary{% endif %}" data-toggle="modal"
                                         data-target="#modal-error{{ forloop.counter }}">More
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                <button type="button" class="btn btn-sm btn-{% if r.test.view_args %}primary{% else %}secondary{% endif %}" data-toggle="modal"
                                         data-target="#modal-cmd{{ forloop.counter }}">Args
                                 </button>
 
                             </td>
                             <td>
 
-                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                <button type="button" class="btn btn-sm btn-{% if r.test.view_input %}primary{% else %}secondary{% endif %}" data-toggle="modal"
                                         data-target="#modal-input{{ forloop.counter }}">Input
                                 </button>
                             </td>
                             <td>
 
-                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                <button type="button" class="btn btn-sm btn-{% if r.test.view_diff %}primary{% else %}secondary{% endif %}" data-toggle="modal"
                                         data-target="#modal-expected{{ forloop.counter }}">Open
                                 </button>
                             </td>
