@@ -6,7 +6,6 @@ from user.context_functions import *
 from shared.models import Team
 from user.views.general import user_approval_required, user_complete_profile_required
 import uuid
-from coolname import generate_slug
 
 def contest_is_open(function):
     """Block view when the contest is closed."""

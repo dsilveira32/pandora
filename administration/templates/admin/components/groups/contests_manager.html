@@ -17,10 +17,10 @@
                 <form action="" method="POST" id="form-table-out">{% csrf_token %}
                     <input type="hidden" id="form-action-table-out" name="action" value="">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTablePandora">
+                        <table class="table table-bordered table-hover dataTablePandora" data-way="out">
                             <thead>
                             <tr>
-                                <th class="text-center"><input type="checkbox" class="select-all-table-out"></th>
+                                <th class="text-center"><input type="checkbox" class="select-all-table-out" data-way="out" onchange="doSelectAll(this)"></th>
                                 <th>Contest</th>
                                 <th>Start</th>
                                 <th>End</th>
@@ -32,7 +32,7 @@
                                 <tr>
                                     <td class="text-center">
                                         <input type="checkbox" class="selected-table-out" name="contest_id"
-                                               value="{{ contest.id }}">
+                                               value="{{ contest.id }}" data-way="out" onchange="doSelect(this)">
                                     </td>
                                     <td>{{ contest.getName }}</td>
                                     <td>{{ contest.start_date }}</td>
@@ -67,10 +67,10 @@
                 <form action="" method="POST" id="form-table-in">{% csrf_token %}
                     <input type="hidden" id="form-action-table-in" name="action" value="">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTablePandora">
+                        <table class="table table-bordered table-hover dataTablePandora" data-way="in">
                             <thead>
                             <tr>
-                                <th class="text-center"><input type="checkbox" class="select-all-table-in"></th>
+                                <th class="text-center"><input type="checkbox" class="select-all-table-in" data-way="in" onchange="doSelectAll(this)"></th>
                                 <th>Contest</th>
                                 <th>Start</th>
                                 <th>End</th>
@@ -82,7 +82,7 @@
                                 <tr>
                                     <td class="text-center">
                                         <input type="checkbox" class="selected-table-in" name="contest_id"
-                                               value="{{ contest.id }}">
+                                               value="{{ contest.id }}" data-way="in" onchange="doSelect(this)">
                                     </td>
                                     <td>{{ contest.getName }}</td>
                                     <td>{{ contest.start_date }}</td>

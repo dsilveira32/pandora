@@ -34,30 +34,35 @@
 <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
 
 <script>
-    var selection = [];
+    var selection = {};
+
+    function checkSelection(input){
+        // Check if the number of checked inputs is iquals to the totality of inputs; if true: make it checked.
+        $(".select-all-table-" + $(input).attr("data-way")).prop('checked',
+            selection[$(input).attr("data-way")] === $(".selected-table-" + $(input).attr("data-way")).length
+        );
+        // Finaly make the submit button active if there is any input checked
+        $(".is-checkbox-select-btn-table-" + $(input).attr("data-way")).prop('disabled', !(selection[$(input).attr("data-way")] > 0));
+    }
+
+    function doSelectAll(input){
+        // Make all inputs in page checked
+        $(".selected-table-" + $(input).attr("data-way")).click().prop("checked", $(input).prop("checked"));
+    }
+
+    function doSelect(input){
+        // Checks if the selection have the input(data-way) object
+        if(!selection[$(input).attr("data-way")]){
+            selection[$(input).attr("data-way")] = 0;
+        }
+        // Make the selection = number of checked inputs
+        selection[$(input).attr("data-way")] = $(".selected-table-" + $(input).attr("data-way")+":checked").length
+
+        checkSelection(input);
+        console.log(selection[$(input).attr("data-way")]);
+    }
 
     function tablesSelectors(io) {
-        $(".select-all-table-" + io).click(function (e) {
-            $(".select-all-table-" + io).prop('checked', this.checked);
-            $(".selected-table-" + io).prop('checked', this.checked);
-            $(".selected-table-" + io).each(function (i) {
-                if (this.checked) {
-                    selection.push(i)
-                } else {
-                    selection.pop()
-                }
-            })
-            $(".is-checkbox-select-btn-table-" + io).prop('disabled', !($(".selected-table-" + io + ":checked").length > 0));
-        });
-        $(".selected-table-" + io).click(function (e) {
-            let selectedCheckboxes = $(".selected-table-" + io + ":checked")
-            if (selection.length === $(".selected-table-" + io).length) {
-                $(".select-all-table-" + io).prop('checked', true);
-            } else {
-                $(".select-all-table-" + io).prop('checked', false);
-            }
-            $(".is-checkbox-select-btn-table-" + io).prop('disabled', !(selectedCheckboxes.length > 0));
-        })
         $(".submit-btn-table-" + io).click(function (e) {
             $("#form-action-table-" + io).val($(this).val())
             $("#form-table-" + io).submit()
@@ -66,10 +71,25 @@
 
     // Call the dataTables jQuery plugin
     $(document).ready(function () {
-        $('.dataTablePandora').DataTable();
+        $('.dataTablePandora').DataTable({
+            columnDefs: [
+              { targets: [0], orderable: false }
+            ]
+        }).on("page.dt", function(){
+            if(selection[$(this).attr("data-way")]){
+                selection[$(this).attr("data-way")] = 0;
+            }
+            $(".selected-table-" + $(this).attr("data-way")).prop("checked", false);
+            checkSelection(this)
+        });
         $('.dataTablePandoraReversed').DataTable({
             "order": [[0, "desc"]],
-            select: true
+            select: true,
+            columnDefs: [
+              { targets: 'no-sort', orderable: false }
+            ]
+        }).on("page.dt", function(){
+            checkSelection(this)
         })
 
         tablesSelectors("in")
