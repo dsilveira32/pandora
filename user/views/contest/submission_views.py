@@ -10,7 +10,7 @@ from user.context_functions import *
 from shared.tasks import run_tests
 
 # SUMISSION VIEW
-from user.views.contest_views import user_has_access_to_contest, contest_is_open
+from user.views.contest_views import user_has_access_to_contest, contest_is_open, submission_limit_not_reached
 from user.views.contest.team_views import join_view, user_has_team
 
 from user.views.general import user_approval_required, user_complete_profile_required
@@ -39,6 +39,7 @@ def user_owns_submission(function):
 @user_has_access_to_contest
 @contest_is_open
 @user_has_team
+@submission_limit_not_reached
 def submit_view(request, contest_id):
     checkUserProfileInRequest(request)
     template_name = 'user/views/contests/submissions/submission.html'

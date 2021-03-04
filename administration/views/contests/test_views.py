@@ -5,7 +5,7 @@ from shared.routines import *
 from administration.context_functions import *
 from administration.views.general import superuser_only
 from shared.routines import __get_zip_file_path
-from shared.forms import TestForm, TestModelForm, CreateMassTestsForm
+from shared.forms import TestForm, TestModelForm, CreateMassTestsForm, TestListEditForm
 from shared.models import Test
 
 
@@ -24,30 +24,6 @@ def dashboard_view(request, contest_id):
 	return render(request, template_name, context)
 
 
-@superuser_only
-def list_edit_view(request, contest_id):
-	template_name = 'admin/views/contests/tests/list_edit.html'
-	context = {}
-	contest = getContestByID(contest_id)
-	contest_tests = contest.getTests()
-	form = TestForm(request.POST or None)
-	if form.is_valid():
-		with transaction.atomic():
-			mandatory_ids = request.POST.getlist('mandatory')
-			contest_tests.filter(pk__in=mandatory_ids).update(mandatory=True)
-			contest_tests.exclude(pk__in=mandatory_ids).update(mandatory=False)
-			weight_pct_list = request.POST.getlist('weight_pct')
-			name_list = request.POST.getlist('name')
-			idx = 0
-			for t in contest_tests:
-				t.weight_pct = weight_pct_list[idx]
-				t.name = name_list[idx]
-				idx = idx + 1
-				t.save()
-			return redirect(dashboard_view, contest_id)
-	context.update(getAdminTestsNonDetailLayoutContext(contest))
-	context.update(getAdminTestsListEditFormContext(contest_tests))
-	return render(request, template_name, context)
 
 # Admin create test view
 @superuser_only
@@ -80,7 +56,6 @@ def mass_create_view(request, contest_id):
 	form = CreateMassTestsForm(request.POST or None, request.FILES or None)
 
 	if form.is_valid():
-		print(request.FILES['file'])
 		if form.submit(contest, request.FILES['file']):
 			return redirect(dashboard_view, contest.id)
 
@@ -143,4 +118,20 @@ def detail_edit_view(request, contest_id, test_id):
 
 	context.update(getAdminTestDetailLayoutContext(contest, test))
 	context.update(getAdminTestFormContext(contest, form))
+	return render(request, template_name, context)
+
+
+@superuser_only
+def list_edit_view(request, contest_id):
+	template_name = 'admin/views/contests/tests/list_edit.html'
+	context = {}
+	contest = getContestByID(contest_id)
+	contest_tests = contest.getTests()
+	form = TestListEditForm(request.POST or None)
+	if form.is_valid():
+		form.submit(request, contest_tests)
+
+
+	context.update(getAdminTestsNonDetailLayoutContext(contest))
+	context.update(getAdminTestsListEditFormContext(contest_tests))
 	return render(request, template_name, context)

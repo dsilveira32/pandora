@@ -1,5 +1,6 @@
 FROM gcc:4.9
 COPY time /usr/bin/time
+COPY ascii /usr/bin/ascii
 COPY c_specs.sh /usr/src/c_specs.sh
 COPY ascii /usr/bin/ascii
 RUN mkdir /usr/src/compiled/

@@ -38,7 +38,9 @@
                                 <td>{{ user.get_full_name }}</td>
                                 <td>{{ user.profile.getNumber }}</td>
                                 <td>
-                                    <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}"></i>
+                                    <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
+                                        <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
+                                    </i>
                                 </td>
                                 <td>
                                     <a class="btn btn-warning btn-sm"
@@ -94,7 +96,9 @@
                                 <td>{{ user.get_full_name }}</td>
                                 <td>{{ user.profile.getNumber }}</td>
                                 <td>
-                                    <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}"></i>
+                                    <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
+                                        <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
+                                    </i>
                                 </td>
                                 <td>
                                     <a class="btn btn-warning btn-sm"

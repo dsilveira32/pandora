@@ -17,6 +17,8 @@ from shared.routines import *
 #       CONTEST VIEWS       #
 #############################
 
+
+
 # Admin contest general view (list of contests)
 @superuser_only
 def dashboard_view(request):

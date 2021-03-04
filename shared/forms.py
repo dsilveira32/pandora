@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.base import ContentFile
+from django.db import transaction
 
 from shared.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification
@@ -64,7 +65,7 @@ class CreateMassTestsForm(forms.Form):
                                 if fextension in valid_extensions and f2extension in valid_extensions:
                                     test = Test()
                                     test.contest = contest
-                                    test.name = 'MASS_GENERATED'
+                                    test.name = fname
                                     test.weight_pct = round(100/nfiles, 2)
                                     # TODO: MAKE THIS ATOMIC
                                     test.save()
@@ -296,6 +297,38 @@ class AdminTeamCreateForm(forms.ModelForm):
 
 class TestForm(forms.Form):
     pass
+
+
+class TestListEditForm(forms.Form):
+
+    def submit(self, request, contest_tests):
+        with transaction.atomic():
+            mandatory_ids = request.POST.getlist('mandatory')
+            contest_tests.filter(pk__in=mandatory_ids).update(mandatory=True)
+            contest_tests.exclude(pk__in=mandatory_ids).update(mandatory=False)
+            view_error_ids = request.POST.getlist('view_error')
+            contest_tests.filter(pk__in=view_error_ids).update(view_error=True)
+            contest_tests.exclude(pk__in=view_error_ids).update(view_error=False)
+            view_args_ids = request.POST.getlist('view_args')
+            contest_tests.filter(pk__in=view_args_ids).update(view_args=True)
+            contest_tests.exclude(pk__in=view_args_ids).update(view_args=False)
+            view_input_ids = request.POST.getlist('view_input')
+            contest_tests.filter(pk__in=view_input_ids).update(view_input=True)
+            contest_tests.exclude(pk__in=view_input_ids).update(view_input=False)
+            view_diff_ids = request.POST.getlist('view_diff')
+            contest_tests.filter(pk__in=view_diff_ids).update(view_diff=True)
+            contest_tests.exclude(pk__in=view_diff_ids).update(view_diff=False)
+
+            weight_pct_list = request.POST.getlist('weight_pct')
+            name_list = request.POST.getlist('name')
+
+            idx = 0
+            for t in contest_tests:
+                if idx < len(weight_pct_list):
+                    t.weight_pct = weight_pct_list[idx]
+                    t.name = name_list[idx]
+                idx = idx + 1
+                t.save()
 
 
 class GroupModelForm(forms.ModelForm):

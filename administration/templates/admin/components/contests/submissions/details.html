@@ -18,18 +18,9 @@
                                 <i
                                         class="fas fa-{% if admin_contests_submissions_details.attempt.compile_error %}times-circle{% else %}check-circle{% endif %}"></i>
                             </h5>
-                            {# TODO: Delete the below if prof approves #}
-                            {% if admin_contests_submissions_details.attempt.compile_error %}
-                                <!--  -->
-                            {% else %}
-                                <!-- <span class="oi oi-check text-success"></span> -->
-                            {% endif %}
                         </td>
                         <td>
                             <pre class="bg-dark rounded-sm text-white p-2">{{ admin_contests_submissions_details.attempt.error_description }}</pre>
-                            <!--<button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                    data-target="#modal-compilation">Open
-                            </button> -->
                         </td>
                     </tr>
                     <tr>
@@ -69,9 +60,6 @@
                         <td></td>
                         <td>
                             <pre class="bg-dark rounded-sm text-white p-2">{{ admin_contests_submissions_details.attempt.static_analysis }}</pre>
-                            <!-- <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                    data-target="#modal-analysis">Open
-                            </button> -->
                         </td>
                     </tr>
                     </tbody>
@@ -95,7 +83,7 @@
                         <th>Time(ms)/Mem(kiB)</th>
                         <th>Type</th>
                         <th>Result</th>
-                        <th>Info</th>
+                        <th>Error</th>
                         <th>Args</th>
                         <th>Input</th>
                         <th>Exp./Obt.</th>
@@ -121,37 +109,22 @@
                                 </button>
                             </td>
                             <td>
-                                {% if r.test.type_of_feedback == 1 %}
-                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                            data-target="#modal-cmd{{ forloop.counter }}">Args
-                                    </button>
-                                {% elif admin_contests_submissions_details.user.is_superuser %}
-                                    <button type="button" class="btn btn-danger" data-toggle="modal"
-                                            data-target="#modal-cmd{{ forloop.counter }}">Args
-                                    </button>
-                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                        data-target="#modal-cmd{{ forloop.counter }}">Args
+                                </button>
+
                             </td>
                             <td>
-                                {% if r.test.type_of_feedback == 1 %}
-                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                            data-target="#modal-input{{ forloop.counter }}">Input
-                                    </button>
-                                {% elif admin_contests_submissions_details.user.is_superuser %}
-                                    <button type="button" class="btn btn-danger" data-toggle="modal"
-                                            data-target="#modal-input{{ forloop.counter }}">Input
-                                    </button>
-                                {% endif %}
+
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                        data-target="#modal-input{{ forloop.counter }}">Input
+                                </button>
                             </td>
                             <td>
-                                {% if r.test.type_of_feedback <= 2 %}
-                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                            data-target="#modal-expected{{ forloop.counter }}">Open
-                                    </button>
-                                {% elif admin_contests_submissions_details.user.is_superuser %}
-                                    <button type="button" class="btn btn-danger" data-toggle="modal"
-                                            data-target="#modal-expected{{ forloop.counter }}">Open
-                                    </button>
-                                {% endif %}
+
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                        data-target="#modal-expected{{ forloop.counter }}">Open
+                                </button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -201,95 +174,91 @@
 </div>
 
 {% for r in admin_contests_submissions_details.results %}
-    {% if r.test.type_of_feedback == 1 or admin_contests_submissions_details.admin_contests_submissions_details.user.is_superuser %}
-        <div class="modal fade bd-example-modal-xl" id="modal-input{{ forloop.counter }}" tabindex="-1" role="dialog"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Input</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <pre>{{ r.input }}</pre>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+    <div class="modal fade bd-example-modal-xl" id="modal-input{{ forloop.counter }}" tabindex="-1" role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Input</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <pre>{{ r.input }}</pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="modal fade bd-example-modal-xl" id="modal-cmd{{ forloop.counter }}" tabindex="-1" role="dialog"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Args</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% if r.test.run_arguments != None %}
-                            <pre>{{ r.test.run_arguments }}</pre>
-                        {% endif %}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+    <div class="modal fade bd-example-modal-xl" id="modal-cmd{{ forloop.counter }}" tabindex="-1" role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Args</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <pre>{{ r.run_arguments }}</pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
-    {% endif %}
+    </div>
 
-    {% if r.test.type_of_feedback <= 2 or admin_contests_submissions_details.admin_contests_submissions_details.user.is_superuser %}
-        <div class="modal fade bd-example-modal-xl" id="modal-expected{{ forloop.counter }}" tabindex="-1" role="dialog"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="col-md-4">
-                            <h5 class="modal-title">Expected</h5>
-                        </div>
-                        <div class="col-md-4">
-                            <h5 class="modal-title">Obtained</h5>
-                        </div>
-                        <div class="col-md-4">
-                            <h5 class="modal-title">Diff</h5>
-                        </div>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+
+    <div class="modal fade bd-example-modal-xl" id="modal-expected{{ forloop.counter }}" tabindex="-1" role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-md-4">
+                        <h5 class="modal-title">Expected</h5>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <del style="background:#ffe6e6;"></del>
-                                <span>
+                    <div class="col-md-4">
+                        <h5 class="modal-title">Obtained</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="modal-title">Diff</h5>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <del style="background:#ffe6e6;"></del>
+                            <span>
 							{{ r.expected_output }}
 						</span>
-                            </div>
-                            <div class="col-md-4">
-                                <del style="background:#ffe6e6;"></del>
-                                <span>
+                        </div>
+                        <div class="col-md-4">
+                            <del style="background:#ffe6e6;"></del>
+                            <span>
 							{{ r.output }}
 						</span>
-                            </div>
-                            <div class="col-md-4">
-                                {% autoescape off %}{{ r.diff }}{% endautoescape %}
-                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {% autoescape off %}{{ r.diff }}{% endautoescape %}
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
-    {% endif %}
+    </div>
+
     <div class="modal fade" id="modal-error{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -301,17 +270,7 @@
                 </div>
                 <div class="modal-body">
                     <pre>
-                        {% if r.result == 0 %}
-                            OK
-                        {% elif r.result == 1 %}
-                            Wrong Answer
-                            Output different than expected
-                        {% elif r.result == 2 %}
-                            Time Limit Exceeded
-                        {% elif r.result == 4 %}
-                            Time Limit Exceeded
-                            Reached the 2 Timeouts Limit. Aborting the test execution.
-                        {% endif %}
+                        {{ r.error_description }}
                     </pre>
                 </div>
                 <div class="modal-footer">

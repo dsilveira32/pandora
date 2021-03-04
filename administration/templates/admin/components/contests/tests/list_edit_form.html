@@ -1,4 +1,5 @@
-<form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
+<form method='POST' action='' enctype='multipart/form-data'
+      id="test_list_edit_form"> {% csrf_token %}
     <div class='row'>
         <div class="col-md-12">
             <div class="card border rounded shadow-sm mb-4 mt-4">
@@ -6,13 +7,20 @@
                     <h5 class="car-title mb-2 text-primary">Tests</h5>
                     <p class="card-text mb-auto">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
+                        <!-- Este nao pode ser DataTable, caso contrário o post request so leva os elementos visiveis -->
+                        <!-- TODO: Arranjar forma de ser DataTable -->
+                        <table class="table table-bordered table-hover" id="test_list_edit_table"
+                               width="100%" cellspacing="0">
                             <thead class="text-center">
                             <tr>
                                 <th>Test ID</th>
                                 <th>Test Name</th>
                                 <th>Mandatory</th>
                                 <th>Weight</th>
+                                <th>View Error</th>
+                                <th>View Args</th>
+                                <th>View Input</th>
+                                <th>View Diff</th>
                                 <!-- <th>Actions</th> -->
                             </tr>
                             </thead>
@@ -34,6 +42,26 @@
                                         <input type="number" class="form-control" name="weight_pct"
                                                value="{{ t.weight_pct }}">
                                     </td>
+                                    <td>
+                                        <input type="checkbox" class="form-control" id="view_error" name="view_error"
+                                               value="{{ t.id }}"
+                                               {% if t.view_error %}checked{% endif %}>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-control" id="view_args" name="view_args"
+                                               value="{{ t.id }}"
+                                               {% if t.view_args %}checked{% endif %}>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-control" id="view_input" name="view_input"
+                                               value="{{ t.id }}"
+                                               {% if t.view_input %}checked{% endif %}>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-control" id="view_diff" name="view_diff"
+                                               value="{{ t.id }}"
+                                               {% if t.view_diff %}checked{% endif %}>
+                                    </td>
                                     <!--
                                         <td>
                                             <button class="btn btn-sm btn-danger" type="button">
@@ -47,7 +75,7 @@
                         </table>
                     </div>
                     <p class="text-right">
-                        <input type="submit" value="Save" class="btn btn-success ">
+                        <input type="submit" id="submit_button" value="Save" class="btn btn-success ">
                     </p>
                     </p>
                 </div>
