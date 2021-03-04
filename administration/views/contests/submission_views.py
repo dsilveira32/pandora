@@ -41,9 +41,9 @@ def details_view(request, contest_id, attempt_id):
         res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
                                          errors='strict')
         if res.output and os.path.isfile(res.output.path):
-            res.obtained_output = smart_text(res.output.read(), encoding='utf-8', strings_only=False, errors='strict')
+            res.output = smart_text(res.output.read(), encoding='utf-8', strings_only=False, errors='strict')
         else:
-            res.obtained_output = ''
+            res.output = ''
         res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
                                errors='strict')
     """

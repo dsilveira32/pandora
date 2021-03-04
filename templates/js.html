@@ -19,7 +19,10 @@
 <!-- Custom scripts for all pages-->
 <script src="{% static 'startbootstrap/js/sb-admin-2.min.js' %}"></script>
 <script src="{% static 'startbootstrap/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+{% comment %}
 <script src="{% static 'startbootstrap/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+{% endcomment %}
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.23/sl-1.3.1/datatables.min.js"></script>
 
 
 <!-- Page level plugins -->
@@ -31,24 +34,33 @@
 <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
 
 <script>
-    function tablesSelectors(io){
-        $(".select-all-table-"+io).click(function (e) {
-            $(".select-all-table-"+io).prop('checked', this.checked);
-            $(".selected-table-"+io).prop('checked', this.checked);
-            $(".is-checkbox-select-btn-table-"+io).prop('disabled', !($(".selected-table-"+io+":checked").length > 0));
+    var selection = [];
+
+    function tablesSelectors(io) {
+        $(".select-all-table-" + io).click(function (e) {
+            $(".select-all-table-" + io).prop('checked', this.checked);
+            $(".selected-table-" + io).prop('checked', this.checked);
+            $(".selected-table-" + io).each(function (i) {
+                if (this.checked) {
+                    selection.push(i)
+                } else {
+                    selection.pop()
+                }
+            })
+            $(".is-checkbox-select-btn-table-" + io).prop('disabled', !($(".selected-table-" + io + ":checked").length > 0));
         });
-        $(".selected-table-"+io).click(function (e) {
-            let selectedCheckboxes = $(".selected-table-"+io+":checked")
-            if (selectedCheckboxes.length === $(".selected-table-"+io).length) {
-                $(".select-all-table-"+io).prop('checked', true);
+        $(".selected-table-" + io).click(function (e) {
+            let selectedCheckboxes = $(".selected-table-" + io + ":checked")
+            if (selection.length === $(".selected-table-" + io).length) {
+                $(".select-all-table-" + io).prop('checked', true);
             } else {
-                $(".select-all-table-"+io).prop('checked', false);
+                $(".select-all-table-" + io).prop('checked', false);
             }
-            $(".is-checkbox-select-btn-table-"+io).prop('disabled', !(selectedCheckboxes.length > 0));
+            $(".is-checkbox-select-btn-table-" + io).prop('disabled', !(selectedCheckboxes.length > 0));
         })
-        $(".submit-btn-table-"+io).click(function (e) {
-            $("#form-action-table-"+io).val($(this).val())
-            $("#form-table-"+io).submit()
+        $(".submit-btn-table-" + io).click(function (e) {
+            $("#form-action-table-" + io).val($(this).val())
+            $("#form-table-" + io).submit()
         })
     }
 
@@ -56,9 +68,41 @@
     $(document).ready(function () {
         $('.dataTablePandora').DataTable();
         $('.dataTablePandoraReversed').DataTable({
-            "order": [[ 0, "desc" ]]
+            "order": [[0, "desc"]],
+            select: true
         })
+
         tablesSelectors("in")
         tablesSelectors("out")
+        /*
+
+        var x = $(".dataTablePandora");
+        for (let t of x) {
+            let table = $(t).DataTable({
+                select: {
+                    style: 'multi'
+                },
+            }).on('select', function (e, dt, type, indexes) {
+                if (type === 'row') {
+                    var data = table.rows(indexes).data().pluck('id');
+                    console.log(indexes)
+                    console.log(table.rows( { selected: true } ))
+                    console.log(dt)
+                    console.log(123)
+                    console.log($('input[type="checkbox"]', ))
+                    // do something with the ID of the selected items
+                }
+            });
+            // Handle click on "Select all" control
+            /*
+            $('.select-all-table-out').on('click', function () {
+                console.log("check")
+                // Check/uncheck all checkboxes in the table
+                var rows = table.rows({'search': 'applied'}).nodes();
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+            });
+             */
+        //}
+
     });
 </script>

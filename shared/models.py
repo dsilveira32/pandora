@@ -90,6 +90,18 @@ class Specification(models.Model):
     class Meta:
         abstract = True
 
+    def getRunArgs(self):
+        return self.run_arguments or ""
+
+    def getCPU(self):
+        return self.cpu
+
+    def getMem(self):
+        return self.mem
+
+    def getTimeout(self):
+        return self.timeout
+
 
 class Contest(models.Model):
     title = models.CharField(max_length=128)
@@ -207,7 +219,12 @@ class Test(models.Model):
     mandatory = models.BooleanField(null=False, default=False)
     weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
 
-    type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
+    view_diff = models.BooleanField(null=False, default=True)
+    view_input = models.BooleanField(null=False, default=True)
+    view_args = models.BooleanField(null=False, default=True)
+    view_error = models.BooleanField(null=False, default=True)
+
+    #type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 
     @classmethod
     def getByID(cls, id):
@@ -237,9 +254,12 @@ class Test(models.Model):
         super(Test, self).save(*args, **kwargs)
 
     def getOutFileContent(self):
-        with open(self.output_file.path) as f:
-            lines = f.readlines()
-        return lines
+        from shared.routines import read_file
+        return read_file(self.output_file.path)
+
+    def getInFileContent(self):
+        from shared.routines import read_file
+        return read_file(self.input_file.path)
 
     def getContestSpecifications(self):
         try:
@@ -256,6 +276,17 @@ class Test(models.Model):
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
+
+    def getExistingSpecifications(self):
+        """
+        Returns the test specifications if they exist
+        otherwise returns the contest specifications.
+        Use with caution.
+        """
+        specs = self.getSpecifications()
+        if not specs:
+            specs = self.getContestSpecifications()
+        return specs
 
     def getSpecificationType(self):
         return self.contest.getSpecificationType()
@@ -421,95 +452,100 @@ class Attempt(models.Model):
     def getTimedOutClassifications(self):
         return self.getClassifications().filter(timeout=True).all()
 
+
     def run(self, progress_recorder):
         from shared.routines import run_test_in_docker, read_file, read_file_lines, get_diffs, read_benchmakrs, exec_command
         from pandora import settings
         if self.done:
             return False
         data_path = settings.LOCAL_STATIC_CDN_PATH
+        attempt_path = os.path.join(data_path, 'submission_results', str(self.id))
         contest = self.getContest()
         tests = contest.getTests()
-
         total_steps = 1 + tests.count() + 1
-
         progress_recorder.set_progress(0, total_steps, "Running compilation")
-        print("Init")
         exec_command("mkdir ./tmp/" + str(self.id) + "/", data_path)
         exec_command("mkdir ./tmp/"+str(self.id)+"/", data_path)
         # Run compilation
         run_test_in_docker(0, self.id, True)
         # Reading static analisys
-        self.static_analysis = read_file(os.path.join(data_path, 'submission_results', str(self.id), 'static.out'))
+        self.static_analysis = read_file(os.path.join(attempt_path, 'static.out'))
         # Checking compilation
-        compilation_output = read_file(
-            os.path.join(data_path, 'submission_results', str(self.id), 'compilation.result'))
+        compilation_output = read_file(os.path.join(attempt_path, 'compilation.result'))
         mandatory_failed = False
         pct = 0
         timeouts = 0
-        if "Ok" in compilation_output:
+        file_size_exceeded_count = 0
+        if "Ok" in compilation_output: # Compilation was OK
             self.compile_error = False
             self.save()
             # Run tests
             i = 1
             for test in tests:
-                if timeouts < 2:
+                if timeouts < 2 and file_size_exceeded_count < 2:
                     progress_recorder.set_progress(i, total_steps, "Running test " + str(i))
+
+                    ref_out = test.getOutFileContent()
+                    input = test.getInFileContent()
+                    args = test.getExistingSpecifications().getRunArgs()
+
                     # Create a new Classification
                     classification = Classification()
                     classification.attempt = self
                     classification.test = test
                     classification.timeout = False
                     classification.result = 0
+                    classification.expected_output = ref_out
+                    classification.input = input
+                    classification.run_arguments = args
                     # Run Docker
                     run_test_in_docker(test.getID(), self.id, False)
-                    # Read files
-                    test_check_file = read_file(
-                        os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".test"))
-                    test_time_file = read_file_lines(
-                        os.path.join(data_path, 'submission_results', str(self.id), str(test.getID()) + ".time"))
+                    # Read check file
+                    test_check_file = read_file(os.path.join(attempt_path, str(test.getID()) + ".test"))
+                    # Read time file
+                    test_time_file = read_file_lines(os.path.join(attempt_path, str(test.getID()) + ".time"))
                     # Reading only the first line of the file
-                    classification.elapsed_time, classification.memory_usage = read_benchmakrs(test_time_file[1] if 'signal' in test_time_file[0] else test_time_file[0])
+                    try:
+                        classification.elapsed_time, classification.memory_usage = read_benchmakrs(
+                            test_time_file[1] if 'signal' in test_time_file[0] else test_time_file[0])
+                    except Exception:
+                        classification.elapsed_time, classification.memory_usage = 0, 0
+
                     self.memory_benchmark += int(classification.memory_usage)
                     self.time_benchmark += float(classification.elapsed_time)
-                    test_program_out_file = os.path.join(data_path, 'submission_results', str(self.id),
-                                                         str(test.getID()) + ".out")
-                    if "Ok" in test_check_file:
-                        program_out = read_file_lines(test_program_out_file)
-                        ref_out = test.getOutFileContent()
+
+                    if "Ok" in test_check_file: # Test execution was OK
+                        program_out = read_file(os.path.join(attempt_path, str(test.getID()) + ".out"))
                         are_equals, diffs, diff = get_diffs(program_out, ref_out)
-                        print(diffs)
-                        print(diff)
                         if are_equals:  # Test passed
                             pct += test.weight_pct
-                            print("Test passed!")
                             classification.passed = True
-                            classification.output = test_program_out_file
-                            classification.diff = diff
                         else:
                             if test.mandatory:
                                 mandatory_failed = True
                             classification.passed = False
-                            classification.output = test_program_out_file
-                            classification.diff = diff
+
+                        classification.diff = diff
+                        classification.output = program_out
                     else:
                         classification.error_description = test_check_file
                         if 'Timeout' in test_check_file:
                             classification.timeout = True
                             timeouts += 1
+                        if 'Output is too big' in test_check_file:
+                            file_size_exceeded_count += 1
+
                     i += 1
-                    print('saving')
                     classification.save()
-                    print('saved')
-        else:
-            compilation_stdout = read_file(
-                os.path.join(data_path, 'submission_results', str(self.id), 'compilation.stdout'))
-            print(compilation_stdout)
+        else: # Compilation ERROR
             self.compile_error = True
-            self.error_description = compilation_stdout
+            self.error_description = read_file(os.path.join(attempt_path, 'compilation.stdout'))
             self.save()
+        # Clean up
         progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
         exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
-        self.grade = (round(pct / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
+        # Save
+        self.grade = (round((100 if pct > 100 else pct) / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
         self.save()
 
     @classmethod
@@ -525,16 +561,24 @@ class Classification(models.Model):
     attempt = models.ForeignKey(Attempt, default=1, null=False, on_delete=models.CASCADE)
     test = models.ForeignKey(Test, default=1, null=False, on_delete=models.CASCADE)
     passed = models.BooleanField(null=False, default=False)
-    output = models.FileField(blank=True, null=True, max_length=512)
     execution_time = models.IntegerField(blank=True, null=True)
-    error_description = models.TextField(null=True, blank=True)
-    #	error = models.ForeignKey(SafeExecError, blank=True, null=True, on_delete=models.SET_NULL)
     memory_usage = models.IntegerField(blank=True, null=True)
     elapsed_time = models.DecimalField(blank=True, null=True, decimal_places=3, max_digits=8)
-    #	exception = models.TextField(null=True, blank=True)
     timeout = models.BooleanField(null=False, default=False)
+    # TODO: Ver o que isto faz
     result = models.IntegerField(null=False, default=0)
+
+    #	error = models.ForeignKey(SafeExecError, blank=True, null=True, on_delete=models.SET_NULL)
+    #	exception = models.TextField(null=True, blank=True)
+
+
+    error_description = models.TextField(default='')
+    run_arguments = models.TextField(default='')
+    input = models.TextField(default='')
+    output = models.TextField(default='')
+    expected_output = models.TextField(default='')
     diff = models.TextField(default='')
+
 
     def getTest(self):
         return self.test

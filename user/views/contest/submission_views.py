@@ -114,25 +114,10 @@ def detail_view(request, contest_id, submission_id):
         raise Http404
 
     team = attempt.getTeam()
-    # check if request.user is a member of atempt team OR admin
-    if not request.user.is_superuser:
-        if not team.hasUser(request.user):
-            raise Http404
 
     results = attempt.getClassifications()
     n_tests, n_mandatory, n_diff = contest.getTestsCount()
     n_passed, mandatory_passed, passed_diff = attempt.getPassedTestsCount()
-
-    for res in results:
-        res.expected_output = smart_text(res.test.output_file.read(), encoding='utf-8', strings_only=False,
-                                         errors='strict')
-        if res.output and os.path.isfile(res.output.path):
-            res.obtained_output = smart_text(res.output.read(), encoding='utf-8', strings_only=False, errors='strict')
-        else:
-            res.obtained_output = ''
-
-        res.input = smart_text(res.test.input_file.read(), encoding='utf-8', strings_only=False,
-                               errors='strict')
 
     # res.diff = ' '.join(map(str, res.diff))
     context.update(getContestDetailLayoutContext(contest))

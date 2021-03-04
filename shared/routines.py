@@ -705,10 +705,13 @@ def static_analysis(paths):
 ############################
 
 def read_file(file):
-    f = open(file)
-    data = f.read()
-    f.close()
-    return data
+    try:
+        with open(file) as f:
+            data = f.read()
+        return data
+    except FileNotFoundError:
+        return "Error"
+
 
 
 def read_benchmakrs(line):
@@ -732,10 +735,12 @@ def read_benchmakrs(line):
 
 
 def read_file_lines(file):
-    # uses the diff tool
-    with open(file) as f:
-        lines = f.readlines()
-    return lines
+    try:
+        with open(file) as f:
+            lines = f.readlines()
+        return lines
+    except FileNotFoundError:
+        return ["Error"]
 
 
 def get_diffs(fromlines, tolines):

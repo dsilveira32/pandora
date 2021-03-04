@@ -21,7 +21,7 @@ run_arguments=$8
 check_leak=$9"
 
 set -e
-#trap 'catch erro par2 par3' EXIT	
+#trap 'catch erro par2 par3' EXIT
 
 catch() {
   echo "== $1 == Erro catched"
@@ -29,12 +29,12 @@ catch() {
 		if [ "$1" == "124" ]; then #timeout error code
 			echo "Error: Timeout!" > /disco/submission_results/$2/$3.test ;
 		fi
-		
+
 		if [ "$1" == "153" ]; then #filesize excceded error code
 		  echo "Output is too big"
 			echo "Error: Output is too big!" > /disco/submission_results/$2/$3.test ;
 		fi
-		
+
 		if [ "$1" == "1" ]; then #compilation error code
 			echo "Error" > /disco/submission_results/$2/compilation.result
 		fi
@@ -74,11 +74,6 @@ else # Run test
 	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt_id/$test_id.time timeout $timeout ./program $run_arguments < /disco/tests/$test_id/test.in | ascii > /disco/submission_results/$attempt_id/$test_id.out && echo "Ok" > /disco/submission_results/$attempt_id/$test_id.test
 fi
 
-#arr=(`echo ${3}`);
-# for test in "${arr[@]}";
-		# do
-			# trap 'catch $? $attempt_id $test' EXIT
-			# /usr/bin/time --quiet -f "%U %K %p %e %M %x" -o  /disco/submission_results/$attempt_id/$test.time timeout $1 ./program < /disco/tests/$test.in > /disco/submission_results/$attempt_id/$test.out && echo "Test $test OK" && echo "Test OK" > /disco/submission_results/$attempt_id/$test.result
-		# done
+
 
 
