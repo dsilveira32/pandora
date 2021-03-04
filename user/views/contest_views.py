@@ -3,8 +3,10 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from shared.routines import *
 from user.context_functions import *
+from shared.models import Team
 from user.views.general import user_approval_required, user_complete_profile_required
-
+import uuid
+from coolname import generate_slug
 
 def contest_is_open(function):
     """Block view when the contest is closed."""
@@ -62,6 +64,12 @@ def detail_dashboard_view(request, contest_id):
     # Get required data
     contest = getContestByID(contest_id)
     team = contest.getUserTeam(request.user)
+
+    if not team and contest.max_team_members == 1:
+        team = Team(name=generate_slug(), contest=contest, join_code=request.user.username)
+        team.save()
+        team.users.add(request.user)
+        team.save()
 
     if team:
         team_attempts = team.getAttempts()
