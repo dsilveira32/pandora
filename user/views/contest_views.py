@@ -44,8 +44,8 @@ def submission_limit_not_reached(function):
         contest = Contest.getByID(contest_id)
         user = request.user
         team = contest.getUserTeam(user)
-        attempt_count = team.getAttempts().count()
-        if attempt_count < contest.max_submitions:
+        attempt_count = team.getAttempts().count() or 0
+        if contest.max_submitions == 0 or attempt_count < contest.max_submitions:
             return function(request, *args, **kwargs)
         raise PermissionDenied
 
