@@ -8,6 +8,7 @@ from user.views.general import user_approval_required, user_complete_profile_req
 import uuid
 from coolname import generate_slug
 
+
 def contest_is_open(function):
     """Block view when the contest is closed."""
 
@@ -15,8 +16,8 @@ def contest_is_open(function):
         contest_id = kwargs.get('contest_id')
         contest = Contest.getByID(contest_id)
         if contest:
-               if contest.isOpen():
-                   return function(request, *args, **kwargs)
+            if contest.isOpen():
+                return function(request, *args, **kwargs)
         raise PermissionDenied
 
     return _inner
@@ -29,8 +30,24 @@ def user_has_access_to_contest(function):
         contest_id = kwargs.get('contest_id')
         contest = Contest.getByID(contest_id)
         if contest:
-               if contest.userHasAccess(request.user):
-                   return function(request, *args, **kwargs)
+            if contest.userHasAccess(request.user):
+                return function(request, *args, **kwargs)
+        raise PermissionDenied
+
+    return _inner
+
+
+def submission_limit_not_reached(function):
+    """Limit view to users whose team has not reached the submission limit"""
+
+    def _inner(request, *args, **kwargs):
+        contest_id = kwargs.get('contest_id')
+        contest = Contest.getByID(contest_id)
+        user = request.user
+        team = contest.getUserTeam(user)
+        attempt_count = team.getAttempts().count()
+        if attempt_count < contest.max_submitions:
+            return function(request, *args, **kwargs)
         raise PermissionDenied
 
     return _inner
@@ -51,13 +68,13 @@ def dashboard_view(request):
     context.update(getContestListContext(contests))
     return render(request, template_name, context)
 
+
 # CONTEST VIEW
 @login_required
 @user_complete_profile_required
 @user_approval_required
 @user_has_access_to_contest
 def detail_dashboard_view(request, contest_id):
-    #checkUserProfileInRequest(request)
     context = {}
     template_name = 'user/views/contests/detail_dashboard.html'
 
@@ -73,12 +90,11 @@ def detail_dashboard_view(request, contest_id):
 
     if team:
         team_attempts = team.getAttempts()
-        context.update(getTeamSubmissionStatusContext(team_attempts))
+        context.update(getTeamSubmissionStatusContext(team_attempts, contest))
         context.update(getTeamSubmissionHistoryContext(team_attempts))
 
         team_attempt, rank = getAllContestAttemptsSingleRanking(contest, team)
         context.update(getContestSingleRankingContext(team_attempt, rank))
-
 
     # Update context
     print_variable_debug(team)
@@ -87,6 +103,3 @@ def detail_dashboard_view(request, contest_id):
     context.update(getContestDetailsContext(contest))
     context.update(getContestSubmitAttemptButton(contest, team))
     return render(request, template_name, context)
-
-
-

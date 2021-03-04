@@ -170,7 +170,7 @@ def getTeamSubmissionHistoryContext(attempts):
 
 
 # For status.html
-def getTeamSubmissionStatusContext(attempts):
+def getTeamSubmissionStatusContext(attempts, contest):
     """Context for status.html
     REQUIRED IN ALL VIEWS THAT EXTEND status.html
     Parameters
@@ -181,11 +181,15 @@ def getTeamSubmissionStatusContext(attempts):
        team_submission_status
     """
     context = {}
+    context.update({
+        'contest': contest
+    })
     if attempts:
         context.update({'number_of_submitions': attempts.count()})
         context.update({'last_classification': attempts.first().grade})
         context.update({'last_execution_time': attempts.first().time_benchmark})
         context.update({'last_memory_usage': attempts.first().memory_benchmark})
+        # TODO: Catch this exception
         if os.path.isfile(attempts.first().file.path):
             context.update({'download': attempts.first().file})
         else:

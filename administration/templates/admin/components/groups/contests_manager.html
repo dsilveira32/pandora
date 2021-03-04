@@ -38,7 +38,9 @@
                                     <td>{{ contest.start_date }}</td>
                                     <td>{{ contest.end_date }}</td>
                                     <td>
-                                        <i class="fas fa-{% if contest.isOpen %}check-circle{% else %}times-circle{% endif %} {% if contest.isOpen %}text-success{% else %}text-danger{% endif %}"></i>
+                                        <i class="fas fa-{% if contest.isOpen %}check-circle{% else %}times-circle{% endif %} {% if contest.isOpen %}text-success{% else %}text-danger{% endif %}">
+                                            <span hidden>{% if contest.isOpen %}0{% else %}1{% endif %}</span>
+                                        </i>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -88,7 +90,9 @@
                                     <td>{{ contest.start_date }}</td>
                                     <td>{{ contest.end_date }}</td>
                                     <td>
-                                        <i class="fas fa-{% if contest.isOpen %}check-circle{% else %}times-circle{% endif %} {% if contest.isOpen %}text-success{% else %}text-danger{% endif %}"></i>
+                                        <i class="fas fa-{% if contest.isOpen %}check-circle{% else %}times-circle{% endif %} {% if contest.isOpen %}text-success{% else %}text-danger{% endif %}">
+                                            <span hidden>{% if contest.isOpen %}0{% else %}1{% endif %}</span>
+                                        </i>
                                     </td>
                                 </tr>
                             {% endfor %}
