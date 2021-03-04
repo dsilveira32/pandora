@@ -1,12 +1,16 @@
 {% if contest_submit_attempt_button.team %}
     {% if contest_submit_attempt_button.contest.isOpen %}
-        <a class="btn btn-primary w-100 py-3"
-           href="{% url 'contest_attempt_form_view' contest_submit_attempt_button.contest.id %}">
-            <i class="fas fa-plus-circle"></i>
-            Submit new attempt
-        </a>
+        {% if contest_submit_attempt_button.contest.max_submitions > 0 and contest_submit_attempt_button.team.getAttempts.count >= contest_submit_attempt_button.contest.max_submitions %}
+            <div class="alert alert-danger text-center">You are out of submissions for this contest.</div>
+        {% else %}
+            <a class="btn btn-primary w-100 py-3"
+               href="{% url 'contest_attempt_form_view' contest_submit_attempt_button.contest.id %}">
+                <i class="fas fa-plus-circle"></i>
+                Submit new attempt
+            </a>
+        {% endif %}
     {% else %}
-        <div class="alert alert-info">The contest is not opened. Please contact the administrator.</div>
+        <div class="alert alert-info text-center">The contest is not opened. Please contact the administrator.</div>
     {% endif %}
 {% else %}
     <div class="alert alert-danger w-100 py-3 text-center">

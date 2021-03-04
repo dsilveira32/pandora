@@ -10,7 +10,9 @@
                     <th>Grade</th>
                     <th>Time</th>
                     <th>Memory</th>
+                    {% comment %}
                     <th>Submissions</th>
+                    {% endcomment %}
                 </tr>
                 </thead>
                 <tbody>
@@ -21,7 +23,9 @@
                         <td>{{ a.grade }}</td>
                         <td>{{ a.time_benchmark }} (ms)</td>
                         <td>{{ a.memory_benchmark }} (kiB)</td>
+                        {% comment %}
                         <td>{{ a.atempts }}</td>
+                        {% endcomment %}
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -17,10 +17,10 @@
                 <input type="hidden" id="form-action-table-out" name="action" value="">
                 <div class="table-responsive">
 
-                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
+                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0" data-way="out">
                         <thead>
                         <tr>
-                            <th class="text-center"><input type="checkbox" class="select-all-table-out"></th>
+                            <th class="text-center"><input type="checkbox" class="select-all-table-out" data-way="out" onchange="doSelectAll(this)"></th>
                             <th>Email</th>
                             <th>Name</th>
                             <th>Number</th>
@@ -32,7 +32,7 @@
                         {% for user in admin_groups_user_manager.users_not_in_group %}
                             <tr>
                                 <td class="text-center">
-                                    <input type="checkbox" class="selected-table-out" name="user_id" value="{{ user.id }}">
+                                    <input type="checkbox" class="selected-table-out" name="user_id" value="{{ user.id }}" data-way="out" onchange="doSelect(this)" >
                                 </td>
                                 <td>{{ user.username }}</td>
                                 <td>{{ user.get_full_name }}</td>
@@ -75,10 +75,10 @@
                 <input type="hidden" id="form-action-table-in" name="action" value="">
                 <div class="table-responsive">
 
-                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
+                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0" data-way="in" >
                         <thead>
                         <tr>
-                            <th class="text-center"><input type="checkbox" class="select-all-table-in"></th>
+                            <th class="text-center"><input type="checkbox" class="select-all-table-in" data-way="in" onchange="doSelectAll(this)"></th>
                             <th>Email</th>
                             <th>Name</th>
                             <th>Number</th>
@@ -90,7 +90,7 @@
                         {% for user in admin_groups_user_manager.users_in_group %}
                             <tr>
                                 <td class="text-center">
-                                    <input type="checkbox" class="selected-table-in" name="user_id" value="{{ user.id }}">
+                                    <input type="checkbox" class="selected-table-in" name="user_id" value="{{ user.id }}" data-way="in" onchange="doSelect(this)">
                                 </td>
                                 <td>{{ user.username }}</td>
                                 <td>{{ user.get_full_name }}</td>
