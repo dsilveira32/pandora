@@ -1,7 +1,8 @@
+import io
 import sys
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils.encoding import smart_text
 from shared.routines import *
@@ -128,3 +129,20 @@ def detail_view(request, contest_id, submission_id):
     context.update(getContestSubmitAttemptButton(contest, team))
     return render(request, template_name, context)
 
+@login_required
+@user_complete_profile_required
+@user_approval_required
+@user_has_access_to_contest
+@user_owns_submission
+def download_submission(request, contest_id, submission_id):
+    contest = getContestByID(contest_id)
+    last_attempt = Attempt.getByID(submission_id)
+    file = last_attempt.getFile()
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+        zip_file.write(file.path)
+    zip_buffer.seek(0)
+
+    resp = HttpResponse(zip_buffer, content_type='application/zip')
+    resp['Content-Disposition'] = 'attachment; filename = submission.zip'
+    return resp

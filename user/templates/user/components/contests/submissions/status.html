@@ -30,11 +30,10 @@
                     </tr>
                     <tr>
                         <td>File</td>
-                        {% if download %}
-                        <td><a href="{{ team_submission_status.download.url }}">download</a></td>
-                        {% else %}
-                        <td></td>
-                        {% endif %}
+                        <td>
+                            <a class="btn btn-info" href="{% url 'contest_submission_download' team_submission_status.contest.id team_submission_status.last_submission_id %}">download</a>
+                        </td>
+
                     </tr>
                 </tbody>
             </table>

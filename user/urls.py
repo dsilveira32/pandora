@@ -18,6 +18,7 @@ urlpatterns = [
     path('contests/<int:contest_id>/team/<int:team_id>/', team_views.detail_dashboard_view, name="user_contest_team_detail_view"),
     path('contests/<int:contest_id>/submission/', submission_views.submit_view, name='contest_attempt_form_view'),
     path('contests/<int:contest_id>/submission/<int:submission_id>/', submission_views.detail_view, name='contest_attempt_view'),
+    path('contests/<int:contest_id>/submission/<int:submission_id>/download', submission_views.download_submission, name='contest_submission_download'),
 
     # Groups
     path('groups/', group_views.dashboard_view, name='user_groups_home'),

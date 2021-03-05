@@ -19,7 +19,6 @@ class DateInputWidget(forms.DateTimeInput):
 
 class AttemptModelForm(forms.ModelForm):
     comment = forms.CharField(required=False)
-
     class Meta:
         model = Attempt
         fields = ['file', 'comment']

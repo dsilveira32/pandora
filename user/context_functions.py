@@ -187,6 +187,7 @@ def getTeamSubmissionStatusContext(attempts, contest):
     if attempts:
         context.update({'number_of_submitions': attempts.count()})
         context.update({'last_classification': attempts.first().grade})
+        context.update({'last_submission_id': attempts.first().id})
         context.update({'last_execution_time': attempts.first().time_benchmark})
         context.update({'last_memory_usage': attempts.first().memory_benchmark})
         # TODO: Catch this exception

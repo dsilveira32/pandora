@@ -21,15 +21,8 @@
                         <td>{% if team_submission_details.attempt.compile_error %}0/1{% else %}1/1{% endif %}</td>
                         <td>
                             <h5 class="m-0 p-0 text-{% if team_submission_details.attempt.compile_error %}danger{% else %}success{% endif %}">
-                                <i
-                                        class="fas fa-{% if team_submission_details.attempt.compile_error %}times-circle{% else %}check-circle{% endif %}"></i>
+                                <i class="fas fa-{% if team_submission_details.attempt.compile_error %}times-circle{% else %}check-circle{% endif %}"></i>
                             </h5>
-                            {# TODO: Delete the below if prof approves #}
-                            {% if team_submission_details.attempt.compile_error %}
-                                <!--  -->
-                            {% else %}
-                                <!-- <span class="oi oi-check text-success"></span> -->
-                            {% endif %}
                         </td>
                         <td>
                             {% if team_submission_details.attempt.compile_error %}
