@@ -106,19 +106,3 @@ def detail_dashboard_view(request, contest_id):
     context.update(getContestDetailsContext(contest))
     context.update(getContestSubmitAttemptButton(contest, team))
     return render(request, template_name, context)
-
-
-def download_last_attempt_file(request, contest_id):
-    # Get required data
-    contest = getContestByID(contest_id)
-    team = contest.getUserTeam(request.user)
-    last_attempt = team.getLatestAttempt()
-    file = last_attempt.getFile()
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
-        zip_file.write(file.path)
-    zip_buffer.seek(0)
-
-    resp = HttpResponse(zip_buffer, content_type='application/zip')
-    resp['Content-Disposition'] = 'attachment; filename = submission.zip'
-    return resp

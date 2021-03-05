@@ -1,3 +1,4 @@
+from django.http import HttpResponse, Http404
 from django.utils.encoding import smart_text
 
 import pandora
@@ -51,3 +52,17 @@ def details_view(request, contest_id, attempt_id):
     context.update(getAdminContestSubmissionDetailsContext(contest, request.user, team, attempt, n_passed, n_tests, mandatory_passed,
                                             n_mandatory, passed_diff, n_diff, results, 9))
     return render(request, template_name, context)
+
+@superuser_only
+def download_submission(request, contest_id, attempt_id):
+    print(contest_id)
+    print(attempt_id)
+    attempt = Attempt.getByID(attempt_id)
+    file = attempt.getFile()
+    fdir, fname = os.path.split(file.path)
+    try:
+        resp = HttpResponse(file)
+        resp['Content-Disposition'] = 'attachment; filename = ' + str(fname)
+        return resp
+    except FileNotFoundError:
+        raise Http404("File does not exist")

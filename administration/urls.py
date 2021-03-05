@@ -48,6 +48,8 @@ urlpatterns = [
          name='manager_contests_detail_submissions'),
     path('contests/<int:contest_id>/submissions/<int:attempt_id>', submission_views.details_view,
          name='manager_contests_detail_submissions_details'),
+    path('contests/<int:contest_id>/submissions/<int:attempt_id>/download', submission_views.download_submission,
+         name='manager_contests_detail_submission_download'),
     path('contests/<int:contest_id>/extract_grades', contest_views.extract_grades,
          name='manager_contests_extract_grades'),
     path('contests/<int:contest_id>/extract_files', contest_views.extract_zip,

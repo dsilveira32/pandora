@@ -136,13 +136,12 @@ def detail_view(request, contest_id, submission_id):
 @user_owns_submission
 def download_submission(request, contest_id, submission_id):
     contest = getContestByID(contest_id)
-    last_attempt = Attempt.getByID(submission_id)
-    file = last_attempt.getFile()
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
-        zip_file.write(file.path)
-    zip_buffer.seek(0)
-
-    resp = HttpResponse(zip_buffer, content_type='application/zip')
-    resp['Content-Disposition'] = 'attachment; filename = submission.zip'
-    return resp
+    attempt = Attempt.getByID(submission_id)
+    file = attempt.getFile()
+    fdir, fname = os.path.split(file.path)
+    try:
+        resp = HttpResponse(file)
+        resp['Content-Disposition'] = 'attachment; filename = ' + str(fname)
+        return resp
+    except FileNotFoundError:
+        raise Http404("File does not exist")
