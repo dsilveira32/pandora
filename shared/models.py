@@ -375,6 +375,9 @@ class Team(models.Model):
     def getGreatestGradeAttempt(self):
         return Attempt.objects.filter(team=self).order_by('-grade').first()
 
+    def getLatestAttempt(self):
+        return Attempt.objects.filter(team=self).order_by('-id').first()
+
     def isFull(self):
         return self.users.count() >= self.contest.max_team_members
 
@@ -433,6 +436,9 @@ class Attempt(models.Model):
 
     def getTeam(self):
         return self.team
+
+    def getFile(self):
+        return self.file
 
     def getClassifications(self):
         return self.classification_set.all()
