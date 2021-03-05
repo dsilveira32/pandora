@@ -45,7 +45,7 @@ def dashboard_view(request):
             labels.append(contest.getName())
             team = contest.getUserTeam(request.user)
             if team:
-                submission = team.getGreatestGradeAttempt()
+                submission = team.getLatestAttempt()
                 if submission:
                     data.append(submission.getGrade())
                     bgcolors.append('#4e73df')

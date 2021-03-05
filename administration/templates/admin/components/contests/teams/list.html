@@ -10,6 +10,8 @@
                     <th>Id</th>
                     <th>Name</th>
                     <th>Members</th>
+                    <th>Grade</th>
+                    <th>Submissions</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -29,6 +31,12 @@
                             {% else %}
                                 No users assigned yet.
                             {% endif %}
+                        </td>
+                        <td>
+                            {{ team.getLatestAttempt.grade }}
+                        </td>
+                        <td>
+                            {{ team.getAttempts.count }}
                         </td>
                         <td>
                             <a class="btn btn-sm btn-info"
