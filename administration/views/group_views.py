@@ -86,7 +86,7 @@ def contests_manage_view(request, group_id):
 	template_name = 'admin/views/groups/contests/manage.html'
 	context = {}
 	group = getGroupByID(group_id)
-	contests = Contest.objects.exclude(group__users__group__exact=group).all()
+	contests = Contest.objects.exclude(group__contests__group__exact=group).all()
 	contests_in = group.getContests()
 	form = GroupAddContestForm(request.POST or None)
 	if form.is_valid():
