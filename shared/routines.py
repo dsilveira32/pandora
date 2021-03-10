@@ -300,7 +300,7 @@ def handle_uploaded_file(atempt, f, contest):
         if os.path.isfile(dfile.user_copy):
             os.remove(dfile.user_copy)
 
-    cleanup_past_attempts(atempt.team, atempt)
+    #cleanup_past_attempts(atempt.team, atempt)
 
 
 def cleanup_past_attempts(team_obj, attempt_obj):
@@ -813,9 +813,22 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
             print('Language not recognized. This is a problem')
             return
 
-        docker_command = "docker run --rm -i"
-        docker_command += get_docker_env_vars(attempt_id, 0 if compilation else test_id, contest.id, specifications)
-        docker_command += " -v " + data_path + "/:/disco " + image
+        if test_id == 0:
+            docker_command = f'docker run --name atempt{attempt_id} --rm -i -d '
+            docker_command += f'--cpus={specifications.getAttribute("cpu")} '
+            docker_command += f'--memory={specifications.getAttribute("mem")}m '
+            docker_command += f'-v {data_path}/:/disco {image} '
+            docker_command += f'waiter.sh --attempt {attempt_id} --timeout 600'
+            print(docker_command)
+            exec_command(docker_command, data_path)
+
+        docker_command = f'docker exec -it atempt{attempt_id}  c_specs.sh '
+        docker_command += f'--timeout {specifications.getAttribute("timeout")} --attempt {attempt_id} --test {test_id} '
+        docker_command += f'--contest {contest.id} --fsize {specifications.getAttribute("fsize")} '
+        docker_command += f'--cflags "{specifications.getAttribute("compile_flags")}" '
+        docker_command += f'--lflags "{specifications.getAttribute("linkage_flags")}" '
+        docker_command += f'--runargs "{specifications.getAttribute("run_arguments")}" '
+
         print(docker_command)
         exec_command(docker_command, data_path)
     else:

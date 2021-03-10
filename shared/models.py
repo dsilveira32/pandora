@@ -470,8 +470,13 @@ class Attempt(models.Model):
         tests = contest.getTests()
         total_steps = 1 + tests.count() + 1
         progress_recorder.set_progress(0, total_steps, "Running compilation")
-        exec_command("mkdir ./tmp/" + str(self.id) + "/", data_path)
-        exec_command("mkdir ./tmp/"+str(self.id)+"/", data_path)
+        try:
+            os.makedirs(data_path + '/tmp/'+ str(self.id) + "/")
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise        
+#        exec_command("mkdir ./tmp/" + str(self.id) + "/", data_path)
+ #       exec_command("mkdir ./tmp/"+str(self.id)+"/", data_path)
         # Run compilation
         run_test_in_docker(0, self.id, True)
         # Reading static analisys
@@ -549,6 +554,8 @@ class Attempt(models.Model):
             self.save()
         # Clean up
         progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
+        # create file that kills the container
+        open(os.path.join(attempt_path, 'status.info'), 'a').close()
         exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
         # Save
         self.grade = (round((100 if pct > 100 else pct) / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
