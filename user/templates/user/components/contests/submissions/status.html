@@ -28,6 +28,7 @@
                         <td>Memory Benchmark</td>
                         <td>{{ team_submission_status.last_memory_usage }} (kiB)</td>
                     </tr>
+                    {% if team_submission_status.last_submission_id %}
                     <tr>
                         <td>File</td>
                         <td>
@@ -35,6 +36,7 @@
                         </td>
 
                     </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </p>
