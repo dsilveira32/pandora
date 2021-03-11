@@ -6,15 +6,7 @@ show_help() {
     echo "                     --input2 - is input 2 .";
     echo "                     --input3 - is input 3 .";
 }
-timeout"
-    "attempt"
-    "test"
-	"contest"
-	"fsize"
-	"cflags"
-	"lflags"
-	"runargs"
-	"leak"
+
 # set default values
 #timeout = 1;
 #attempt_id = 1;
