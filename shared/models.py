@@ -555,7 +555,9 @@ class Attempt(models.Model):
         # Clean up
         progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
         # create file that kills the container
-        open(os.path.join(attempt_path, 'status.info'), 'a').close()
+        #open(os.path.join(attempt_path, 'status.info'), 'a').close()
+        exec_command(f'docker remove atempt{self.id}', data_path)
+
         exec_command("rm -rf ./tmp/" + str(self.id) + "/", data_path)
         # Save
         self.grade = (round((100 if pct > 100 else pct) / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
