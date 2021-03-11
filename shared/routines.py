@@ -818,7 +818,7 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
             docker_command += f'--cpus={specifications.getAttribute("cpu")} '
             docker_command += f'--memory={specifications.getAttribute("mem")}m '
             docker_command += f'-v {data_path}/:/disco {image} '
-            docker_command += f'waiter.sh --attempt {attempt_id} --timeout 600'
+            docker_command += f'sleep 600'
             print(docker_command)
             exec_command(docker_command, data_path)
 

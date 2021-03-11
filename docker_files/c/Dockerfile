@@ -3,7 +3,6 @@ COPY time /usr/bin/time
 COPY ascii /usr/bin/ascii
 COPY c_specs.sh /usr/src/c_specs.sh
 COPY c_specs.sh /usr/bin/c_specs.sh
-COPY waiter.sh /usr/bin/waiter.sh
 COPY ascii /usr/bin/ascii
 RUN mkdir /usr/src/compiled/
 RUN apt-get update -y && apt install cppcheck -y
