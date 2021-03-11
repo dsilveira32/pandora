@@ -822,7 +822,7 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
             print(docker_command)
             exec_command(docker_command, data_path)
 
-        docker_command = f'docker exec -it atempt{attempt_id}  c_specs.sh '
+        docker_command = f'docker exec -i atempt{attempt_id}  c_specs.sh '
         docker_command += f'--timeout {specifications.getAttribute("timeout")} --attempt {attempt_id} --test {test_id} '
         docker_command += f'--contest {contest.id} --fsize {specifications.getAttribute("fsize")} '
         docker_command += f'--cflags "{specifications.getAttribute("compile_flags")}" '
