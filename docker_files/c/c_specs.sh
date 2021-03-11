@@ -1,22 +1,30 @@
 #!/bin/bash
 
 show_help() {
-    echo "usage:  $BASH_SOURCE --input1 <input1> --input2 <input2> --input3 <input3>";
+    echo "usage:  $BASH_SOURCE --timeout <seconds> --attempt <id> --test <id> --contest <id> --fsize <KiB> --cflags <compile flags> --lflags <linkage flags> --runargs <run arguments> --leak <0|1>";
     echo "                     --input1 - is input 1 .";
     echo "                     --input2 - is input 2 .";
     echo "                     --input3 - is input 3 .";
 }
-
+timeout"
+    "attempt"
+    "test"
+	"contest"
+	"fsize"
+	"cflags"
+	"lflags"
+	"runargs"
+	"leak"
 # set default values
-timeout = 1;
-attempt_id = 1;
-test_id = 0;
-contest_id = 1;
-fsize = 500;
-compile_flags = "-Wall -ansi -Wextra -Wpedantic -Werror";
-linkage_flags = "-lc";
-run_arguments = "";
-check_leak = 0;
+#timeout = 1;
+#attempt_id = 1;
+#test_id = 0;
+#contest_id = 1;
+#fsize = 500;
+#compile_flags = "-Wall -ansi -Wextra -Wpedantic -Werror";
+#linkage_flags = "-lc";
+#run_arguments = "";
+#check_leak = 0;
 
 # Read command line options
 declare -a ARGUMENT_LIST=(
