@@ -144,10 +144,7 @@ echo "Running Static analisys"
 cppcheck --enable=all --check-config /disco/submissions/$attempt/ > /disco/submission_results/$attempt/static.out
 
 if [ "$test" == "0" ]; then # Run compilation
-  echo "Running Compilation"
-  echo "gcc $cflags *.c -o /usr/src/compiled/program $cflags 2>/disco/submission_results/$attempt/compilation.stdout"
-  gcc $cflags *.c -o /usr/src/compiled/program $lflags 2>&1 >/dev/null | ascii > /disco/submission_results/$attempt/compilation.stdout
-  echo "Ok" > /disco/submission_results/$attempt/compilation.result
+  compile.sh $attempt
 else # Run test
   trap 'catch $? $attempt_id $test_id' EXIT
 	cd /usr/src/compiled

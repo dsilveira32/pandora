@@ -4,6 +4,7 @@ COPY ascii /usr/bin/ascii
 COPY c_specs.sh /usr/src/c_specs.sh
 COPY c_specs.sh /usr/bin/c_specs.sh
 COPY ascii /usr/bin/ascii
+COPY compile.sh /usr/bin/compile.sh
 RUN mkdir /usr/src/compiled/
 RUN apt-get update -y && apt install cppcheck -y
 #ENTRYPOINT ["sh", "-c", "c_specs.sh ${timeout} ${attempt} ${test} ${contest} ${fsize} ${compile_flags} ${linkage_flags} ${check_leak} ${run_arguments}"]
