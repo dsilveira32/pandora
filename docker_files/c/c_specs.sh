@@ -145,8 +145,8 @@ cppcheck --enable=all --check-config /disco/submissions/$attempt/ > /disco/submi
 
 if [ "$test" == "0" ]; then # Run compilation
   echo "Running Compilation"
-  echo "gcc $flags *.c -o /usr/src/compiled/program $flags 2>/disco/submission_results/$attempt/compilation.stdout"
-  gcc $cflags *.c -o /usr/src/compiled/program $lflags 2>/disco/submission_results/$attempt/compilation.stdout
+  echo "gcc $cflags *.c -o /usr/src/compiled/program $cflags 2>/disco/submission_results/$attempt/compilation.stdout"
+  gcc $cflags *.c -o /usr/src/compiled/program $lflags 2>&1 >/dev/null | ascii > /disco/submission_results/$attempt/compilation.stdout
   echo "Ok" > /disco/submission_results/$attempt/compilation.result
 else # Run test
   trap 'catch $? $attempt_id $test_id' EXIT
