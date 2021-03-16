@@ -402,10 +402,20 @@ class Team(models.Model):
 
     def cleanupPastAttempts(self, current_attempt):
         import shutil
+        from pandora import settings
         attempts_qs = Attempt.objects.filter(team=self).exclude(id=current_attempt.id).order_by('-date')
+        print('im going to loop attempts')
+        data_path = settings.LOCAL_STATIC_CDN_PATH
         for at in attempts_qs:
-            shutil.rmtree(os.path.join(SUBMISSIONS_ROOT, str(at.id)))
-            shutil.rmtree(os.path.join(SUBMISSION_RESULTS_ROOT, str(at.id)))
+            print(os.path.join(data_path, SUBMISSIONS_ROOT, str(at.id)))
+            try:
+                shutil.rmtree(os.path.join(data_path, SUBMISSIONS_ROOT, str(at.id)))
+            except FileNotFoundError:
+                pass
+            try:
+                shutil.rmtree(os.path.join(data_path, SUBMISSION_RESULTS_ROOT, str(at.id)))
+            except FileNotFoundError:
+                pass
             at.file = None
 
     @classmethod
@@ -576,7 +586,6 @@ class Attempt(models.Model):
             self.compile_error = True
             self.error_description = read_file(os.path.join(attempt_path, 'compilation.stdout'))
             self.save()
-        # Clean up
         progress_recorder.set_progress(total_steps - 1, total_steps, "Almost there...")
         # create file that kills the container
         #open(os.path.join(attempt_path, 'status.info'), 'a').close()
@@ -586,6 +595,10 @@ class Attempt(models.Model):
         # Save
         self.grade = (round((100 if pct > 100 else pct) / 100 * self.getContest().max_classification, 0), 0)[mandatory_failed]
         self.save()
+        # Clean up past attempts
+        # do this after save to make sure attempt has id
+        self.team.cleanupPastAttempts(self)
+
 
     @classmethod
     def getByID(cls, id):
