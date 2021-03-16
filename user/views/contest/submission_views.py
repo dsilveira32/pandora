@@ -76,6 +76,7 @@ def submit_view(request, contest_id):
     submitted, attempt = form.submit(request.user, can_submit, contest, team)
     print_variable_debug(attempt)
     if submitted and attempt:
+        clean
         print("Before celery")
         download_task = run_tests.delay(attempt.id)
         # Get ID

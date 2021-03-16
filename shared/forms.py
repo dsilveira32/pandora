@@ -25,6 +25,12 @@ class AttemptModelForm(forms.ModelForm):
 
     def submit(self, user, can_submit, contest, team):
         if can_submit and self.is_valid():
+            MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+            file = self.cleaned_data['file']
+            content_type = file.content_type.split('/')[0]
+            if file.size > MAX_UPLOAD_SIZE:
+                self.add_error('file', 'File size must be under 10mb.')
+                return False, None
             obj = self.save(commit=False)
             obj.user = user
             obj.contest = contest
