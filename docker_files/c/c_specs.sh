@@ -7,17 +7,6 @@ show_help() {
     echo "                     --input3 - is input 3 .";
 }
 
-# set default values
-#timeout = 1;
-#attempt_id = 1;
-#test_id = 0;
-#contest_id = 1;
-#fsize = 500;
-#compile_flags = "-Wall -ansi -Wextra -Wpedantic -Werror";
-#linkage_flags = "-lc";
-#run_arguments = "";
-#check_leak = 0;
-
 # Read command line options
 declare -a ARGUMENT_LIST=(
     "timeout"
@@ -144,11 +133,12 @@ echo "Running Static analisys"
 cppcheck --enable=all --check-config /disco/submissions/$attempt/ > /disco/submission_results/$attempt/static.out
 
 if [ "$test" == "0" ]; then # Run compilation
-  compile.sh $attempt
+  compile.sh $attempt $cflags $lflags
 else # Run test
-  trap 'catch $? $attempt_id $test_id' EXIT
-	cd /usr/src/compiled
-	echo "Running Test"
-	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program < /disco/tests/$test/test.in > /disco/submission_results/$attempt/$test.out && echo Ok > /disco/submission_results/$attempt/$test.test"
-	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program $runargs < /disco/tests/$test/test.in | ascii > /disco/submission_results/$attempt/$test.out && echo "Ok" > /disco/submission_results/$attempt/$test.test
+  trap 'catch $? $attempt $test' EXIT
+  run.sh $attempt $test $timeout $runargs
+#	cd /usr/src/compiled
+#	echo "Running Test"
+#	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program < /disco/tests/$test/test.in > /disco/submission_results/$attempt/$test.out && echo Ok > /disco/submission_results/$attempt/$test.test"
+#	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program $runargs < /disco/tests/$test/test.in | ascii > /disco/submission_results/$attempt/$test.out && echo "Ok" > /disco/submission_results/$attempt/$test.test
 fi
