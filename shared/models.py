@@ -1,3 +1,4 @@
+import errno
 import os
 import time
 import uuid
@@ -13,42 +14,57 @@ import shared
 from .storage import OverwriteStorage
 from .validators import validate_file_extension
 
+SUBMISSIONS_ROOT = 'submissions/'
+SUBMISSION_RESULTS_ROOT = 'submission_results/'
+TESTS_ROOT = 'tests/'
+CONTESTS_ROOT = 'contests/'
+DATAFILES_ROOT = 'datafiles/'
 
-def get_file_path(instance, filename):
+
+def get_submissions_file_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "src.%s" % ext
-    return os.path.join('submissions/', str(instance.id), filename)
+    return os.path.join(SUBMISSIONS_ROOT, str(instance.id), filename)
 
 
 def get_tests_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "test.%s" % ext
-    return os.path.join('tests/', str(instance.id), filename)
-
-
-def get_contest_detail_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "sow.%s" % (ext)
-    return os.path.join('contests/%s' % instance.short_name, filename)
+    return os.path.join(TESTS_ROOT, str(instance.id), filename)
 
 
 def get_contest_code_path(instance, filename):
-    return os.path.join('contests/%s' % instance.short_name, 'src/', filename)
+    return os.path.join(CONTESTS_ROOT, str(instance.short_name), 'src/', filename)
 
-
-def get_contest_data_path(instance, filename):
-    return os.path.join('contests/%s' % instance.contest.short_name, 'data/', filename)
 
 def get_data_files_path(instance, filename):
-    return os.path.join('datafiles/', str(instance.contest.id), filename)
+    return os.path.join(DATAFILES_ROOT, str(instance.contest.id), filename)
 
 
+
+
+
+# TODO: Mark for deletion
+def get_contest_detail_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "sow.%s" % (ext)
+    return os.path.join(CONTESTS_ROOT, str(instance.short_name), filename)
+
+# TODO: Mark for deletion
+def get_contest_data_path(instance, filename):
+    return os.path.join(CONTESTS_ROOT, str(instance.contest.short_name), 'data/', filename)
+
+# TODO: Mark for deletion
 def get_contest_ins_files_path(instance, filename):
-    return os.path.join('contests/%s' % instance.short_name, 'src/temp/in', filename)
+    return os.path.join(CONTESTS_ROOT, str(instance.short_name), 'src/temp/in', filename)
 
-
+# TODO: Mark for deletion
 def get_contest_outs_files_path(instance, filename):
-    return os.path.join('contests/%s' % instance.short_name, 'src/temp/out', filename)
+    return os.path.join(CONTESTS_ROOT, str(instance.short_name), 'src/temp/out', filename)
+
+
+
+
 
 
 class Profile(models.Model):
@@ -384,6 +400,14 @@ class Team(models.Model):
     def getMaxMembers(self):
         return self.contest.max_team_members
 
+    def cleanupPastAttempts(self, current_attempt):
+        import shutil
+        attempts_qs = Attempt.objects.filter(team=self).exclude(id=current_attempt.id).order_by('-date')
+        for at in attempts_qs:
+            shutil.rmtree(os.path.join(SUBMISSIONS_ROOT, str(at.id)))
+            shutil.rmtree(os.path.join(SUBMISSION_RESULTS_ROOT, str(at.id)))
+            at.file = None
+
     @classmethod
     def getById(cls, id):
         return cls.objects.get(id=id)
@@ -404,7 +428,7 @@ class Attempt(models.Model):
     team = models.ForeignKey(Team, default=1, null=True,
                              on_delete=models.SET_NULL)  # this is redundant but it's just easier...
     date = models.DateTimeField(auto_now_add=True, blank=True)
-    file = models.FileField(upload_to=get_file_path, blank=False, null=False, max_length=512,
+    file = models.FileField(upload_to=get_submissions_file_path, blank=False, null=False, max_length=512,
                             validators=[validate_file_extension])
     auto_generated = models.BooleanField(null=False, default=False, blank=False)
     done = models.BooleanField(null=False, default=False)
