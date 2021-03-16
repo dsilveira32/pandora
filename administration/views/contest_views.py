@@ -127,10 +127,10 @@ def extract_grades(request, contest_id):
                 "inner join shared_team t on tm.team_id = t.id " \
                 "inner join auth_user u on u.id = tm.user_id " \
                 "inner join shared_profile p on p.user_id = u.id " \
-                "where t.contest_id = 24) as ut " \
+                f"where t.contest_id = {contest_id}) as ut " \
             "left join (" \
                 "select ca.grade, maxs.atempts, maxs.team_id " \
-                "from (select max(id) as id, count(id) as atempts, team_id from shared_attempt where contest_id = 24 group by team_id) maxs " \
+                f"from (select max(id) as id, count(id) as atempts, team_id from shared_attempt where contest_id = {contest_id} group by team_id) maxs " \
                 "inner join shared_attempt ca on ca.id = maxs.id) gg on gg.team_id = ut.id " \
             "order by team_name desc"
 
