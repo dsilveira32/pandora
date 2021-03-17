@@ -34,3 +34,12 @@ def days_left_until(date):
     if daysleft < 0:
         daysleft = 0
     return daysleft
+
+@register.simple_tag
+def get_percent(current, max, reverse):
+    ret = current*100/max
+    if reverse:
+        ret = 100 - ret
+    if ret < 0:
+        ret = 0
+    return int(round(ret, 0))

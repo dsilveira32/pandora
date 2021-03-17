@@ -95,7 +95,7 @@ def detail_dashboard_view(request, contest_id):
         team_attempts = team.getAttempts()
         context.update(getTeamSubmissionStatusContext(team_attempts, contest))
         context.update(getTeamSubmissionHistoryContext(team_attempts))
-
+        context.update(getUserContestsSubmissionsLeftContext(contest, team_attempts))
         team_attempt, rank = getAllContestAttemptsSingleRanking(contest, team)
         context.update(getContestSingleRankingContext(team_attempt, rank))
 
@@ -105,4 +105,5 @@ def detail_dashboard_view(request, contest_id):
     context.update(getTeamMembersContext(team))
     context.update(getContestDetailsContext(contest))
     context.update(getContestSubmitAttemptButton(contest, team))
+
     return render(request, template_name, context)

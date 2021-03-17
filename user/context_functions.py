@@ -388,9 +388,11 @@ def getContestTeamJoinContext(contest, teams, form):
         }
     }
 
+
 # For details.html
 # REQUIRED IN ALL VIEWS THAT EXTEND submission.html
-def getTeamSubmissionDetailsContext(contest, user, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, min_passed_grade):
+def getTeamSubmissionDetailsContext(contest, user, attempt, n_passed, n_tests, mandatory_passed, n_mandatory,
+                                    passed_diff, n_diff, results, min_passed_grade):
     return {
         'team_submission_details': {
             'contest': contest,
@@ -407,6 +409,8 @@ def getTeamSubmissionDetailsContext(contest, user, attempt, n_passed, n_tests, m
             'min_grade': min_passed_grade
         }
     }
+
+
 # REQUIRED IN ALL VIEWS THAT EXTEND list.html
 def getUserGroupListContext(groups):
     """Context for list.html
@@ -424,6 +428,7 @@ def getUserGroupListContext(groups):
         }
     }
 
+
 # REQUIRED IN ALL VIEWS THAT EXTEND user_group_detail_layout.html
 def getUserGroupDetailLayout(group):
     """Context for user_group_detail_layout.html
@@ -440,6 +445,7 @@ def getUserGroupDetailLayout(group):
             'group': group
         }
     }
+
 
 # REQUIRED IN ALL VIEWS THAT EXTEND view_sow_button.html
 def getContestViewSowButtonContext(contest):
@@ -461,7 +467,7 @@ def getContestViewSowButtonContext(contest):
 
 # REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
 def getUserGroupJoinFormContext(form):
-        """Context for join_form.html
+    """Context for join_form.html
         REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
         Parameters
         ----------
@@ -470,16 +476,16 @@ def getUserGroupJoinFormContext(form):
         ----------
             context
         """
-        return {
-            'user_group_join_form': {
-                'form': form
-            }
+    return {
+        'user_group_join_form': {
+            'form': form
         }
+    }
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
-def getTeamJoinFormContext(create_form,join_form):
-        """Context for join_form.html
+def getTeamJoinFormContext(create_form, join_form):
+    """Context for join_form.html
         REQUIRED IN ALL VIEWS THAT EXTEND join_form.html
         Parameters
         ----------
@@ -489,16 +495,17 @@ def getTeamJoinFormContext(create_form,join_form):
         ----------
             context
         """
-        return {
-            'team_join_form': {
-                'create_form': create_form,
-                'join_form': join_form
-            }
+    return {
+        'team_join_form': {
+            'create_form': create_form,
+            'join_form': join_form
         }
+    }
+
 
 # REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
 def getUserGradesDasboardContext(labels, datasets):
-        """Context for user_grades_dashboard.html
+    """Context for user_grades_dashboard.html
         REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
         Parameters
         ----------
@@ -508,16 +515,17 @@ def getUserGradesDasboardContext(labels, datasets):
         ----------
             context
         """
-        return {
-            'user_grades_dashboard': {
-                'labels': labels,
-                'datasets': datasets
-            }
+    return {
+        'user_grades_dashboard': {
+            'labels': labels,
+            'datasets': datasets
         }
+    }
+
 
 # REQUIRED IN ALL VIEWS THAT EXTEND profile_form.html
 def getUserProfileFormContext(userForm, profileForm):
-        """Context for profile_form.html
+    """Context for profile_form.html
         REQUIRED IN ALL VIEWS THAT EXTEND profile_form.html
         Parameters
         ----------
@@ -527,16 +535,17 @@ def getUserProfileFormContext(userForm, profileForm):
         ----------
             context
         """
-        return {
-            'user_profile_form': {
-                'userForm': userForm,
-                'profileForm': profileForm
-            }
+    return {
+        'user_profile_form': {
+            'userForm': userForm,
+            'profileForm': profileForm
         }
+    }
+
 
 # REQUIRED IN ALL VIEWS THAT EXTEND number_card.html
 def getUserContestsNumberCardContext(activeContestsNumber):
-        """Context for number_card.html
+    """Context for number_card.html
         REQUIRED IN ALL VIEWS THAT EXTEND number_card.html
         Parameters
         ----------
@@ -545,12 +554,31 @@ def getUserContestsNumberCardContext(activeContestsNumber):
         ----------
             context
         """
-        return {
-            'user_contests_number_card': {
-                'active_contests': activeContestsNumber
-            }
+    return {
+        'user_contests_number_card': {
+            'active_contests': activeContestsNumber
         }
+    }
 
+
+# REQUIRED IN ALL VIEWS THAT EXTEND submissions_left.html
+def getUserContestsSubmissionsLeftContext(contest, attempts):
+    """ Context for submissions_left.html
+        REQUIRED IN ALL VIEWS THAT EXTEND submissions_left.html
+        Parameters
+        ----------
+            contest: Contest
+            number_of_submitions: int
+        return
+        ----------
+            context
+        """
+    return {
+        'user_contests_submissions_left': {
+            'contest': contest,
+            'number_of_submitions': attempts.count()
+        }
+    }
 
 def getUserDashboardOngoingContestsProgressContext(contests):
     today = datetime.datetime.now()
@@ -561,3 +589,4 @@ def getUserDashboardOngoingContestsProgressContext(contests):
             'contests': helper
         }
     }
+

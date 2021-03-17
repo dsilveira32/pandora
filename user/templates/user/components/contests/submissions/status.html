@@ -2,13 +2,7 @@
 <div class="card border rounded shadow-sm mb-4 mt-4">
     <div class="card-body text-center">
         <h5 class="car-title mb-2 text-primary">Current Status</h5>
-        <div class="alert alert-info">
-            {% if team_submission_status.contest.max_submitions > 0 %}
-                You have {% subtract_until_zero team_submission_status.contest.max_submitions team_submission_status.number_of_submitions %} submissions left.
-            {% else %}
-                This contest has unlimited submissions.
-            {% endif %}
-        </div>
+        {% include "user/components/contests/submissions/submissions_left.html" %}
         <p class="card-text mb-auto">
             <table class="table">
                 <tbody>

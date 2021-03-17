@@ -1,0 +1,15 @@
+{% load helpers %}
+<div class="alert alert-info text-center">
+    {% if user_contests_submissions_left.contest.max_submitions > 0 %}
+        You have
+        {% subtract_until_zero user_contests_submissions_left.contest.max_submitions user_contests_submissions_left.number_of_submitions %}
+        submissions left.
+    {% else %}
+        This contest has unlimited submissions.
+    {% endif %}
+{% comment %}
+<div class="progress">
+  <div class="progress-bar bg-info" role="progressbar" style="width: {% get_percent user_contests_submissions_left.number_of_submitions user_contests_submissions_left.contest.max_submitions 1 %}%;" aria-valuenow="{% get_percent user_contests_submissions_left.number_of_submitions user_contests_submissions_left.contest.max_submitions 1 %}" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+{% endcomment %}
+</div>
