@@ -64,7 +64,7 @@ def dashboard_view(request):
             'borderColor': "#4e73df"
         }
     ]))
-
+    context.update(getUserDashboardOngoingContestsProgressContext(contests))
     context.update(getUserContestsNumberCardContext(numberOpenedContests))
     return render(request, template_name, context)
 

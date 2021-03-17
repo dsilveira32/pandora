@@ -24,3 +24,13 @@ def subtract_until_zero(value, arg):
     if ret < 0:
         ret = 0
     return ret
+
+@register.simple_tag
+def days_left_until(date):
+    from datetime import datetime
+    today = datetime.now()
+    diff = today - date
+    daysleft = diff.days
+    if daysleft < 0:
+        daysleft = 0
+    return daysleft

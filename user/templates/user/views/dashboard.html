@@ -6,9 +6,15 @@
         <div class="col-xl-3 col-md-6 mb-4">
             {% include 'user/components/dashboard/number_card.html' %}
         </div>
-        <div class="col-12"></div>
+    </div>
+    <div class="row pb-3">
+        <div class="col-6">
+            {% include 'user/components/dashboard/recent_contests_progress.html' %}
+        </div>
         <div class="col-6">
             {% include 'user/components/dashboard/grades_graph.html' %}
         </div>
     </div>
+
+
 {% endblock %}

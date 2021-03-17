@@ -1,0 +1,85 @@
+<!-- Project Card Example -->
+{% load helpers %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Ongoing contests</h6>
+    </div>
+    <div class="card-body">
+        {% for c in user_dashboard_ongoing_contests_progress.contests %}
+            <div style="transform: rotate(0);">
+                <h4 class="small font-weight-bold">
+                    <a href="{% url 'user_contests_detail_dashboard' c.id %}" class="stretched-link">
+                        {{ c.title }}
+                    </a>
+                    <span class="float-right" id="ongoing_contests_progress_days_left_{{ c.id }}">
+
+                </span>
+                </h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar" id="ongoing_contests_progress_progressbar_{{ c.id }}" role="progressbar"
+                         aria-valuenow="0"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    function datediff(first, second) {
+        // Take the difference between the dates and divide by milliseconds per day.
+        // Round to nearest whole number to deal with DST.
+        return Math.round((second - first) / (1000 * 60 * 60 * 24));
+    }
+
+    function hoursdiff(first, second) {
+        // Take the difference between the dates and divide by milliseconds per day.
+        // Round to nearest whole number to deal with DST.
+        return Math.round((second - first) / (1000 * 60 * 60));
+    }
+
+    function doSomething(start_date, end_date, progress_bar, progress_desc) {
+        let today = new Date();
+        let total_days = datediff(start_date, end_date)
+        let days_left = datediff(today, end_date)
+
+        let percentage = 100 - ((days_left * 100) / total_days);
+        progress_bar.css('width', percentage + '%').attr('aria-valuenow', percentage);
+        if (percentage < 20) {
+            // Verde
+            progress_bar.addClass('bg-success')
+        } else if (percentage < 40) {
+            // Azul claro
+            progress_bar.addClass('bg-info')
+        } else if (percentage < 60) {
+            // Azul escuro
+            progress_bar.addClass('bg-primary')
+        } else if (percentage < 80) {
+            // Amarelo
+            progress_bar.addClass('bg-warning')
+        } else {
+            // Vermelho
+            progress_bar.addClass('bg-danger')
+        }
+        if (days_left < 3) {
+            let hours_left = hoursdiff(today, end_date);
+            progress_desc.html(hours_left + ' hours left.');
+        } else {
+            progress_desc.html(days_left + ' days left.');
+        }
+    }
+
+    let progress_bar, progress_desc;
+    {% for c in user_dashboard_ongoing_contests_progress.contests %}
+        progress_bar = $('#ongoing_contests_progress_progressbar_{{ c.id }}');
+        progress_desc = $('#ongoing_contests_progress_days_left_{{ c.id }}');
+        {% if c.isOpen %}
+            doSomething(new Date("{{ c.start_date.isoformat }}"), new Date("{{ c.end_date.isoformat }}"), progress_bar, progress_desc);
+        {% else %}
+            progress_bar.css('width', '100%').attr('aria-valuenow', 100);
+            progress_bar.html('Contest has finished!');
+        {% endif %}
+
+
+    {% endfor %}
+
+
+</script>

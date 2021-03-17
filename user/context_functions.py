@@ -550,3 +550,14 @@ def getUserContestsNumberCardContext(activeContestsNumber):
                 'active_contests': activeContestsNumber
             }
         }
+
+
+def getUserDashboardOngoingContestsProgressContext(contests):
+    today = datetime.datetime.now()
+    aux = contests.filter(end_date__gt=today).order_by('end_date')
+    helper = aux[0:5]
+    return {
+        'user_dashboard_ongoing_contests_progress': {
+            'contests': helper
+        }
+    }
