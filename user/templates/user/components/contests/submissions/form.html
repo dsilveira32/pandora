@@ -3,11 +3,7 @@
 	<div class="col-md-8">
 		<div class="card border rounded shadow-sm mb-4 mt-4">
 			<div class="card-body text-left">
-					{% if messages %}
-						{% for message in messages %}
-							<div class="alert alert-danger" role="alert">{{ message|safe }}</div>
-						{% endfor %}
-					{% endif %}
+                {% include "user/components/contests/submissions/submissions_left.html" %}
 				<form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
 					{{ contest_form.form|crispy }}
    					<button type="submit"  class="btn btn-success">Submit</button>

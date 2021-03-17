@@ -24,3 +24,12 @@ def subtract_until_zero(value, arg):
     if ret < 0:
         ret = 0
     return ret
+
+@register.simple_tag
+def get_percent(current, max, reverse):
+    ret = current*100/max
+    if reverse:
+        ret = 100 - ret
+    if ret < 0:
+        ret = 0
+    return ret
