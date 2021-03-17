@@ -32,4 +32,4 @@ def get_percent(current, max, reverse):
         ret = 100 - ret
     if ret < 0:
         ret = 0
-    return ret
+    return int(round(ret, 0))
