@@ -418,6 +418,28 @@ class Team(models.Model):
                 pass
             at.file = None
 
+    def getRanking(self):
+        # TODO Make it better
+        query = "SELECT att.*, maxs.attempts, maxs.team_id FROM (" \
+                "select max(id) as id," \
+                "count(id) as attempts," \
+                "team_id from " \
+                "shared_attempt" \
+                " where contest_id = " + str(self.contest.id) + \
+                "   group by team_id)" \
+                "       maxs inner join shared_attempt att on att.id = maxs.id" \
+                "           order by grade desc, attempts asc, time_benchmark asc, memory_benchmark asc, elapsed_time asc," \
+                "                       cpu_time asc"
+        # select contest_atempt.id as id, max(date), grade, count(contest_atempt.id) as number_of_atempts, time_benchmark, memory_benchmark elapsed_time, cpu_time from contest_atempt where contest_id = " + str(contest_obj.id) + " group by (team_id) order by grade desc, time_benchmark asc, memory_benchmark asc, number_of_atempts asc"
+        attempts = Attempt.objects.raw(query)
+        rank = 1
+        if self:
+            for att in attempts:
+                if att.team == self:
+                    return att, rank
+                rank += 1
+        return None, 0
+
     @classmethod
     def getById(cls, id):
         return cls.objects.get(id=id)

@@ -2,9 +2,18 @@
 {% block pageContent %}
     <h3>Dashboard</h3>
     <hr>
-    <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
+    <div class="row mb-4">
+        <div class="col-3">
             {% include 'user/components/dashboard/number_card.html' %}
+        </div>
+        <div class="col-3">
+            {% include 'user/components/dashboard/avg_grade_card.html' %}
+        </div>
+        <div class="col-3">
+            {% include 'user/components/dashboard/avg_ranking_card.html' %}
+        </div>
+        <div class="col-3">
+            {% include 'user/components/dashboard/avg_n_submissions_card.html' %}
         </div>
     </div>
     <div class="row pb-3">

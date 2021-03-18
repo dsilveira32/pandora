@@ -5,6 +5,7 @@ from shared.routines import *
 from shared.forms import ProfileModelForm, UserModelForm
 from user.context_functions import *
 from user.views import contest_views
+from django.utils import timezone
 
 
 def user_approval_required(function):
@@ -33,39 +34,17 @@ def user_complete_profile_required(function):
 @user_complete_profile_required
 @user_approval_required
 def dashboard_view(request):
-    return redirect(contest_views.dashboard_view)
+    #return redirect(contest_views.dashboard_view)
     template_name = 'user/views/dashboard.html'
     context = {}
-    contests = getContestsForUser(request)
-    labels = []
-    data = []
-    bgcolors = []
-    if contests:
-        for contest in contests:
-            labels.append(contest.getName())
-            team = contest.getUserTeam(request.user)
-            if team:
-                submission = team.getLatestAttempt()
-                if submission:
-                    data.append(submission.getGrade())
-                    bgcolors.append('#4e73df')
+    contests = Contest.getContestsForUser(request)
 
-    numberOpenedContests = 0
-    for contest in getContestsForUser(request):
-        if (contest.isOpen()):
-            numberOpenedContests += 1
-
-    context.update(getUserGradesDasboardContext(labels, [
-        {
-            'label': 'Nota',
-            'data': data,
-            'backgroundColor': bgcolors,
-            'hoverBackgroundColor': "#2e59d9",
-            'borderColor': "#4e73df"
-        }
-    ]))
+    context.update(getUserGradesDasboardContext(request, contests))
     context.update(getUserDashboardOngoingContestsProgressContext(contests))
-    context.update(getUserContestsNumberCardContext(numberOpenedContests))
+    context.update(getUserContestsNumberCardContext(request))
+    context.update(getUserDashboardAvgGradeCardContext(request, contests))
+    context.update(getUserDashboardAvgNumbSubmissionsCardContext(request, contests))
+    context.update(getUserDashboardAvgRankingCardContext(request, contests))
     return render(request, template_name, context)
 
 

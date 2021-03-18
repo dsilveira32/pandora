@@ -504,37 +504,47 @@ def getTeamJoinFormContext(create_form, join_form):
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
-def getUserGradesDasboardContext(labels, datasets):
-    """Context for user_grades_dashboard.html
-        REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
-        Parameters
-        ----------
-            labels: List
-            datasets: List
-        return
-        ----------
-            context
-        """
+def getUserGradesDasboardContext(request, contests):
+    labels = []
+    data = []
+    bgcolors = []
+    if contests:
+        today = datetime.datetime.now()
+        for contest in contests.filter(end_date__gt=today).order_by("end_date")[0:5]:
+            print(contest.getName())
+            team = contest.getUserTeam(request.user)
+            labels.append(contest.getName())
+            bgcolors.append('#4e73df')
+            if team:
+                submission = team.getLatestAttempt()
+                print(submission)
+
+                if submission:
+                    print(submission.getGrade())
+                    data.append(submission.getGrade())
+                else:
+                    data.append(0)
+            else:
+                data.append(0)
     return {
         'user_grades_dashboard': {
             'labels': labels,
-            'datasets': datasets
+            'datasets': [
+                {
+                    'label': 'Nota',
+                    'data': data,
+                    'backgroundColor': bgcolors,
+                    'hoverBackgroundColor': "#2e59d9",
+                    'borderColor': "#4e73df"
+                }
+            ]
         }
     }
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND profile_form.html
 def getUserProfileFormContext(userForm, profileForm):
-    """Context for profile_form.html
-        REQUIRED IN ALL VIEWS THAT EXTEND profile_form.html
-        Parameters
-        ----------
-            userForm: ModelForm
-            profileForm: ModelForm
-        return
-        ----------
-            context
-        """
+
     return {
         'user_profile_form': {
             'userForm': userForm,
@@ -544,35 +554,22 @@ def getUserProfileFormContext(userForm, profileForm):
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND number_card.html
-def getUserContestsNumberCardContext(activeContestsNumber):
-    """Context for number_card.html
-        REQUIRED IN ALL VIEWS THAT EXTEND number_card.html
-        Parameters
-        ----------
-            activeContestsNumber: int
-        return
-        ----------
-            context
-        """
+def getUserContestsNumberCardContext(request):
+    numberOpenedContests = 0
+    for contest in Contest.getContestsForUser(request):
+        if (contest.isOpen()):
+            numberOpenedContests += 1
+
     return {
         'user_contests_number_card': {
-            'active_contests': activeContestsNumber
+            'active_contests': numberOpenedContests
         }
     }
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND submissions_left.html
 def getUserContestsSubmissionsLeftContext(contest, attempts):
-    """ Context for submissions_left.html
-        REQUIRED IN ALL VIEWS THAT EXTEND submissions_left.html
-        Parameters
-        ----------
-            contest: Contest
-            number_of_submitions: int
-        return
-        ----------
-            context
-        """
+
     return {
         'user_contests_submissions_left': {
             'contest': contest,
@@ -587,6 +584,66 @@ def getUserDashboardOngoingContestsProgressContext(contests):
     return {
         'user_dashboard_ongoing_contests_progress': {
             'contests': helper
+        }
+    }
+
+def getUserDashboardAvgGradeCardContext(request, contests):
+    today = datetime.datetime.now()
+    gradeSum = 0
+    if contests:
+        for contest in contests:
+            team = contest.getUserTeam(request.user)
+            if team:
+                submission = team.getLatestAttempt()
+                if submission:
+                    gradeSum += submission.getGrade()
+            print(gradeSum)
+        avg = gradeSum / len(contests)
+    else:
+        avg = 0
+    return {
+        'user_dashboard_avg_grade_card': {
+            'avg': round(avg, 2)
+        }
+    }
+
+def getUserDashboardAvgNumbSubmissionsCardContext(request, contests):
+    today = datetime.datetime.now()
+    subsSum = 0
+    if contests:
+        for contest in contests:
+            team = contest.getUserTeam(request.user)
+            if team:
+                subsSum += team.getAttempts().count()
+        avg = subsSum / len(contests)
+    else:
+        avg = 0
+    return {
+        'user_dashboard_avg_n_submissions_card': {
+            'avg': round(avg, 2)
+        }
+    }
+
+def getUserDashboardAvgRankingCardContext(request, contests):
+    rankingSum = 0
+    numberOfValidContests = 0
+    if contests:
+        for contest in contests:
+            team = contest.getUserTeam(request.user)
+            if team:
+                _, rank = team.getRanking()
+                rankingSum += rank
+                numberOfValidContests += 1
+        if numberOfValidContests < 1:
+            avg = 'N/A'
+        else:
+            avg = round(rankingSum / numberOfValidContests, 2)
+
+    else:
+        avg = 'N/A'
+    return {
+        'user_dashboard_ranking_avg_card': {
+            'avg': avg
         }
     }
 

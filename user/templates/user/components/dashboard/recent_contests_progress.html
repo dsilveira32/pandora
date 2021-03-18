@@ -2,6 +2,9 @@
 {% load helpers %}
 <div class="card shadow mb-4">
     <div class="card-header py-3">
+        <i type="button" class="fas fa-question-circle bg-gray float-right" data-bs-toggle="tooltip" data-bs-placement="top"
+           title="This graph displays the time left of (up to) the 5 contests closest to ending.">
+        </i>
         <h6 class="m-0 font-weight-bold text-primary">Ongoing contests</h6>
     </div>
     <div class="card-body">
@@ -23,6 +26,12 @@
         {% endfor %}
     </div>
 </div>
+<!-- enable bootstrap tooltips -->
+<script>
+    $(function () {
+      $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+</script>
 <script>
     function datediff(first, second) {
         // Take the difference between the dates and divide by milliseconds per day.

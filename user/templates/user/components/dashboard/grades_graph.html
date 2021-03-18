@@ -1,11 +1,23 @@
-<div class="card">
-    <div class="card-header">
-        Grade by contest
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <i type="button" class="fas fa-question-circle bg-gray float-right" data-bs-toggle="tooltip" data-bs-placement="top"
+           title="This graph displays the current grades of (up to) the 5 open contests closest to ending.">
+        </i>
+        <h6 class="m-0 font-weight-bold text-primary">Grade by contest</h6>
+
     </div>
     <div class="card-body">
-        <canvas id="grade_by_contest"></canvas>
+        <div class="chart-bar">
+            <canvas id="grade_by_contest"></canvas>
+        </div>
     </div>
 </div>
+<!-- enable bootstrap tooltips -->
+<script>
+    $(function () {
+      $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+</script>
 <script>
     var ctx = document.getElementById('grade_by_contest').getContext('2d');
     var myChart = new Chart(ctx, {
@@ -17,41 +29,60 @@
             datasets:{{ user_grades_dashboard.datasets | safe }}
         },
         options: {
-            responsive:true,
-            legend: {
-              display: false
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
             },
             scales: {
+                xAxes: [{
+                    time: {
+                        unit: 'day'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 6
+                    },
+                    maxBarThickness: 25,
+                }],
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        min: 0,
+                        max: 20,
+                        maxTicksLimit: 5,
+                        padding: 10,
                     },
-                    maxTicksLimit: 5
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
                 }],
-                xAxes:[{
-                    maxBarThickness: 25
-                }]
             },
-            layout: {
-              padding: {
-                left: 10,
-                right: 25,
-                top: 25,
-                bottom: 0
-              }
+            legend: {
+                display: false
             },
             tooltips: {
-              titleMarginBottom: 10,
-              titleFontColor: '#6e707e',
-              titleFontSize: 14,
-              backgroundColor: "rgb(255,255,255)",
-              bodyFontColor: "#858796",
-              borderColor: '#dddfeb',
-              borderWidth: 1,
-              xPadding: 15,
-              yPadding: 15,
-              displayColors: false,
-              caretPadding: 10
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
             },
         }
     });
