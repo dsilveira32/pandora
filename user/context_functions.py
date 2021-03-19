@@ -510,7 +510,7 @@ def getUserGradesDasboardContext(request, contests):
     bgcolors = []
     if contests:
         today = datetime.datetime.now()
-        for contest in contests.filter(end_date__gt=today).order_by("end_date")[0:5]:
+        for contest in contests.order_by("end_date")[:5]:
             print(contest.getName())
             team = contest.getUserTeam(request.user)
             labels.append(contest.getName())
@@ -531,7 +531,7 @@ def getUserGradesDasboardContext(request, contests):
             'labels': labels,
             'datasets': [
                 {
-                    'label': 'Nota',
+                    'label': 'Grade',
                     'data': data,
                     'backgroundColor': bgcolors,
                     'hoverBackgroundColor': "#2e59d9",
