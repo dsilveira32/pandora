@@ -18,5 +18,6 @@ def dashboard_view(request):
 	context.update(getAdminDashboardActiveContestsCardContext())
 	context.update(getAdminDashboardLastWeekSubmissionsCardContext())
 	context.update(getAdminDashboardActiveUsersCardContext())
-
+	context.update(getAdminDashboardSubmissionsPerContestContext())
+	context.update(getAdminDashboardGradesAvgContext())
 	return render(request, template_name, context)

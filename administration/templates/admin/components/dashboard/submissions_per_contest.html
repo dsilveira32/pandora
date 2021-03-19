@@ -1,22 +1,26 @@
 {% load helpers %}
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Submissions per contest</h6>
+        <i type="button" class="fas fa-question-circle bg-gray float-right" data-bs-toggle="tooltip" data-bs-placement="top"
+           title="This graph displays all submissions over the last 30 days, separated by contest.">
+        </i>
+        <h6 class="m-0 font-weight-bold text-primary">Submissions over 30 days</h6>
     </div>
     <div class="card-body">
         <div class="chart-bar">
-            <canvas id="submissionsChart"></canvas>
+            <canvas id="submissionsPerContestChart"></canvas>
         </div>
     </div>
 </div>
 
 
 <script>
+    var ctx = document.getElementById("submissionsPerContestChart");
     var myBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: {{ admin_dashboard_submissions_per_contest.labels | js }},
-            datasets: {{ admin_dashboard_submissions_per_contest.datasets | js }},
+            labels: {{ admin_dashboard_submissions_per_contest.labels | safe }},
+            datasets: {{ admin_dashboard_submissions_per_contest.datasets | safe }},
         },
         options: {
             maintainAspectRatio: false,

@@ -9,7 +9,7 @@
 # CONTESTS #
 from datetime import timedelta, datetime
 
-from shared.models import Contest, Profile, Team
+from shared.models import Contest, Profile, Team, Attempt
 
 from datetime import datetime, timedelta
 import random
@@ -402,41 +402,36 @@ def getAdminContestRankingsContext(attempts):
     }
 
 
-def getAdminDashboardSubmissionsPerContestContext(submissions):
+def getAdminDashboardSubmissionsPerContestContext():
     datasets = []
     dict = {}
     labels = []
+    #https://hexcolor.co/random-colors#7497d8
+    colors = ["#537fce",
+              "#7497d8",
 
-    colors = ["#5ae62c",
-              "#21c9e7",
-              "#e63115",
-              "#a5b231",
-              "#05db9d",
-              "#f02d5a",
-              "#ea2cd4",
-              "#386657",
-              "#0316f7",
-              "#14c0ef",
-              "#c71ef2",
-              "#209190",
-              "#fa25f6",
-              "#f90e73",
-              "#98c3e8",
-              "#5ecad1",
-              "#53dd0a",
-              "#321214",
-              "#7affba",
-              "#144293",
-              "#b63caf"]
+              "#70a3d7",
+              "#80addb",
+
+              "#f37344",
+              "#f68f6a",
+
+              "#6cb79a",
+              "#c482e3",
+
+              "#faf447",
+              "#fcf88d",
+              ]
+
     thirtyDaysAgo = datetime.today() - timedelta(days=30)
     days = 1
     while days < 30:
         date = thirtyDaysAgo + timedelta(days=days)
-        labels.append(f"${date.day}/${date.month}")
+        labels.append(f"{date.day}/{date.month}")
         days += 1
-    for s in submissions.filter(date__gt=thirtyDaysAgo):
-        key = f"${s.date.day}/${s.date.month}"
-        if dict[s.contest.title]:
+    for s in Attempt.objects.filter(date__gt=thirtyDaysAgo):
+        key = f"{s.date.day}/{s.date.month}"
+        if s.contest.title in dict:
             dict[s.contest.title][key] += 1
         else:
             dict.update({
@@ -447,20 +442,20 @@ def getAdminDashboardSubmissionsPerContestContext(submissions):
                     date: 0
                 })
             dict[s.contest.title][key] += 1
-
+    idx = 0;
     for contest in dict:
-        random.shuffle(colors)
-        bgcolor = colors[0]
-        random.shuffle(colors)
-        hoverColor = colors[0]
+        if idx >= len(colors):
+            idx = 0
+        bgcolor = colors[idx]
+        hoverColor = colors[idx+1]
+        idx += 2
         dataset = {
             'label': contest,
             'backgroundColor': bgcolor,
             'hoverBackgroundColor': hoverColor,
             'borderColor': bgcolor,
-            'data': dict[contest].values(),
+            'data': list(dict[contest].values()),
         }
-
         datasets.append(dataset)
 
     return {
@@ -505,14 +500,16 @@ def getAdminDashboardGradesAvgContext():
     for contest in contests:
         labels.append(contest.getName())
         gradeSum = 0
-        for team in contest.getTeams():
-            submissions = team.getAttempts()
-            if submissions:
-                for sub in submissions:
+        teams = contest.getTeams()
+        if teams:
+            for team in teams:
+                sub = team.getLatestAttempt()
+                if sub:
                     gradeSum += sub.getGrade()
-
-        data.append(gradeSum / len(contests))
-
+            data.append(round(gradeSum / len(teams),2))
+        else:
+            data.append(0)
+    print(labels)
     return {
         'admin_dashboard_grades_avg': {
             'labels': labels,

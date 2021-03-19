@@ -1,11 +1,14 @@
 {% load helpers %}
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Submissions over 30 days</h6>
+        <i type="button" class="fas fa-question-circle bg-gray float-right" data-bs-toggle="tooltip" data-bs-placement="top"
+           title="This graph displays the average grade of (up to) the 5 most recent contests.">
+        </i>
+        <h6 class="m-0 font-weight-bold text-primary">Average grade per contest</h6>
     </div>
     <div class="card-body">
         <div class="chart-bar">
-            <canvas id="submissionsChart"></canvas>
+            <canvas id="gradesAvgCard"></canvas>
         </div>
     </div>
 </div>
@@ -16,7 +19,7 @@
     Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
     Chart.defaults.global.defaultFontColor = '#858796';
 
-    var ctx = document.getElementById("submissionsChart");
+    var ctx = document.getElementById("gradesAvgCard");
     var myBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
