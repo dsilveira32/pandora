@@ -12,19 +12,13 @@
         </div>
     </div>
 </div>
-<!-- enable bootstrap tooltips -->
-<script>
-    $(function () {
-      $('[data-bs-toggle="tooltip"]').tooltip()
-    })
-</script>
 <script>
     var ctx = document.getElementById('grade_by_contest').getContext('2d');
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
             // X axis
-            labels:{{ user_grades_dashboard.labels | safe}},
+            labels: {{ user_grades_dashboard.labels | safe}},
             // Y axis
             datasets:{{ user_grades_dashboard.datasets | safe }}
         },

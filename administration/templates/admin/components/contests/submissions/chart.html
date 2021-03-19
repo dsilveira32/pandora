@@ -12,7 +12,7 @@
 
 
 <script>
-    function getDaysFromDateToToday(date, today) {
+    function getDaysFromDateToEndDate(date, today) {
         var dateHelper = new Date(date);
         var days = [];
         while (!(dateHelper.getFullYear() === today.getFullYear() && dateHelper.getMonth() === today.getMonth() && dateHelper.getDate() === today.getDate())) {
@@ -33,20 +33,28 @@
     var ctx = document.getElementById("submissionsChart");
     var submissions = {{ admin_contests_submissions_chart.submissions | js}};
     var cleanedSubmissions = [];
-    var today = new Date()
-    var lastThirtyDays = new Date(new Date().setDate(today.getDate()-30));
-    let days = getDaysFromDateToToday(lastThirtyDays, today)
+    var today = new Date();
+    var contestEndDate = new Date("{{ admin_contests_submissions_chart.contest.end_date.isoformat }}")
+    var lastThirtyDays;
+    var endDate;
+    if (today.getTime() > contestEndDate.getTime()){
+        endDate = new Date(contestEndDate);
+        lastThirtyDays = new Date(new Date(contestEndDate).setDate(contestEndDate.getDate()-30));
+    } else {
+        endDate = new Date(today);
+        lastThirtyDays = new Date(new Date().setDate(today.getDate()-30));
+    }
+    let days = getDaysFromDateToEndDate(lastThirtyDays, endDate)
     let json = {};
     for (let d of days) {
         json['' + d.getDate() + '/' + (d.getMonth()+1)] = 0;
     }
-    for (let s of submissions){
+    for (let s of submissions) {
         let dateAux = new Date(s.date);
-        if(dateAux.getTime() > lastThirtyDays.getTime() && dateAux.getTime() < today.getTime()) {
+        if(dateAux.getTime() > lastThirtyDays.getTime() && dateAux.getTime() < endDate.getTime()) {
             json['' + dateAux.getDate() + '/' + (dateAux.getMonth()+1)] += 1;
         }
     }
-    let max = Math.max.apply(null,Object.values(json));
     var myBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -78,15 +86,14 @@
                         display: false,
                         drawBorder: false
                     },
-                    ticks: {
+                    /*ticks: {
                         maxTicksLimit: 6
-                    },
+                    }, */
                     maxBarThickness: 25,
                 }],
                 yAxes: [{
                     ticks: {
                         min: 0,
-                        max: max,
                         maxTicksLimit: 5,
                         padding: 10,
                     },

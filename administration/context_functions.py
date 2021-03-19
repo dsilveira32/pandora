@@ -331,10 +331,11 @@ def getAdminContestSubmissionListContext(submissions):
     }
 
 # For admin/components/contests/submissions/chart.html
-def getAdminContestSubmissionChartContext(submissions):
+def getAdminContestSubmissionChartContext(submissions, contest):
     return {
         'admin_contests_submissions_chart': {
             'submissions': list(submissions.values()),
+            'contest': contest
         }
     }
 

@@ -647,3 +647,31 @@ def getUserDashboardAvgRankingCardContext(request, contests):
         }
     }
 
+
+def getUserContestGradeProgressContext(request, contest: Contest):
+    labels = []
+    data = []
+    if contest:
+        team = contest.getUserTeam(request.user)
+        if team:
+            submissions = team.getAttempts().order_by('id').reverse()
+            if submissions:
+                nSub = 1
+                limit = 50
+                for sub in submissions:
+                    if nSub < limit:
+                        labels.append(submissions.count()+1 - nSub)
+                        data.append(sub.getGrade())
+                    nSub += 1
+            else:
+                data.append(0)
+        else:
+            data.append(0)
+    labels.reverse()
+    data.reverse()
+    return {
+        'user_contest_grade_progress': {
+            'labels': labels,
+            'data': data
+        }
+    }

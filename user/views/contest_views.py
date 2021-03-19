@@ -105,5 +105,5 @@ def detail_dashboard_view(request, contest_id):
     context.update(getTeamMembersContext(team))
     context.update(getContestDetailsContext(contest))
     context.update(getContestSubmitAttemptButton(contest, team))
-
+    context.update(getUserContestGradeProgressContext(request, contest))
     return render(request, template_name, context)
