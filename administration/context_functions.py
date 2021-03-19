@@ -7,6 +7,10 @@
 #############################
 
 # CONTESTS #
+from datetime import timedelta, datetime
+
+from shared.models import Contest, Profile, Team
+
 
 def getAdminContestNonDetailLayoutContext():
     return {}
@@ -391,5 +395,55 @@ def getAdminContestRankingsContext(attempts):
     return {
         'admin_contest_rankings': {
             'attempts': attempts
+        }
+    }
+
+def getAdminDashboardActiveContestsCardContext():
+    return {
+        'admin_dashboard_active_contests': {
+            'number': Contest.getActiveContests().count()
+        }
+    }
+
+def getAdminDashboardLastWeekSubmissionsCardContext():
+    teams = Team.objects.all()
+    oneWeek = datetime.today() - timedelta(days=7)
+    subsSum = 0
+    if teams:
+        for team in teams:
+            for s in team.getAttempts().filter(date__gt=oneWeek):
+                subsSum += team.getAttempts().count()
+    return {
+        'admin_dashboard_last_week_submissions': {
+            'number': subsSum
+        }
+    }
+
+def getAdminDashboardActiveUsersCardContext():
+    return {
+        'admin_dashboard_active_users': {
+            'number': Profile.getActiveUsers().count()
+        }
+    }
+
+def getAdminDashboardGradesAvgContext():
+    labels = []
+    data = []
+    contests = Contest.objects.all().order_by("end_date")[:5]
+    for contest in contests:
+        labels.append(contest.getName())
+        gradeSum = 0
+        for team in contest.getTeams():
+            submissions = team.getAttempts()
+            if submissions:
+                for sub in submissions:
+                    gradeSum += sub.getGrade()
+
+        data.append(gradeSum / len(contests))
+
+    return {
+        'admin_dashboard_grades_avg': {
+            'labels': labels,
+            'data': data
         }
     }

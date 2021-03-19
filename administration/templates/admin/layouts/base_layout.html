@@ -23,16 +23,15 @@
                 Admin Area
             </div>
 
-            {% comment %}
+
             <!-- Nav Item - Dashboard -->
             <li class="nav-item {% if request.path == '/manager' %}active{% endif %}">
                 <a class="nav-link"
-                   href="{% url 'manager_contests_home' %}">
+                   href="{% url 'manager_home' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-            {% endcomment %}
             <!-- Nav Item - Contests -->
             <li class="nav-item {% if '/contests' in request.path and 'groups' not in request.path %}active{% endif %}">
                 <a class="nav-link"

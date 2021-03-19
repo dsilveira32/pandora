@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import contest_views, group_views, user_views
 from .views.contests import team_views, test_views, submission_views
+from .views.general import dashboard_view
 
 
 def users_views(args):
@@ -13,7 +14,7 @@ urlpatterns = [
 
     # CONTESTS
 
-    path('', contest_views.dashboard_view, name='manager_home'),
+    path('', dashboard_view, name='manager_home'),
     path('contests/', contest_views.dashboard_view, name='manager_contests_home'),
     path('contests/create/', contest_views.create_view, name='manager_contests_create'),
     path('contests/<int:contest_id>/', contest_views.detail_dashboard_view,

@@ -608,7 +608,6 @@ def getUserDashboardAvgGradeCardContext(request, contests):
     }
 
 def getUserDashboardAvgNumbSubmissionsCardContext(request, contests):
-    today = datetime.datetime.now()
     subsSum = 0
     if contests:
         for contest in contests:

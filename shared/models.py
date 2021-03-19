@@ -76,6 +76,10 @@ class Profile(models.Model):
     def __str__(self):  # __unicode__ for Python 2
         return self.user.username
 
+    @classmethod
+    def getActiveUsers(cls):
+        return cls.objects.filter(valid__exact=True)
+
     def getUser(self):
         return self.user
 
@@ -141,6 +145,11 @@ class Contest(models.Model):
         return cls.objects.filter(group__users__exact=request.user).distinct()
 
     @classmethod
+    def getActiveContests(cls):
+        from django.utils import timezone
+        return cls.objects.filter(end_date__gt=timezone.now(), start_date__lt=timezone.now())
+
+    @classmethod
     def getByID(cls, contest_id):
         return cls.objects.get(id=contest_id)
 
@@ -174,10 +183,8 @@ class Contest(models.Model):
     def isOpen(self):
         """Returns true if the contest is on going."""
         from django.utils import timezone
-        if timezone.now() < self.end_date and timezone.now() > self.start_date:
-            print('true')
+        if self.end_date > timezone.now() > self.start_date:
             return True
-        print('false')
         return False
 
     # objects = ContestManager()
