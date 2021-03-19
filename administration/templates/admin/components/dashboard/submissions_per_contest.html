@@ -1,0 +1,75 @@
+{% load helpers %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Submissions per contest</h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-bar">
+            <canvas id="submissionsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ admin_dashboard_submissions_per_contest.labels | js }},
+            datasets: {{ admin_dashboard_submissions_per_contest.datasets | js }},
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    time: {
+                        unit: 'day'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    maxBarThickness: 25,
+                }],
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        maxTicksLimit: 5,
+                        padding: 10,
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }],
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+        }
+    });
+</script>

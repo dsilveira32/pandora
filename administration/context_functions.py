@@ -11,6 +11,9 @@ from datetime import timedelta, datetime
 
 from shared.models import Contest, Profile, Team
 
+from datetime import datetime, timedelta
+import random
+
 
 def getAdminContestNonDetailLayoutContext():
     return {}
@@ -395,6 +398,75 @@ def getAdminContestRankingsContext(attempts):
     return {
         'admin_contest_rankings': {
             'attempts': attempts
+        }
+    }
+
+
+def getAdminDashboardSubmissionsPerContestContext(submissions):
+    datasets = []
+    dict = {}
+    labels = []
+
+    colors = ["#5ae62c",
+              "#21c9e7",
+              "#e63115",
+              "#a5b231",
+              "#05db9d",
+              "#f02d5a",
+              "#ea2cd4",
+              "#386657",
+              "#0316f7",
+              "#14c0ef",
+              "#c71ef2",
+              "#209190",
+              "#fa25f6",
+              "#f90e73",
+              "#98c3e8",
+              "#5ecad1",
+              "#53dd0a",
+              "#321214",
+              "#7affba",
+              "#144293",
+              "#b63caf"]
+    thirtyDaysAgo = datetime.today() - timedelta(days=30)
+    days = 1
+    while days < 30:
+        date = thirtyDaysAgo + timedelta(days=days)
+        labels.append(f"${date.day}/${date.month}")
+        days += 1
+    for s in submissions.filter(date__gt=thirtyDaysAgo):
+        key = f"${s.date.day}/${s.date.month}"
+        if dict[s.contest.title]:
+            dict[s.contest.title][key] += 1
+        else:
+            dict.update({
+                s.contest.title: {}
+            })
+            for date in labels:
+                dict[s.contest.title].update({
+                    date: 0
+                })
+            dict[s.contest.title][key] += 1
+
+    for contest in dict:
+        random.shuffle(colors)
+        bgcolor = colors[0]
+        random.shuffle(colors)
+        hoverColor = colors[0]
+        dataset = {
+            'label': contest,
+            'backgroundColor': bgcolor,
+            'hoverBackgroundColor': hoverColor,
+            'borderColor': bgcolor,
+            'data': dict[contest].values(),
+        }
+
+        datasets.append(dataset)
+
+    return {
+        'admin_dashboard_submissions_per_contest': {
+            'labels': labels,
+            'datasets': datasets
         }
     }
 
