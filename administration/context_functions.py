@@ -7,9 +7,13 @@
 #############################
 
 # CONTESTS #
+from datetime import datetime, timedelta
+import random
+
 
 def getAdminContestNonDetailLayoutContext():
     return {}
+
 
 def getAdminContestDetailLayoutContext(contest):
     context = {
@@ -19,6 +23,7 @@ def getAdminContestDetailLayoutContext(contest):
     }
     context.update(getAdminContestNonDetailLayoutContext())
     return context
+
 
 # TESTS #
 
@@ -31,6 +36,7 @@ def getAdminTestsNonDetailLayoutContext(contest):
     context.update(getAdminContestDetailLayoutContext(contest))
     return context
 
+
 def getAdminTestDetailLayoutContext(contest, test):
     context = {
         'admin_test_detail_layout': {
@@ -39,6 +45,7 @@ def getAdminTestDetailLayoutContext(contest, test):
     }
     context.update(getAdminTestsNonDetailLayoutContext(contest))
     return context
+
 
 # TEAMS #
 
@@ -51,6 +58,7 @@ def getAdminTeamNonDetailLayoutContext(contest):
     context.update(getAdminContestDetailLayoutContext(contest))
     return context
 
+
 def getAdminTeamDetailLayoutContext(contest, team):
     context = {
         'admin_team_detail_layout': {
@@ -59,6 +67,7 @@ def getAdminTeamDetailLayoutContext(contest, team):
     }
     context.update(getAdminTeamNonDetailLayoutContext(contest))
     return context
+
 
 # SUBMISSIONS #
 
@@ -71,6 +80,7 @@ def getAdminSubmissionNonDetailLayoutContext(contest):
     context.update(getAdminContestDetailLayoutContext(contest))
     return context
 
+
 def getAdminSubmissionDetailLayoutContext(contest, submission):
     context = {
         'admin_submission_detail_layout': {
@@ -79,6 +89,7 @@ def getAdminSubmissionDetailLayoutContext(contest, submission):
     }
     context.update(getAdminSubmissionNonDetailLayoutContext(contest))
     return context
+
 
 # GROUPS #
 
@@ -89,6 +100,7 @@ def getAdminGroupDetailLayoutContext(group):
         }
     }
 
+
 # USERS #
 
 def getAdminUserDetailLayoutContext(user):
@@ -97,6 +109,7 @@ def getAdminUserDetailLayoutContext(user):
             'user': user
         }
     }
+
 
 #############################
 #         COMPONENTS        #
@@ -118,7 +131,6 @@ def getAdminContestListContext(contests):
             'contests': contests,
         }
     }
-
 
 
 # For list.html
@@ -156,6 +168,7 @@ def getAdminContestsTeamsDetailContext(team):
         }
     }
 
+
 # For form.html
 def getAdminTestFormContext(contest, form):
     """Context for form.html
@@ -175,13 +188,13 @@ def getAdminTestFormContext(contest, form):
         }
     }
 
+
 def getAdminTestListContext(tests):
     return {
         'admin_test_list': {
             'tests': tests
         }
     }
-
 
 
 # For list.html
@@ -198,6 +211,7 @@ def getAdminGroupListContext(groups):
         }
     }
 
+
 # For list.html
 def getAdminGroupUserListContext(user_profiles):
     """Context for list.html
@@ -211,6 +225,7 @@ def getAdminGroupUserListContext(user_profiles):
             'user_profiles': user_profiles
         }
     }
+
 
 # For form.html
 def getAdminCreateGroupFormContext(form):
@@ -238,6 +253,7 @@ def getAdminSpecificationFormContext(form):
         }
     }
 
+
 # For admin/users/list.html
 def getAdminUsersListContext(users):
     return {
@@ -245,6 +261,7 @@ def getAdminUsersListContext(users):
             'users': users
         }
     }
+
 
 # For admin/users/form.html
 def getAdminUsersFormContext(userForm, profileForm):
@@ -275,6 +292,7 @@ def getAdminGroupUserManagerContext(users_not_in_group, users_in_group):
         }
     }
 
+
 # For admin/components/groups/dashboard_cards.html
 def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, closed_contest_count):
     return {
@@ -286,6 +304,7 @@ def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, cl
         }
     }
 
+
 # For /contests/teams/form.html
 def getAdminContestsTeamsFormContext(form):
     return {
@@ -293,6 +312,7 @@ def getAdminContestsTeamsFormContext(form):
             'form': form
         }
     }
+
 
 # For /contests/teams/manager.html
 def getAdminContestsTeamsManagerContext(users_out, users_in, team):
@@ -303,10 +323,6 @@ def getAdminContestsTeamsManagerContext(users_out, users_in, team):
             'team': team
         }
     }
-
-
-
-
 
 
 # For admin/components/contests/dashboard_cards.html
@@ -330,6 +346,7 @@ def getAdminContestSubmissionListContext(submissions):
         }
     }
 
+
 # For admin/components/contests/submissions/chart.html
 def getAdminContestSubmissionChartContext(submissions, contest):
     return {
@@ -338,7 +355,6 @@ def getAdminContestSubmissionChartContext(submissions, contest):
             'contest': contest
         }
     }
-
 
 
 # For admin/components/contests/submissions/details.html
@@ -363,6 +379,7 @@ def getAdminContestSubmissionDetailsContext(contest, user, team, attempt, n_pass
         }
     }
 
+
 def getAdminTestsListEditFormContext(tests):
     return {
         'admin_list_edit_form': {
@@ -386,10 +403,80 @@ def getAdminTestMassCreateFormContext(form):
         }
     }
 
+
 # For rankings.html
 def getAdminContestRankingsContext(attempts):
     return {
         'admin_contest_rankings': {
             'attempts': attempts
+        }
+    }
+
+
+def getAdminDashboardSubmissionsPerContestContext(submissions):
+    datasets = []
+    dict = {}
+    labels = []
+
+    colors = ["#5ae62c",
+              "#21c9e7",
+              "#e63115",
+              "#a5b231",
+              "#05db9d",
+              "#f02d5a",
+              "#ea2cd4",
+              "#386657",
+              "#0316f7",
+              "#14c0ef",
+              "#c71ef2",
+              "#209190",
+              "#fa25f6",
+              "#f90e73",
+              "#98c3e8",
+              "#5ecad1",
+              "#53dd0a",
+              "#321214",
+              "#7affba",
+              "#144293",
+              "#b63caf"]
+    thirtyDaysAgo = datetime.today() - timedelta(days=30)
+    days = 1
+    while days < 30:
+        date = thirtyDaysAgo + timedelta(days=days)
+        labels.append(f"${date.day}/${date.month}")
+        days += 1
+    for s in submissions.filter(date__gt=thirtyDaysAgo):
+        key = f"${s.date.day}/${s.date.month}"
+        if dict[s.contest.title]:
+            dict[s.contest.title][key] += 1
+        else:
+            dict.update({
+                s.contest.title: {}
+            })
+            for date in labels:
+                dict[s.contest.title].update({
+                    date: 0
+                })
+            dict[s.contest.title][key] += 1
+
+    for contest in dict:
+        random.shuffle(colors)
+        bgcolor = colors[0]
+        random.shuffle(colors)
+        hoverColor = colors[0]
+        dataset = {
+            'label': contest,
+            'backgroundColor': bgcolor,
+            'hoverBackgroundColor': hoverColor,
+            'borderColor': bgcolor,
+            'data': dict[contest].values(),
+        }
+
+        datasets.append(dataset)
+
+    return {
+        'admin_dashboard_submissions_per_contest': {
+            'labels': labels,
+            'datasets': datasets
         }
     }
