@@ -473,16 +473,10 @@ def getAdminDashboardActiveContestsCardContext():
     }
 
 def getAdminDashboardLastWeekSubmissionsCardContext():
-    teams = Team.objects.all()
     oneWeek = datetime.today() - timedelta(days=7)
-    subsSum = 0
-    if teams:
-        for team in teams:
-            for s in team.getAttempts().filter(date__gt=oneWeek):
-                subsSum += team.getAttempts().count()
     return {
         'admin_dashboard_last_week_submissions': {
-            'number': subsSum
+            'number': Attempt.objects.filter(date__gt=oneWeek).count()
         }
     }
 
