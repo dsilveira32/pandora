@@ -86,7 +86,7 @@ def detail_dashboard_view(request, contest_id):
     team = contest.getUserTeam(request.user)
 
     if not team and contest.max_team_members == 1:
-        team = Team(name=generate_slug(), contest=contest, join_code=request.user.username)
+        team = Team(name=generate_slug(2), contest=contest, join_code=request.user.username)
         team.save()
         team.users.add(request.user)
         team.save()
