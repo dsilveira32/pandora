@@ -431,12 +431,7 @@ def getAdminDashboardSubmissionsPerContestContext():
         days += 1
     for s in Attempt.objects.filter(date__gt=thirtyDaysAgo):
         key = f"{s.date.day}/{s.date.month}"
-        if s.contest.title in dict:
-            if key in dict[s.contest.title]:
-                dict[s.contest.title][key] += 1
-            else:
-                dict[s.contest.title][key] = 0
-        else:
+        if s.contest.title not in dict:
             dict.update({
                 s.contest.title: {}
             })
@@ -444,7 +439,13 @@ def getAdminDashboardSubmissionsPerContestContext():
                 dict[s.contest.title].update({
                     date: 0
                 })
+
+
+        if key in dict[s.contest.title]:
             dict[s.contest.title][key] += 1
+        else:
+            dict[s.contest.title][key] = 0
+
     idx = 0;
     for contest in dict:
         if idx >= len(colors):
