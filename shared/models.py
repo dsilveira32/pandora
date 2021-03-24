@@ -392,13 +392,19 @@ class Team(models.Model):
     def getJoinCode(self):
         return self.join_code
 
+    def getDateException(self):
+        try:
+            return self.teamcontestdateexception
+        except:
+            return None
+
     def canSubmit(self):
-        from datetime import datetime
+        from django.utils import timezone
         if self.attempt_set.count() > self.contest.max_submitions:
             return False
         if not self.contest.isOpen() and not self.teamcontestdateexception:
             return False
-        if self.teamcontestdateexception.valid_until < datetime.now():
+        if self.teamcontestdateexception.valid_until < timezone.now():
             return False
         return True
 
@@ -680,7 +686,6 @@ class Classification(models.Model):
 
 
 class TeamContestDateException(models.Model):
-    contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     team = models.OneToOneField(Team, default=1, null=False, on_delete=models.CASCADE)
     valid_until = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 

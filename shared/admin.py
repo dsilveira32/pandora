@@ -12,7 +12,7 @@ from .models import (
     SafeExecError,
     UserContestDateException,
     ContestTestDataFile,
-    Group, C_Specification
+    Group, C_Specification, TeamContestDateException
 )
 
 
@@ -61,3 +61,4 @@ admin.site.register(UserContestDateException)
 admin.site.register(ContestTestDataFile)
 admin.site.register(C_Specification)
 admin.site.register(Group)
+admin.site.register(TeamContestDateException)

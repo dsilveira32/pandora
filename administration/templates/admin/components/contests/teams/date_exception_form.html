@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+<div class="card border rounded shadow-sm mb-4 mt-4">
+    <div class="card-body">
+        <h5 class="car-title mb-2 text-primary">Add Date Exception for this team</h5>
+        <form method='POST' action='' enctype='multipart/form-data'> {% csrf_token %}
+            {{ admin_team_date_exception_form.form|crispy }}
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+    </div>
+</div>
+<script>
+  $(function () {
+    $("#id_valid_until").datetimepicker({
+      format: 'Y-m-d H:i:s',
+    });
+  });
+</script>

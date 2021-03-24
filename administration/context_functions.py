@@ -18,6 +18,7 @@ import random
 def getAdminContestNonDetailLayoutContext():
     return {}
 
+
 def getAdminContestDetailLayoutContext(contest):
     context = {
         'admin_contest_detail_layout': {
@@ -26,6 +27,7 @@ def getAdminContestDetailLayoutContext(contest):
     }
     context.update(getAdminContestNonDetailLayoutContext())
     return context
+
 
 # TESTS #
 
@@ -38,6 +40,7 @@ def getAdminTestsNonDetailLayoutContext(contest):
     context.update(getAdminContestDetailLayoutContext(contest))
     return context
 
+
 def getAdminTestDetailLayoutContext(contest, test):
     context = {
         'admin_test_detail_layout': {
@@ -46,6 +49,7 @@ def getAdminTestDetailLayoutContext(contest, test):
     }
     context.update(getAdminTestsNonDetailLayoutContext(contest))
     return context
+
 
 # TEAMS #
 
@@ -58,6 +62,7 @@ def getAdminTeamNonDetailLayoutContext(contest):
     context.update(getAdminContestDetailLayoutContext(contest))
     return context
 
+
 def getAdminTeamDetailLayoutContext(contest, team):
     context = {
         'admin_team_detail_layout': {
@@ -66,6 +71,7 @@ def getAdminTeamDetailLayoutContext(contest, team):
     }
     context.update(getAdminTeamNonDetailLayoutContext(contest))
     return context
+
 
 # SUBMISSIONS #
 
@@ -78,6 +84,7 @@ def getAdminSubmissionNonDetailLayoutContext(contest):
     context.update(getAdminContestDetailLayoutContext(contest))
     return context
 
+
 def getAdminSubmissionDetailLayoutContext(contest, submission):
     context = {
         'admin_submission_detail_layout': {
@@ -86,6 +93,7 @@ def getAdminSubmissionDetailLayoutContext(contest, submission):
     }
     context.update(getAdminSubmissionNonDetailLayoutContext(contest))
     return context
+
 
 # GROUPS #
 
@@ -96,6 +104,7 @@ def getAdminGroupDetailLayoutContext(group):
         }
     }
 
+
 # USERS #
 
 def getAdminUserDetailLayoutContext(user):
@@ -104,6 +113,7 @@ def getAdminUserDetailLayoutContext(user):
             'user': user
         }
     }
+
 
 #############################
 #         COMPONENTS        #
@@ -125,7 +135,6 @@ def getAdminContestListContext(contests):
             'contests': contests,
         }
     }
-
 
 
 # For list.html
@@ -163,6 +172,7 @@ def getAdminContestsTeamsDetailContext(team):
         }
     }
 
+
 # For form.html
 def getAdminTestFormContext(contest, form):
     """Context for form.html
@@ -182,13 +192,13 @@ def getAdminTestFormContext(contest, form):
         }
     }
 
+
 def getAdminTestListContext(tests):
     return {
         'admin_test_list': {
             'tests': tests
         }
     }
-
 
 
 # For list.html
@@ -205,6 +215,7 @@ def getAdminGroupListContext(groups):
         }
     }
 
+
 # For list.html
 def getAdminGroupUserListContext(user_profiles):
     """Context for list.html
@@ -218,6 +229,7 @@ def getAdminGroupUserListContext(user_profiles):
             'user_profiles': user_profiles
         }
     }
+
 
 # For form.html
 def getAdminCreateGroupFormContext(form):
@@ -245,6 +257,7 @@ def getAdminSpecificationFormContext(form):
         }
     }
 
+
 # For admin/users/list.html
 def getAdminUsersListContext(users):
     return {
@@ -252,6 +265,7 @@ def getAdminUsersListContext(users):
             'users': users
         }
     }
+
 
 # For admin/users/form.html
 def getAdminUsersFormContext(userForm, profileForm):
@@ -282,6 +296,7 @@ def getAdminGroupUserManagerContext(users_not_in_group, users_in_group):
         }
     }
 
+
 # For admin/components/groups/dashboard_cards.html
 def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, closed_contest_count):
     return {
@@ -293,6 +308,7 @@ def getAdminGroupDashboardCardsContext(group, user_count, open_contest_count, cl
         }
     }
 
+
 # For /contests/teams/form.html
 def getAdminContestsTeamsFormContext(form):
     return {
@@ -300,6 +316,7 @@ def getAdminContestsTeamsFormContext(form):
             'form': form
         }
     }
+
 
 # For /contests/teams/manager.html
 def getAdminContestsTeamsManagerContext(users_out, users_in, team):
@@ -310,10 +327,6 @@ def getAdminContestsTeamsManagerContext(users_out, users_in, team):
             'team': team
         }
     }
-
-
-
-
 
 
 # For admin/components/contests/dashboard_cards.html
@@ -337,6 +350,7 @@ def getAdminContestSubmissionListContext(submissions):
         }
     }
 
+
 # For admin/components/contests/submissions/chart.html
 def getAdminContestSubmissionChartContext(submissions, contest):
     return {
@@ -345,7 +359,6 @@ def getAdminContestSubmissionChartContext(submissions, contest):
             'contest': contest
         }
     }
-
 
 
 # For admin/components/contests/submissions/details.html
@@ -370,6 +383,7 @@ def getAdminContestSubmissionDetailsContext(contest, user, team, attempt, n_pass
         }
     }
 
+
 def getAdminTestsListEditFormContext(tests):
     return {
         'admin_list_edit_form': {
@@ -393,6 +407,7 @@ def getAdminTestMassCreateFormContext(form):
         }
     }
 
+
 # For rankings.html
 def getAdminContestRankingsContext(attempts):
     return {
@@ -406,7 +421,7 @@ def getAdminDashboardSubmissionsPerContestContext():
     datasets = []
     dict = {}
     labels = []
-    #https://hexcolor.co/random-colors#7497d8
+    # https://hexcolor.co/random-colors#7497d8
     colors = ["#537fce",
               "#7497d8",
 
@@ -450,7 +465,7 @@ def getAdminDashboardSubmissionsPerContestContext():
         if idx >= len(colors):
             idx = 0
         bgcolor = colors[idx]
-        hoverColor = colors[idx+1]
+        hoverColor = colors[idx + 1]
         idx += 2
         dataset = {
             'label': contest,
@@ -468,12 +483,14 @@ def getAdminDashboardSubmissionsPerContestContext():
         }
     }
 
+
 def getAdminDashboardActiveContestsCardContext():
     return {
         'admin_dashboard_active_contests': {
             'number': Contest.getActiveContests().count()
         }
     }
+
 
 def getAdminDashboardLastWeekSubmissionsCardContext():
     oneWeek = datetime.today() - timedelta(days=7)
@@ -483,12 +500,14 @@ def getAdminDashboardLastWeekSubmissionsCardContext():
         }
     }
 
+
 def getAdminDashboardActiveUsersCardContext():
     return {
         'admin_dashboard_active_users': {
             'number': Profile.getActiveUsers().count()
         }
     }
+
 
 def getAdminDashboardGradesAvgContext():
     labels = []
@@ -503,7 +522,7 @@ def getAdminDashboardGradesAvgContext():
                 sub = team.getLatestAttempt()
                 if sub:
                     gradeSum += sub.getGrade()
-            data.append(round(gradeSum / len(teams),2))
+            data.append(round(gradeSum / len(teams), 2))
         else:
             data.append(0)
     print(labels)
@@ -511,5 +530,13 @@ def getAdminDashboardGradesAvgContext():
         'admin_dashboard_grades_avg': {
             'labels': labels,
             'data': data
+        }
+    }
+
+
+def getAdminTeamDateExceptionFormContext(form):
+    return {
+        'admin_team_date_exception_form': {
+            'form': form
         }
     }

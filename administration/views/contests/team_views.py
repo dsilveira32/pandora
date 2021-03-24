@@ -1,7 +1,8 @@
 from administration.views.general import superuser_only
 from django.shortcuts import render
 from administration.context_functions import *
-from shared.forms import TeamModelForm, AdminTeamCreateForm, AdminTeamEditForm, AdminTeamManagerForm
+from shared.forms import TeamModelForm, AdminTeamCreateForm, AdminTeamEditForm, AdminTeamManagerForm, \
+	TeamDateExceptionForm
 from shared.models import Team
 from shared.routines import *
 # Admin teams dashboard view
@@ -46,10 +47,16 @@ def detail_view(request, contest_id, team_id):
 	contest = getContestByID(contest_id)
 	team = Team.getById(team_id)
 	submissions = team.getAttempts()
-
+	date_exception = team.getDateException()
+	if date_exception:
+		form = TeamDateExceptionForm(request.POST or None, instance=date_exception)
+	else:
+		form = TeamDateExceptionForm(request.POST or None)
+	form.submit(team)
 	context.update(getAdminTeamDetailLayoutContext(contest, team))
 	context.update(getAdminContestsTeamsDetailContext(team))
 	context.update(getAdminContestSubmissionListContext(submissions))
+	context.update(getAdminTeamDateExceptionFormContext(form))
 	return render(request, template_name, context)
 
 

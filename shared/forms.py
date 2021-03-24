@@ -9,12 +9,28 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 
 from shared.utils import print_variables_debug
-from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification
+from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification, TeamContestDateException
 from .routines import extract, unzip
 
 
 class DateInputWidget(forms.DateTimeInput):
     input_type = 'datetime-local'
+
+
+class TeamDateExceptionForm(forms.ModelForm):
+    class Meta:
+        model=TeamContestDateException
+        fields = ['valid_until']
+
+    def submit(self, team):
+        if not team:
+            return False
+        if self.is_valid():
+            tdef = self.save(commit=False)
+            tdef.team = team
+            tdef.save()
+            return True
+        return False
 
 
 class AttemptModelForm(forms.ModelForm):
