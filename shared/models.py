@@ -392,6 +392,16 @@ class Team(models.Model):
     def getJoinCode(self):
         return self.join_code
 
+    def canSubmit(self):
+        if self.contest.isOpen():
+            return True
+        from datetime import datetime
+        if self.teamcontestdateexception:
+            if self.teamcontestdateexception.valid_until > datetime.now():
+                return True
+        return False
+
+
     def getAttempts(self):
         return Attempt.objects.filter(team=self).order_by('-date')
 
@@ -668,21 +678,10 @@ class Classification(models.Model):
         return self.test
 
 
-"""
-class TeamMember(models.Model):
-    team = models.ForeignKey(Team, default=1, null=False, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, default=1, null=False, on_delete=models.CASCADE)
-    approved = models.BooleanField(null=False, default=False, blank=True)
-    unique_together = ('team', 'user')
-
-"""
-
-
-# class TeamManager(models.Manager):
-#	use_for_related_fields = True
-
-#	def number_of_elements(self, user, team):
-#		Full_team_obj = TeamMember.objects.all().select_related('team').filter(team__contest = contest_obj.id).first()
+class TeamContestDateException(models.Model):
+    contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
+    team = models.OneToOneField(Team, default=1, null=False, on_delete=models.CASCADE)
+    valid_until = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 
 class UserContestDateException(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
