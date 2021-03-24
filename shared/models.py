@@ -393,13 +393,14 @@ class Team(models.Model):
         return self.join_code
 
     def canSubmit(self):
-        if self.contest.isOpen():
-            return True
         from datetime import datetime
-        if self.teamcontestdateexception:
-            if self.teamcontestdateexception.valid_until > datetime.now():
-                return True
-        return False
+        if self.attempt_set.count() > self.contest.max_submitions:
+            return False
+        if not self.contest.isOpen() and not self.teamcontestdateexception:
+            return False
+        if self.teamcontestdateexception.valid_until < datetime.now():
+            return False
+        return True
 
 
     def getAttempts(self):
