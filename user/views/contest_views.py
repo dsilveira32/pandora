@@ -40,7 +40,7 @@ def user_has_access_to_contest(function):
     return _inner
 
 
-def submission_limit_not_reached(function):
+def team_can_submit(function):
     """Limit view to users whose team has not reached the submission limit"""
 
     def _inner(request, *args, **kwargs):
@@ -48,8 +48,7 @@ def submission_limit_not_reached(function):
         contest = Contest.getByID(contest_id)
         user = request.user
         team = contest.getUserTeam(user)
-        attempt_count = team.getAttempts().count() or 0
-        if contest.max_submitions == 0 or attempt_count < contest.max_submitions:
+        if team and team.canSubmit():
             return function(request, *args, **kwargs)
         raise PermissionDenied
 
