@@ -1,5 +1,5 @@
 {% if contest_submit_attempt_button.team %}
-    {% if contest_submit_attempt_button.contest.isOpen %}
+    {% if contest_submit_attempt_button.team.canSubmit %}
         {% if contest_submit_attempt_button.contest.max_submitions > 0 and contest_submit_attempt_button.team.getAttempts.count >= contest_submit_attempt_button.contest.max_submitions %}
             <div class="alert alert-danger text-center">You are out of submissions for this contest.</div>
         {% else %}
