@@ -9,7 +9,8 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 
 from shared.utils import print_variables_debug
-from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification, TeamContestDateException
+from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification, TeamContestDateException, \
+    Java_Specification
 from .routines import extract, unzip
 
 
@@ -155,7 +156,7 @@ class C_SpecificationModelForm(forms.ModelForm):
 
 class Java_SpecificationModelForm(forms.ModelForm):
     class Meta:
-        model = C_Specification
+        model = Java_Specification
         exclude = ['contest', 'test']
 
     # fields = "__all__"
