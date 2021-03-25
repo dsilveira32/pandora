@@ -24,13 +24,16 @@ class TeamDateExceptionForm(forms.ModelForm):
 
     def submit(self, team):
         if not team:
-            return False
+            return
+        # If a null valid_until value is being saved to an existing
+        # date exception, delete it.
+        if self.instance.id and not self.data.get('valid_until'):
+            self.instance.delete()
+            return
         if self.is_valid():
             tdef = self.save(commit=False)
             tdef.team = team
             tdef.save()
-            return True
-        return False
 
 
 class AttemptModelForm(forms.ModelForm):
