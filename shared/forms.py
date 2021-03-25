@@ -136,9 +136,6 @@ class C_SpecificationModelForm(forms.ModelForm):
 
     # fields = "__all__"
 
-    def sayHello(self):
-        print('hello!')
-
     def submit(self, obj):
 
         if not self.is_valid() or not obj:
@@ -147,6 +144,28 @@ class C_SpecificationModelForm(forms.ModelForm):
         spec = self.save(commit=False)
         # spec.contest = None
         # spec.test = None
+        if type(obj) == Contest:
+            spec.contest = obj
+        elif type(obj) == Test:
+            spec.test = obj
+        else:
+            return False
+        spec.save()
+        return True
+
+class Java_SpecificationModelForm(forms.ModelForm):
+    class Meta:
+        model = C_Specification
+        exclude = ['contest', 'test']
+
+    # fields = "__all__"
+
+    def submit(self, obj):
+
+        if not self.is_valid() or not obj:
+            return False
+
+        spec = self.save(commit=False)
         if type(obj) == Contest:
             spec.contest = obj
         elif type(obj) == Test:

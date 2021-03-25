@@ -139,7 +139,7 @@ class Contest(models.Model):
     visible = models.BooleanField(null=False, default=True, blank=False)
     automatic_weight = models.BooleanField(null=False, default=True, blank=False)
     max_submitions = models.PositiveIntegerField(default=0)
-    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C')])
+    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C'), ('Java', 'Java')])
 
     @classmethod
     def getContestsForUser(cls, request):
@@ -164,6 +164,8 @@ class Contest(models.Model):
         try:
             if self.language == 'C':
                 return self.c_specifications
+            if self.language == 'Java':
+                return self.java_specifications
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -175,9 +177,11 @@ class Contest(models.Model):
 
     def getSpecificationFormType(self):
         # Importing here avoids circular import
-        from shared.forms import C_SpecificationModelForm
+        from shared.forms import C_SpecificationModelForm, Java_SpecificationModelForm
         if self.language == 'C':
             return C_SpecificationModelForm
+        if self.language == 'Java':
+            return Java_SpecificationModelForm
         else:
             return None
 
@@ -289,6 +293,8 @@ class Test(models.Model):
         try:
             if self.contest.language == 'C':
                 return self.contest.c_specifications
+            if self.contest.language == 'Java':
+                return self.contest.java_specifications
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -297,6 +303,8 @@ class Test(models.Model):
         try:
             if self.contest.language == 'C':
                 return self.c_specifications
+            if self.contest.language == 'Java':
+                return self.java_specifications
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -336,15 +344,6 @@ class C_Specification(Specification):
     linkage_flags = models.CharField(max_length=120, blank=True, default="-lc")
     fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
 
-    # space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    # minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
-    # maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
-    # core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    # nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
-    # stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-    # clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
-    # chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
-    # check_leak = models.BooleanField(null=False, default=False)
 
     class Meta:
         constraints = [
@@ -362,6 +361,33 @@ class C_Specification(Specification):
 
     def getAttribute(self, name):
         return self.__getattribute__(name)
+
+
+class Java_Specification(Specification):
+    contest = models.OneToOneField(Contest, null=True, blank=True, on_delete=models.CASCADE,
+                                   related_name='java_specifications')
+    test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='java_specifications')
+
+    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+
+
+    class Meta:
+        constraints = [
+            # This constraint checks if exactly one of either contest or test
+            # is filled. Rejects if both are or if none are.
+            models.CheckConstraint(
+                name="java_specifications_contest_test_one_only_constraint",
+                check=models.Q(contest__isnull=False) & models.Q(test__isnull=True) | models.Q(
+                    contest__isnull=True) & models.Q(test__isnull=False)
+            )
+        ]
+
+    def getFields(self):
+        return self._meta.get_fields()
+
+    def getAttribute(self, name):
+        return self.__getattribute__(name)
+
 
 
 class Team(models.Model):

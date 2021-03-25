@@ -802,13 +802,8 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
 
     if specifications:
         language = contest.getLanguage()
-        if language == 'C':
-            image = 'c_spec_test'
-            script = 'c_specs.sh'
-        else:
-            print('Language not recognized. This is a problem')
-            return
-
+        image = language.lower() + '_spec_test'
+        script = language.lower() + '_specs.sh'
         if test_id == 0:
             docker_command = f'docker run --name atempt{attempt_id} --rm -i -d '
             docker_command += f'--cpus={specifications.getAttribute("cpu")} '
@@ -825,12 +820,10 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
         docker_command += f'--lflags "{specifications.getAttribute("linkage_flags")}" '
         docker_command += f'--runargs "{specifications.getAttribute("run_arguments")}" '
         """
-        print("\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
         docker_command = f'docker exec -i atempt{attempt_id} {script}'
         docker_command += get_docker_env_vars(attempt_id, test_id, contest.id, specifications)
-        print(docker_command)
-        print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\\")
         exec_command(docker_command, data_path)
+        print(docker_command)
     else:
         print("No specifications for ")
         print(attempt)
