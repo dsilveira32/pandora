@@ -34,6 +34,7 @@ def team_can_submit(function):
         contest = Contest.getByID(contest_id)
         user = request.user
         team = contest.getUserTeam(user)
+        print(3)
         if team and team.canSubmit():
             return function(request, *args, **kwargs)
         raise PermissionDenied

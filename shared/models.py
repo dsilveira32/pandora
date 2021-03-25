@@ -403,9 +403,10 @@ class Team(models.Model):
         from django.utils import timezone
         if self.attempt_set.count() > self.contest.max_submitions:
             return False
-        if not self.contest.isOpen() and not self.teamcontestdateexception:
+        date_exception = self.getDateException()
+        if not self.contest.isOpen() and not date_exception:
             return False
-        if self.teamcontestdateexception.valid_until < timezone.now():
+        if date_exception and date_exception.valid_until < timezone.now():
             return False
         return True
 
