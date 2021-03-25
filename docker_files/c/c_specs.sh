@@ -1,7 +1,7 @@
 #!/bin/bash
 
 show_help() {
-    echo "usage:  $BASH_SOURCE --timeout <seconds> --attempt <id> --test <id> --contest <id> --fsize <KiB> --cflags <compile flags> --lflags <linkage flags> --runargs <run arguments> --leak <0|1>";
+    echo "usage:  $BASH_SOURCE --timeout <seconds> --attempt <id> --test <id> --contest <id> --fsize <KiB> --compile_flags <compile flags> --linkage_flags <linkage flags> --run_arguments <run arguments> --leak <0|1>";
     echo "                     --input1 - is input 1 .";
     echo "                     --input2 - is input 2 .";
     echo "                     --input3 - is input 3 .";
@@ -14,9 +14,9 @@ declare -a ARGUMENT_LIST=(
     "test"
 	"contest"
 	"fsize"
-	"cflags"
-	"lflags"
-	"runargs"
+	"compile_flags"
+	"linkage_flags"
+	"run_arguments"
 	"leak"
 )
 
@@ -56,17 +56,17 @@ while true; do
         shift
         fsize=$1
         ;;
-    --cflags)  
+    --compile_flags)  
         shift
-        cflags=$1
+        compile_flags=$1
         ;;
-    --lflags)  
+    --linkage_flags)  
         shift
-        lflags=$1
+        linkage_flags=$1
         ;;
-    --runargs)  
+    --run_arguments)  
         shift
-        runargs=$1
+        run_arguments=$1
         ;;
     --leak)  
         shift
@@ -86,9 +86,9 @@ echo "attempt_id = $attempt";
 echo "test_id = $test";
 echo "contest_id = $contest";
 echo "fsize = $fsize";
-echo "compile_flags = $cflags";
-echo "linkage_flags = $lflags";
-echo "run_arguments = $runargs";
+echo "compile_flags = $compile_flags";
+echo "linkage_flags = $linkage_flags";
+echo "run_arguments = $run_arguments";
 echo "check_leak = $leak";
 
 set -e
@@ -133,12 +133,12 @@ echo "Running Static analisys"
 cppcheck --enable=all --check-config /disco/submissions/$attempt/ > /disco/submission_results/$attempt/static.out
 
 if [ "$test" == "0" ]; then # Run compilation
-  compile.sh $attempt "$cflags" "$lflags"
+  compile.sh $attempt "$compile_flags" "$linkage_flags"
 else # Run test
   trap 'catch $? $attempt $test' EXIT
-  run.sh $attempt $test $timeout $runargs
+  run.sh $attempt $test $timeout $run_arguments
 #	cd /usr/src/compiled
 #	echo "Running Test"
 #	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program < /disco/tests/$test/test.in > /disco/submission_results/$attempt/$test.out && echo Ok > /disco/submission_results/$attempt/$test.test"
-#	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program $runargs < /disco/tests/$test/test.in | ascii > /disco/submission_results/$attempt/$test.out && echo "Ok" > /disco/submission_results/$attempt/$test.test
+#	/usr/bin/time --quiet -f "%U %K %p %e %M %x" -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program $run_arguments < /disco/tests/$test/test.in | ascii > /disco/submission_results/$attempt/$test.out && echo "Ok" > /disco/submission_results/$attempt/$test.test
 fi

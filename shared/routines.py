@@ -776,20 +776,15 @@ def exec_command(command, cwd):
 # DOCKER FUNCTIONS #
 
 def get_docker_env_vars(attempt_id, test_id, contest_id, specifications):
-    ignored_attributes = ['contest', 'test', 'id']
-    string = ' --env attempt=' + str(attempt_id) + ' --env test=' + str(test_id) + ' --env contest=' + str(contest_id)
+    ignored_attributes = ['contest', 'test', 'id', 'cpu', 'mem']
+    string = ' --attempt "' + str(attempt_id) + '" --test "' + str(test_id) + '" --contest "' + str(contest_id) + '"'
     for field in specifications.getFields():
         if field.name not in ignored_attributes:
-            if field.name == 'cpu':
-                string += ' --cpus=' + str(specifications.getAttribute(field.name))
-            elif field.name == 'mem':
-                string += ' --memory=' + str(specifications.getAttribute(field.name)) + "m"
-            elif specifications.getAttribute(field.name) is None:
-                string += ' --env ' + str(field.name) + '=""'
+            if specifications.getAttribute(field.name) is None:
+                string += ' --' + str(field.name) + ' ""'
             else:
                 v = specifications.getAttribute(field.name)
-                value = str(v) if isinstance(v, int) else '"' + str(v) + '"'
-                string += ' --env ' + str(field.name) + '=' + value
+                string += ' --' + str(field.name) + ' "' + str(v) + '"'
     string += ' '
     return string
 
@@ -809,6 +804,7 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
         language = contest.getLanguage()
         if language == 'C':
             image = 'c_spec_test'
+            script = 'c_specs.sh'
         else:
             print('Language not recognized. This is a problem')
             return
@@ -821,15 +817,19 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
             docker_command += f'sleep 600'
             print(docker_command)
             exec_command(docker_command, data_path)
-
-        docker_command = f'docker exec -i atempt{attempt_id}  c_specs.sh '
+        """
+        docker_command = f'docker exec -i atempt{attempt_id} {script} '
         docker_command += f'--timeout {specifications.getAttribute("timeout")} --attempt {attempt_id} --test {test_id} '
         docker_command += f'--contest {contest.id} --fsize {specifications.getAttribute("fsize")} '
         docker_command += f'--cflags "{specifications.getAttribute("compile_flags")}" '
         docker_command += f'--lflags "{specifications.getAttribute("linkage_flags")}" '
         docker_command += f'--runargs "{specifications.getAttribute("run_arguments")}" '
-
+        """
+        print("\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
+        docker_command = f'docker exec -i atempt{attempt_id} {script}'
+        docker_command += get_docker_env_vars(attempt_id, test_id, contest.id, specifications)
         print(docker_command)
+        print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\\")
         exec_command(docker_command, data_path)
     else:
         print("No specifications for ")
