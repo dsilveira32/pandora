@@ -427,12 +427,16 @@ class Team(models.Model):
 
     def canSubmit(self):
         from django.utils import timezone
-        if self.attempt_set.count() > self.contest.max_submitions:
+        if self.contest.max_submitions != 0 and self.attempt_set.count() > self.contest.max_submitions:
+            print(1)
             return False
+
         date_exception = self.getDateException()
         if not self.contest.isOpen() and not date_exception:
+            print(2)
             return False
         if date_exception and date_exception.valid_until < timezone.now():
+            print(3)
             return False
         return True
 
