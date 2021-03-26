@@ -24,7 +24,10 @@ DATAFILES_ROOT = 'datafiles/'
 
 def get_submissions_file_path(instance, filename):
     ext = filename.split('.')[-1]
-    filename = "src.%s" % ext
+    if ext == 'java':
+        filename = "Main.%s" % ext
+    else:
+        filename = "src.%s" % ext
     return os.path.join(SUBMISSIONS_ROOT, str(instance.id), filename)
 
 
