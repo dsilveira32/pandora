@@ -459,7 +459,10 @@ def getAdminDashboardSubmissionsPerContestContext():
                 dict[s.contest.title].update({
                     date: 0
                 })
-            dict[s.contest.title][key] += 1
+            if key in dict[s.contest.title]:
+                dict[s.contest.title][key] += 1
+            else:
+                dict[s.contest.title][key] = 0
     idx = 0;
     for contest in dict:
         if idx >= len(colors):
