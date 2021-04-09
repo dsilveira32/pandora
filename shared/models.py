@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils import timezone
 
 import shared
 from .storage import OverwriteStorage
@@ -23,7 +24,10 @@ DATAFILES_ROOT = 'datafiles/'
 
 def get_submissions_file_path(instance, filename):
     ext = filename.split('.')[-1]
-    filename = "src.%s" % ext
+    if ext == 'java':
+        filename = "Main.%s" % ext
+    else:
+        filename = "src.%s" % ext
     return os.path.join(SUBMISSIONS_ROOT, str(instance.id), filename)
 
 
@@ -138,7 +142,7 @@ class Contest(models.Model):
     visible = models.BooleanField(null=False, default=True, blank=False)
     automatic_weight = models.BooleanField(null=False, default=True, blank=False)
     max_submitions = models.PositiveIntegerField(default=0)
-    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C')])
+    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C'), ('Java', 'Java')])
 
     @classmethod
     def getContestsForUser(cls, request):
@@ -163,6 +167,8 @@ class Contest(models.Model):
         try:
             if self.language == 'C':
                 return self.c_specifications
+            if self.language == 'Java':
+                return self.java_specifications
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -174,9 +180,11 @@ class Contest(models.Model):
 
     def getSpecificationFormType(self):
         # Importing here avoids circular import
-        from shared.forms import C_SpecificationModelForm
+        from shared.forms import C_SpecificationModelForm, Java_SpecificationModelForm
         if self.language == 'C':
             return C_SpecificationModelForm
+        if self.language == 'Java':
+            return Java_SpecificationModelForm
         else:
             return None
 
@@ -288,6 +296,8 @@ class Test(models.Model):
         try:
             if self.contest.language == 'C':
                 return self.contest.c_specifications
+            if self.contest.language == 'Java':
+                return self.contest.java_specifications
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -296,6 +306,8 @@ class Test(models.Model):
         try:
             if self.contest.language == 'C':
                 return self.c_specifications
+            if self.contest.language == 'Java':
+                return self.java_specifications
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -335,15 +347,6 @@ class C_Specification(Specification):
     linkage_flags = models.CharField(max_length=120, blank=True, default="-lc")
     fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
 
-    # space = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    # minuid = models.PositiveIntegerField(default=5000)  # <uid>			Default: 5000
-    # maxuid = models.PositiveIntegerField(default=65535)  # <uid>			Default: 65535
-    # core = models.PositiveIntegerField(default=0)  # <kbytes>		Default: 0 kbyte(s)
-    # nproc = models.PositiveIntegerField(default=0)  # <number>		Default: 0 proccess(es)
-    # stack = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
-    # clock = models.PositiveIntegerField(default=10)  # <seconds>		Wall clock timeout (default: 10)
-    # chroot = models.CharField(default='/tmp', max_length=128)  # <path>		Directory to chrooted (default: /tmp)
-    # check_leak = models.BooleanField(null=False, default=False)
 
     class Meta:
         constraints = [
@@ -361,6 +364,33 @@ class C_Specification(Specification):
 
     def getAttribute(self, name):
         return self.__getattribute__(name)
+
+
+class Java_Specification(Specification):
+    contest = models.OneToOneField(Contest, null=True, blank=True, on_delete=models.CASCADE,
+                                   related_name='java_specifications')
+    test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='java_specifications')
+
+    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+
+
+    class Meta:
+        constraints = [
+            # This constraint checks if exactly one of either contest or test
+            # is filled. Rejects if both are or if none are.
+            models.CheckConstraint(
+                name="java_specifications_contest_test_one_only_constraint",
+                check=models.Q(contest__isnull=False) & models.Q(test__isnull=True) | models.Q(
+                    contest__isnull=True) & models.Q(test__isnull=False)
+            )
+        ]
+
+    def getFields(self):
+        return self._meta.get_fields()
+
+    def getAttribute(self, name):
+        return self.__getattribute__(name)
+
 
 
 class Team(models.Model):
@@ -391,6 +421,28 @@ class Team(models.Model):
 
     def getJoinCode(self):
         return self.join_code
+
+    def getDateException(self):
+        try:
+            return self.teamcontestdateexception
+        except:
+            return None
+
+    def canSubmit(self):
+        from django.utils import timezone
+        if self.contest.max_submitions != 0 and self.attempt_set.count() > self.contest.max_submitions:
+            print(1)
+            return False
+
+        date_exception = self.getDateException()
+        if not self.contest.isOpen() and not date_exception:
+            print(2)
+            return False
+        if date_exception and date_exception.valid_until < timezone.now():
+            print(3)
+            return False
+        return True
+
 
     def getAttempts(self):
         return Attempt.objects.filter(team=self).order_by('-date')
@@ -668,21 +720,9 @@ class Classification(models.Model):
         return self.test
 
 
-"""
-class TeamMember(models.Model):
-    team = models.ForeignKey(Team, default=1, null=False, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, default=1, null=False, on_delete=models.CASCADE)
-    approved = models.BooleanField(null=False, default=False, blank=True)
-    unique_together = ('team', 'user')
-
-"""
-
-
-# class TeamManager(models.Manager):
-#	use_for_related_fields = True
-
-#	def number_of_elements(self, user, team):
-#		Full_team_obj = TeamMember.objects.all().select_related('team').filter(team__contest = contest_obj.id).first()
+class TeamContestDateException(models.Model):
+    team = models.OneToOneField(Team, default=1, null=False, on_delete=models.CASCADE)
+    valid_until = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 
 class UserContestDateException(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)

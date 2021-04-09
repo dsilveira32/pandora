@@ -12,20 +12,6 @@ from user.views.general import user_approval_required, user_complete_profile_req
 import uuid
 
 
-def contest_is_open(function):
-    """Block view when the contest is closed."""
-
-    def _inner(request, *args, **kwargs):
-        contest_id = kwargs.get('contest_id')
-        contest = Contest.getByID(contest_id)
-        if contest:
-            if contest.isOpen():
-                return function(request, *args, **kwargs)
-        raise PermissionDenied
-
-    return _inner
-
-
 def user_has_access_to_contest(function):
     """Limit view to users that have access to the contest."""
 
@@ -40,16 +26,16 @@ def user_has_access_to_contest(function):
     return _inner
 
 
-def submission_limit_not_reached(function):
-    """Limit view to users whose team has not reached the submission limit"""
+def team_can_submit(function):
+    """Limit view to users whose team meets all the conditions to submit"""
 
     def _inner(request, *args, **kwargs):
         contest_id = kwargs.get('contest_id')
         contest = Contest.getByID(contest_id)
         user = request.user
         team = contest.getUserTeam(user)
-        attempt_count = team.getAttempts().count() or 0
-        if contest.max_submitions == 0 or attempt_count < contest.max_submitions:
+        print(3)
+        if team and team.canSubmit():
             return function(request, *args, **kwargs)
         raise PermissionDenied
 
