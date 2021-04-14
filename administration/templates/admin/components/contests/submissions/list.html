@@ -23,7 +23,13 @@
                         <td>{{ submission.team.name }}</td>
                         <td>{{ submission.date }}</td>
                         <td>
-                            <a class="btn btn-primary btn-sm" href="{% url "manager_contests_detail_submissions_details" admin_contest_detail_layout.contest.id submission.getID %}">View</a>
+                            <a href="{% url "manager_contests_detail_submissions_details" admin_contest_detail_layout.contest.id submission.getID %}"
+                               class="btn btn-primary btn-icon-split btn-sm">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                                <span class="text">View</span>
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}

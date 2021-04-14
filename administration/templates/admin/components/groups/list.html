@@ -23,8 +23,19 @@
                         <td>{{ o.users.count }}</td>
                         <td><i class="fas {% if o.registration_open %}fa-check-circle text-success{% else %}fa-times-circle text-danger {% endif %}"></i></td>
                         <td>
-                            <a class="btn btn-primary btn-sm" href="{% url 'admin_group_detail_dashboard' o.id %}">View</a>
-                            <a class="btn btn-warning btn-sm" href="{% url 'admin_group_edit' o.id %}"><i class="fas fa-pencil-alt"></i></a>
+                            <a href="{% url 'admin_group_detail_dashboard' o.id %}" class="btn btn-primary btn-icon-split btn-sm" >
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                                <span class="text">View</span>
+                            </a>
+
+                            <a href="{% url 'admin_group_edit' o.id %}" class="btn btn-warning btn-icon-split btn-sm" >
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
+                                <span class="text">Edit</span>
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}

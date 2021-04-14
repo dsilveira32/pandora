@@ -67,11 +67,12 @@
                     </tbody>
                 </table>
                 <div class="text-center">
-                    <a class="btn btn-sm btn-info"
-                       href="{% url 'manager_contests_detail_submission_download' admin_contests_submissions_details.attempt.contest.id admin_contests_submissions_details.attempt.id %}">
-                        Download source code
+                    <a href="{% url 'manager_contests_detail_submission_download' admin_contests_submissions_details.attempt.contest.id admin_contests_submissions_details.attempt.id %}" class="btn btn-info btn-icon-split btn-sm" >
+                        <span class="icon text-white-50">
+                            <i class="fas fa-download"></i>
+                        </span>
+                        <span class="text">Download source code</span>
                     </a>
-
                 </div>
             </div>
         </div>

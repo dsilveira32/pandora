@@ -23,7 +23,6 @@
                 Admin Area
             </div>
 
-
             <!-- Nav Item - Dashboard -->
             <li class="nav-item {% if 'contests' not in request.path and 'groups' not in request.path and 'users' not in request.path %}active{% endif %}">
                 <a class="nav-link"
@@ -32,6 +31,7 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+
             <!-- Nav Item - Contests -->
             <li class="nav-item {% if '/contests' in request.path and 'groups' not in request.path %}active{% endif %}">
                 <a class="nav-link"
@@ -58,7 +58,6 @@
                     <span>Users</span>
                 </a>
             </li>
-
         </ul>
         <!-- End of Sidebar -->
 

@@ -31,13 +31,18 @@
                         {{ t.weight_pct }}
                     </td>
                     <td>
-                        <a class="btn btn-sm btn-info"
-                           href="{% url 'manager_contests_detail_tests_detail' t.contest.id t.id %}">
-                            <i class="fa fa-eye"></i>
+                        <a href="{% url 'manager_contests_detail_tests_detail' t.contest.id t.id %}" class="btn btn-primary btn-icon-split btn-sm" >
+                            <span class="icon text-white-50">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            <span class="text">View</span>
                         </a>
-                        <a class="btn btn-sm btn-warning"
-                           href="{% url 'manager_contest_detail_test_detail_edit' t.contest.id t.id %}">
-                            <i class="fa fa-pencil-alt"></i>
+
+                        <a href="{% url 'manager_contest_detail_test_detail_edit' t.contest.id t.id %}" class="btn btn-warning btn-icon-split btn-sm" >
+                            <span class="icon text-white-50">
+                                <i class="fas fa-pencil-alt"></i>
+                            </span>
+                            <span class="text">Edit</span>
                         </a>
                     </td>
                 </tr>
