@@ -1,16 +1,16 @@
-{% extends "admin/layouts/base_layout.html" %}
-{% block pageContent %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Groups</li>
-        </ol>
-    </nav>
-    <div class="container-fluid">
-        <a class="btn btn-sm btn-primary" href="{% url 'admin_group_create' %}">
-            <i class="fas fa-plus-circle"></i>
-            Create Group
-        </a>
-        <hr>
-        {% include "admin/components/groups/list.html" %}
+{% extends "admin/layouts/groups/non_detail_layout.html" %}
+{% block groupContent %}
+    <div class="row pb-3">
+        <div class="col-lg-12">
+            <a class="btn btn-sm btn-primary" href="{% url 'admin_group_create' %}">
+                <i class="fas fa-plus-circle"></i>
+                Create Group
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            {% include "admin/components/groups/list.html" %}
+        </div>
     </div>
 {% endblock %}

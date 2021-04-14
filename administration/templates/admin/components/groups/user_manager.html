@@ -1,4 +1,4 @@
-<div class="col-lg-6">
+<div class="col-6">
     <div class="mb-4">
         <button class="btn btn-success btn-sm is-checkbox-select-btn-table-out submit-btn-table-out" disabled
                 value="adduser"><i class="fas fa-plus-circle"></i> Add selected to group
@@ -15,55 +15,52 @@
         <div class="card-body">
             <form id="form-table-out" action="" method="POST">{% csrf_token %}
                 <input type="hidden" id="form-action-table-out" name="action" value="">
-                <div class="table-responsive">
-
-                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0"
-                           data-way="out">
-                        <thead>
+                <table class="table table-bordered table-hover table-responsive-lg dataTablePandora" width="100%"
+                       cellspacing="0" data-way="out">
+                    <thead>
+                    <tr>
+                        <th class="text-center"><input type="checkbox" class="select-all-table-out" data-way="out"
+                                                       onchange="doSelectAll(this)"></th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>Is Valid</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in admin_groups_user_manager.users_not_in_group %}
                         <tr>
-                            <th class="text-center"><input type="checkbox" class="select-all-table-out" data-way="out"
-                                                           onchange="doSelectAll(this)"></th>
-                            <th>Email</th>
-                            <th>Name</th>
-                            <th>Number</th>
-                            <th>Is Valid</th>
-                            <th></th>
+                            <td class="text-center">
+                                <input type="checkbox" class="selected-table-out" name="user_id" value="{{ user.id }}"
+                                       data-way="out" onchange="doSelect(this)">
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.get_full_name }}</td>
+                            <td>{{ user.profile.getNumber }}</td>
+                            <td>
+                                <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
+                                    <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
+                                </i>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_users_user_form' user.id %}"
+                                   class="btn btn-warning btn-icon-split btn-sm">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </span>
+                                    <span class="text">Edit</span>
+                                </a>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        {% for user in admin_groups_user_manager.users_not_in_group %}
-                            <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" class="selected-table-out" name="user_id"
-                                           value="{{ user.id }}" data-way="out" onchange="doSelect(this)">
-                                </td>
-                                <td>{{ user.username }}</td>
-                                <td>{{ user.get_full_name }}</td>
-                                <td>{{ user.profile.getNumber }}</td>
-                                <td>
-                                    <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
-                                        <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
-                                    </i>
-                                </td>
-                                <td>
-                                    <a href="{% url 'admin_users_user_form' user.id %}"
-                                       class="btn btn-warning btn-icon-split btn-sm">
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </span>
-                                        <span class="text">Edit</span>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </form>
         </div>
     </div>
 </div>
-<div class="col-lg-6">
+<div class="col-6">
     <div class="mb-4">
         <button class="btn btn-danger btn-sm is-checkbox-select-btn-table-in submit-btn-table-in"
                 disabled value="removeuser"><i class="fas fa-trash"></i> Remove selected from group
@@ -80,50 +77,47 @@
         <div class="card-body">
             <form id="form-table-in" action="" method="POST">{% csrf_token %}
                 <input type="hidden" id="form-action-table-in" name="action" value="">
-                <div class="table-responsive">
-
-                    <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0"
-                           data-way="in">
-                        <thead>
+                <table class="table table-bordered table-hover table-responsive-lg dataTablePandora" width="100%"
+                       cellspacing="0" data-way="in">
+                    <thead>
+                    <tr>
+                        <th class="text-center"><input type="checkbox" class="select-all-table-in" data-way="in"
+                                                       onchange="doSelectAll(this)"></th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>Is Valid</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in admin_groups_user_manager.users_in_group %}
                         <tr>
-                            <th class="text-center"><input type="checkbox" class="select-all-table-in" data-way="in"
-                                                           onchange="doSelectAll(this)"></th>
-                            <th>Email</th>
-                            <th>Name</th>
-                            <th>Number</th>
-                            <th>Is Valid</th>
-                            <th></th>
+                            <td class="text-center">
+                                <input type="checkbox" class="selected-table-in" name="user_id" value="{{ user.id }}"
+                                       data-way="in" onchange="doSelect(this)">
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.get_full_name }}</td>
+                            <td>{{ user.profile.getNumber }}</td>
+                            <td>
+                                <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
+                                    <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
+                                </i>
+                            </td>
+                            <td>
+                                 <a href="{% url 'admin_users_user_form' user.id %}"
+                                   class="btn btn-warning btn-icon-split btn-sm">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </span>
+                                     <span class="text">Edit</span>
+                                 </a>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        {% for user in admin_groups_user_manager.users_in_group %}
-                            <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" class="selected-table-in" name="user_id"
-                                           value="{{ user.id }}" data-way="in" onchange="doSelect(this)">
-                                </td>
-                                <td>{{ user.username }}</td>
-                                <td>{{ user.get_full_name }}</td>
-                                <td>{{ user.profile.getNumber }}</td>
-                                <td>
-                                    <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
-                                        <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
-                                    </i>
-                                </td>
-                                <td>
-                                    <a href="{% url 'admin_users_user_form' user.id %}"
-                                       class="btn btn-warning btn-icon-split btn-sm">
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </span>
-                                        <span class="text">Edit</span>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </form>
         </div>
     </div>

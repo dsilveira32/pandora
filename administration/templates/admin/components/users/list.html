@@ -10,43 +10,41 @@
     <div class="card-body">
         <form id="user-form" action="" method="POST">{% csrf_token %}
             <input type="hidden" id="user-form-action" name="action" value="">
-            <div class="table-responsive">
-
-                <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
-                    <tbody>
-                    {% for user in admin_users_list.users %}
-                        <tr>
-                            <td class="text-center">
-                                <input type="checkbox" class="select-user" name="user_id" value="{{ user.id }}">
-                            </td>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.get_full_name }}</td>
-                            <td>{{ user.profile.getNumber }}</td>
-                            <td>
-                                <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
-                                    <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
-                                </i>
-                            </td>
-                            <td>
-                                <a class="btn btn-warning btn-sm" href="{% url 'admin_users_user_form' user.id %}">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                    <thead>
+            <table class="table table-bordered table-hover table-responsive-lg dataTablePandora" width="100%"
+                   cellspacing="0">
+                <tbody>
+                {% for user in admin_users_list.users %}
                     <tr>
-                        <th class="text-center"><input type="checkbox" class="select-all-users-table"></th>
-                        <th>Email</th>
-                        <th>Name</th>
-                        <th>Number</th>
-                        <th>Is Valid</th>
-                        <th></th>
+                        <td class="text-center">
+                            <input type="checkbox" class="select-user" name="user_id" value="{{ user.id }}">
+                        </td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.get_full_name }}</td>
+                        <td>{{ user.profile.getNumber }}</td>
+                        <td>
+                            <i class="fas fa-{% if user.profile.isValid %}check-circle{% else %}times-circle{% endif %} {% if user.profile.isValid %}text-success{% else %}text-danger{% endif %}">
+                                <span hidden>{% if user.profile.isValid %}0{% else %}1{% endif %}</span>
+                            </i>
+                        </td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href="{% url 'admin_users_user_form' user.id %}">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                        </td>
                     </tr>
-                    </thead>
-                </table>
-            </div>
+                {% endfor %}
+                </tbody>
+                <thead>
+                <tr>
+                    <th class="text-center"><input type="checkbox" class="select-all-users-table"></th>
+                    <th>User</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Is Valid</th>
+                    <th></th>
+                </tr>
+                </thead>
+            </table>
         </form>
     </div>
 </div>

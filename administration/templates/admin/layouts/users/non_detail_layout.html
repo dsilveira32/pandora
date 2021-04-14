@@ -3,16 +3,15 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">
-                <a href="{% url 'manager_contests_home' %}">Contests</a>
+                <a href="{% url 'admin_users_home' %}">Users</a>
             </li>
-            {% block contestDetailBreadcrumbs %}
+            {% block userDetailBreadcrumbs %}
             {% endblock %}
         </ol>
     </nav>
     <div class="container-fluid">
-
         <hr>
-        {% block contestContent %}
+        {% block userContent %}
         {% endblock %}
     </div>
 {% endblock %}
