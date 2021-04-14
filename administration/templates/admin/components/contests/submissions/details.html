@@ -1,12 +1,15 @@
 {% load static from staticfiles %}
-<div class="row">
-    <div class="offset-1 col-md-10">
-        <div class="card border rounded shadow-sm mb-4 mt-4">
-            <div class="card-body">
-                <h5 class="car-title mb-2 text-primary">Results summary for attempt
-                    #{{ admin_contests_submissions_details.attempt.id }}</h5>
+<div class="row pb-3">
+    <div class="offset-lg-1 col-lg-10">
+        <div class="card shadow">
+            <div class="card-header text-center py-3">
+                <h5 class="m-0 font-weight-bold text-primary">
+                    Results summary for attempt #{{ admin_contests_submissions_details.attempt.id }}</h5>
+            </div>
+            <div class="card-body text-center">
+                <h5 class="car-title mb-2 text-primary"></h5>
                 <p class="card-text mb-auto">
-                <table class="table table table-bordered">
+                <table class="table table-responsive-lg table-bordered">
                     <tbody>
                     <tr>
                         <td>Compilation</td>
@@ -75,13 +78,14 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card border rounded shadow-sm mb-4 mt-4">
-            <div class="card-body">
-                <h5 class="car-title mb-2 text-primary">Detailed Results</h5>
-                <p class="card-text mb-auto">
-                <table class="table table-bordered table-hover dataTablePandora" width="100%" cellspacing="0">
+<div class="row pb-3">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header text-center py-3">
+                <h5 class="m-0 font-weight-bold text-primary">Detailed Results</h5>
+            </div>
+            <div class="card-body text-center">
+                <table class="table table-bordered table-hover table-responsive-lg dataTablePandora" width="100%" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Test #</th>

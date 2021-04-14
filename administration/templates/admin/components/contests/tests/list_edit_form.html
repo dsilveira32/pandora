@@ -1,85 +1,79 @@
 <form method='POST' action='' enctype='multipart/form-data'
       id="test_list_edit_form"> {% csrf_token %}
-    <div class='row'>
-        <div class="col-md-12">
-            <div class="card border rounded shadow-sm mb-4 mt-4">
-                <div class="card-body">
-                    <h5 class="car-title mb-2 text-primary">Tests</h5>
-                    <p class="card-text mb-auto">
-                    <div class="table-responsive">
-                        <!-- Este nao pode ser DataTable, caso contrário o post request so leva os elementos visiveis -->
-                        <!-- TODO: Arranjar forma de ser DataTable -->
-                        <table class="table table-bordered table-hover" id="test_list_edit_table"
-                               width="100%" cellspacing="0">
-                            <thead class="text-center">
-                            <tr>
-                                <th>Test ID</th>
-                                <th>Test Name</th>
-                                <th>Mandatory</th>
-                                <th>Weight</th>
-                                <th>View Error</th>
-                                <th>View Args</th>
-                                <th>View Input</th>
-                                <th>View Diff</th>
-                                <!-- <th>Actions</th> -->
-                            </tr>
-                            </thead>
-                            <tbody class="text-center">
-                            {% for t in admin_list_edit_form.tests %}
-                                <tr>
-                                    <td>{{ t.id }}</td>
-                                    <td>
-                                        <input type="text" class="form-control" name="name"
-                                               value="{{ t.name }}">
-
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" value='{{ t.id }}' id="mandatory"
-                                               name="mandatory"
-                                               {% if t.mandatory == True %}checked{% endif %}>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" name="weight_pct"
-                                               value="{{ t.weight_pct }}">
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" class="form-control" id="view_error" name="view_error"
-                                               value="{{ t.id }}"
-                                               {% if t.view_error %}checked{% endif %}>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" class="form-control" id="view_args" name="view_args"
-                                               value="{{ t.id }}"
-                                               {% if t.view_args %}checked{% endif %}>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" class="form-control" id="view_input" name="view_input"
-                                               value="{{ t.id }}"
-                                               {% if t.view_input %}checked{% endif %}>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" class="form-control" id="view_diff" name="view_diff"
-                                               value="{{ t.id }}"
-                                               {% if t.view_diff %}checked{% endif %}>
-                                    </td>
-                                    <!--
-                                        <td>
-                                            <button class="btn btn-sm btn-danger" type="button">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                        -->
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="text-right">
-                        <input type="submit" id="submit_button" value="Save" class="btn btn-success ">
-                    </p>
-                    </p>
-                </div>
-            </div>
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tests</h6>
         </div>
+        <div class="card-body">
+            <!-- Este nao pode ser DataTable, caso contrário o post request so leva os elementos visiveis -->
+            <!-- TODO: Arranjar forma de ser DataTable -->
+            <table class="table table-bordered table-hover table-responsive-lg" id="test_list_edit_table"
+                   width="100%" cellspacing="0">
+                <thead class="text-center">
+                <tr>
+                    <th>Test ID</th>
+                    <th>Test Name</th>
+                    <th>Mandatory</th>
+                    <th>Weight</th>
+                    <th>View Error</th>
+                    <th>View Args</th>
+                    <th>View Input</th>
+                    <th>View Diff</th>
+                    <!-- <th>Actions</th> -->
+                </tr>
+                </thead>
+                <tbody class="text-center">
+                {% for t in admin_list_edit_form.tests %}
+                    <tr>
+                        <td>{{ t.id }}</td>
+                        <td>
+                            <input type="text" class="form-control" name="name"
+                                   value="{{ t.name }}">
+
+                        </td>
+                        <td>
+                            <input type="checkbox" value='{{ t.id }}' id="mandatory"
+                                   name="mandatory"
+                                   {% if t.mandatory == True %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name="weight_pct"
+                                   value="{{ t.weight_pct }}">
+                        </td>
+                        <td>
+                            <input type="checkbox" class="form-control" id="view_error" name="view_error"
+                                   value="{{ t.id }}"
+                                   {% if t.view_error %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="form-control" id="view_args" name="view_args"
+                                   value="{{ t.id }}"
+                                   {% if t.view_args %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="form-control" id="view_input" name="view_input"
+                                   value="{{ t.id }}"
+                                   {% if t.view_input %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="form-control" id="view_diff" name="view_diff"
+                                   value="{{ t.id }}"
+                                   {% if t.view_diff %}checked{% endif %}>
+                        </td>
+                        <!--
+                            <td>
+                                <button class="btn btn-sm btn-danger" type="button">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                            -->
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-right">
+            <input type="submit" id="submit_button" value="Save" class="btn btn-success ">
+        </p>
     </div>
 </form>

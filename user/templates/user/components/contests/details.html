@@ -1,8 +1,9 @@
-<div class="card border rounded shadow-sm mb-4 mt-4">
+<div class="card shadow">
+    <div class="card-header text-center py-3">
+        <h5 class="m-0 font-weight-bold text-primary">Details</h5>
+    </div>
     <div class="card-body text-center">
-        <h5 class="card-title mb-2 text-primary">Details</h5>
         <p class="lead my-3">{{ contest_details.contest.description }}</p>
-        <p class="card-text mb-auto">
         <table class="table">
             <tbody>
             <tr>
@@ -34,10 +35,9 @@
         {% if contest_details.contest.sow %}
             <a href="{{ contest_details.contest.sow }}">
                 <strong class="d-inline-block mb-1 btn btn-success">
-                View Statement Of Work
+                    View Statement Of Work
                 </strong>
             </a>
         {% endif %}
-        </p>
     </div>
 </div>

@@ -1,9 +1,16 @@
 {% extends "admin/layouts/contests/non_detail_layout.html" %}
 {% block contestContent %}
-    <a class="btn btn-primary btn-sm" href="{% url 'manager_contests_create' %}">
-        <i class="fas fa-plus-circle"></i>
-        Create Contest
-    </a>
-    <hr>
-    {% include "admin/components/contests/list.html" %}
+    <div class="row pb-3">
+        <div class="col-lg-12">
+            <a class="btn btn-primary btn-sm" href="{% url 'manager_contests_create' %}">
+                <i class="fas fa-plus-circle"></i>
+                Create Contest
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            {% include "admin/components/contests/list.html" %}
+        </div>
+    </div>
 {% endblock %}

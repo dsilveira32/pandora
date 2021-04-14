@@ -1,11 +1,15 @@
 {% extends "admin/layouts/contests/teams/non_detail_layout.html" %}
 {% block teamContent %}
-    <div class="col-12">
-        <div>
+    <div class="row pb-3">
+        <div class="col-lg-12">
             <a class="btn btn-primary btn-sm"
-               href="{% url "manager_contests_detail_teams_create" admin_contest_detail_layout.contest.id %}">Create
-                Team</a>
+           href="{% url "manager_contests_detail_teams_create" admin_contest_detail_layout.contest.id %}">Create
+            Team</a>
         </div>
-        {% include "admin/components/contests/teams/list.html" %}
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            {% include "admin/components/contests/teams/list.html" %}
+        </div>
     </div>
 {% endblock %}

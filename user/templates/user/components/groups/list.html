@@ -1,7 +1,8 @@
-<div class="card border rounded shadow-sm">
+<div class="card shadow">
+    <div class="card-header text-center py-3">
+        <h5 class="m-0 font-weight-bold text-primary">Your Groups</h5>
+    </div>
     <div class="card-body text-center">
-        <h5 class="card-title mb-2 text-success">Your Groups</h5>
-        <p class="card-text mb-auto">
         <table class="table">
             <thead>
             <tr>
@@ -10,17 +11,16 @@
             </thead>
             <tbody>
             {% for o in user_group_list.groups %}
-                    <tr>
-                        <td scope="row">
-                            <a href="{% url 'user_groups_detail_dashboard' o.id %}">
-                                {{ o.name }}
-                            </a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td scope="row">
+                        <a href="{% url 'user_groups_detail_dashboard' o.id %}">
+                            {{ o.name }}
+                        </a>
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>
-        </p>
     </div>
 </div>
 

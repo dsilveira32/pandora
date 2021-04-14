@@ -76,9 +76,7 @@
     // Call the dataTables jQuery plugin
     $(document).ready(function () {
         $('.dataTablePandora').DataTable({
-            columnDefs: [
-              { targets: [0], orderable: false }
-            ]
+            columnDefs: []
         }).on("page.dt", function(){
             if(selection[$(this).attr("data-way")]){
                 selection[$(this).attr("data-way")] = 0;
@@ -89,9 +87,7 @@
         $('.dataTablePandoraReversed').DataTable({
             "order": [[0, "desc"]],
             select: true,
-            columnDefs: [
-              { targets: 'no-sort', orderable: false }
-            ]
+            columnDefs: []
         }).on("page.dt", function(){
             checkSelection(this)
         })

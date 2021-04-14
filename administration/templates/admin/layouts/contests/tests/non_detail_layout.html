@@ -9,24 +9,27 @@
     {% endblock %}
 {% endblock %}
 {% block contestContent %}
-    <div class="col-12">
-        <div>
-            <a class="btn btn-primary btn-sm {% if 'create' not in request.path and 'edit' not in request.path %}active{% endif %}"
-               type="button"
-               href="{% url 'manager_contests_detail_tests'  admin_test_non_detail_layout.contest.id %}">Dashboard
-            </a>
-            <a class="btn btn-primary btn-sm {% if 'tests/edit' in request.path %}active{% endif %}"
-               type="button"
-               href="{% url 'manager_contests_detail_tests_list_edit'  admin_test_non_detail_layout.contest.id %}">Test
-                Manager
-            </a>
-            <a class="btn btn-primary btn-sm {% if 'create' in request.path and 'mass_create' not in request.path %}active{% endif %}" type="button"
-               href="{% url 'manager_contests_detail_tests_create'  admin_test_non_detail_layout.contest.id %}">Create
-                Test</a>
-            <a class="btn btn-primary btn-sm {% if 'mass_create' in request.path %}active{% endif %}" type="button"
-               href="{% url 'manager_contests_detail_tests_mass_create'  admin_test_non_detail_layout.contest.id %}">
-                Mass Test Creation
-            </a>
+    <div class="row pb-3">
+        <div class="col-12">
+            <div>
+                <a class="btn btn-primary btn-sm {% if 'create' not in request.path and 'edit' not in request.path %}active{% endif %}"
+                   type="button"
+                   href="{% url 'manager_contests_detail_tests'  admin_test_non_detail_layout.contest.id %}">Dashboard
+                </a>
+                <a class="btn btn-primary btn-sm {% if 'tests/edit' in request.path %}active{% endif %}"
+                   type="button"
+                   href="{% url 'manager_contests_detail_tests_list_edit'  admin_test_non_detail_layout.contest.id %}">Test
+                    Manager
+                </a>
+                <a class="btn btn-primary btn-sm {% if 'create' in request.path and 'mass_create' not in request.path %}active{% endif %}"
+                   type="button"
+                   href="{% url 'manager_contests_detail_tests_create'  admin_test_non_detail_layout.contest.id %}">Create
+                    Test</a>
+                <a class="btn btn-primary btn-sm {% if 'mass_create' in request.path %}active{% endif %}" type="button"
+                   href="{% url 'manager_contests_detail_tests_mass_create'  admin_test_non_detail_layout.contest.id %}">
+                    Mass Test Creation
+                </a>
+            </div>
         </div>
     </div>
     {% block testContent %}

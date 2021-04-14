@@ -171,16 +171,8 @@ def getTeamSubmissionHistoryContext(attempts):
 
 # For status.html
 def getTeamSubmissionStatusContext(attempts, contest):
-    """Context for status.html
-    REQUIRED IN ALL VIEWS THAT EXTEND status.html
-    Parameters
-    ----------
-        attempts : list of Attempt
-    return
-    ----------
-       team_submission_status
-    """
     context = {}
+    context.update(getUserContestsSubmissionsLeftContext(contest, attempts))
     context.update({
         'contest': contest
     })
@@ -348,17 +340,7 @@ def getTestCreationContext(contest, form):
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND submit_button.html
-def getContestSubmitAttemptButton(contest, team):
-    """Context for test_creation.html
-    REQUIRED IN ALL VIEWS THAT EXTEND submit_button.html
-    Parameters
-    ----------
-        contest : Contest
-        team: Team
-    return
-    ----------
-        contest_submit_attempt_button
-    """
+def getContestSubmitAttemptButtonContext(contest, team):
     return {
         'contest_submit_attempt_button': {
             'team': team,
@@ -366,6 +348,8 @@ def getContestSubmitAttemptButton(contest, team):
         }
     }
 
+def getContestSubmitFormContext(contest, attempts):
+    return getUserContestsSubmissionsLeftContext(contest, attempts)
 
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_team_join.html
 def getContestTeamJoinContext(contest, teams, form):
