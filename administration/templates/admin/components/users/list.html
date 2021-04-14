@@ -27,8 +27,11 @@
                             </i>
                         </td>
                         <td>
-                            <a class="btn btn-warning btn-sm" href="{% url 'admin_users_user_form' user.id %}">
-                                <i class="fas fa-pen"></i>
+                            <a href="{% url 'admin_users_user_form' user.id %}" class="btn btn-warning btn-icon-split btn-sm" >
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
+                                <span class="text">Edit</span>
                             </a>
                         </td>
                     </tr>

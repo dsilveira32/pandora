@@ -9,16 +9,34 @@
 {% block groupContent %}
     <div class="row pb-3">
         <div class="col-lg-12">
-            <a class="btn btn-primary btn-sm {% if '/users' not in request.path and '/contests' not in request.path and '/edit' not in request.path %}active{% endif %}"
-               href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}"><i
-                    class="fas fa-chart-line"></i> Dashboard</a>
-            <a class="btn btn-primary btn-sm {% if '/users' in request.path %}active{% endif %}"
-               href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">Users</a>
-            <a class="btn btn-primary btn-sm {% if '/contests' in request.path %}active{% endif %}"
-               href="{% url 'admin_group_contests_manager' admin_group_detail_layout.group.id %}">Contests</a>
-            <a class="btn btn-warning btn-sm {% if '/edit' in request.path %}active{% endif %}"
-               href="{% url 'admin_group_edit' admin_group_detail_layout.group.id %}"><i class="fas fa-pencil-alt"></i>
-                Edit</a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if '/users' not in request.path and '/contests' not in request.path and '/edit' not in request.path %}active{% endif %}"
+               href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-chart-line"></i>
+                </span>
+                <span class="text">Dashboard</span>
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if '/users' in request.path %}active{% endif %}"
+               href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-user-alt"></i>
+                </span>
+                <span class="text">Users</span>
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if '/contests' in request.path %}active{% endif %}"
+               href="{% url 'admin_group_contests_manager' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-list-alt"></i>
+                </span>
+                <span class="text">Contests</span>
+            </a>
+            <a class="btn btn-warning btn-sm btn-icon-split w-sm-100 {% if '/edit' in request.path %}active{% endif %}"
+               href="{% url 'admin_group_edit' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span class="text">Edit</span>
+            </a>
         </div>
     </div>
     {% block groupDetailContent %}

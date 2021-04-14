@@ -9,29 +9,45 @@
     {% endblock %}
 {% endblock %}
 {% block contestContent %}
-    <div class="row pb-3">
+    {% block testsMenu %}
+        <div class="row pb-3">
         <div class="col-12">
-            <div>
-                <a class="btn btn-primary btn-sm {% if 'create' not in request.path and 'edit' not in request.path %}active{% endif %}"
-                   type="button"
-                   href="{% url 'manager_contests_detail_tests'  admin_test_non_detail_layout.contest.id %}">Dashboard
-                </a>
-                <a class="btn btn-primary btn-sm {% if 'tests/edit' in request.path %}active{% endif %}"
-                   type="button"
-                   href="{% url 'manager_contests_detail_tests_list_edit'  admin_test_non_detail_layout.contest.id %}">Test
-                    Manager
-                </a>
-                <a class="btn btn-primary btn-sm {% if 'create' in request.path and 'mass_create' not in request.path %}active{% endif %}"
-                   type="button"
-                   href="{% url 'manager_contests_detail_tests_create'  admin_test_non_detail_layout.contest.id %}">Create
-                    Test</a>
-                <a class="btn btn-primary btn-sm {% if 'mass_create' in request.path %}active{% endif %}" type="button"
-                   href="{% url 'manager_contests_detail_tests_mass_create'  admin_test_non_detail_layout.contest.id %}">
-                    Mass Test Creation
-                </a>
-            </div>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if 'create' not in request.path and 'edit' not in request.path %}active{% endif %}"
+               type="button"
+               href="{% url 'manager_contests_detail_tests'  admin_test_non_detail_layout.contest.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-list"></i>
+                </span>
+                <span class="text">List</span>
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if 'tests/edit' in request.path %}active{% endif %}"
+               type="button"
+               href="{% url 'manager_contests_detail_tests_list_edit'  admin_test_non_detail_layout.contest.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-table"></i>
+                </span>
+                <span class="text">Test Manager</span>
+
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if 'create' in request.path and 'mass_create' not in request.path %}active{% endif %}"
+               type="button"
+               href="{% url 'manager_contests_detail_tests_create'  admin_test_non_detail_layout.contest.id %}">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-plus-circle"></i>
+                    </span>
+                <span class="text">Create Test</span>
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 {% if 'mass_create' in request.path %}active{% endif %}"
+               type="button"
+               href="{% url 'manager_contests_detail_tests_mass_create'  admin_test_non_detail_layout.contest.id %}">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-file-archive"></i>
+                    </span>
+                <span class="text">Mass Test Creation</span>
+            </a>
         </div>
     </div>
+    {% endblock %}
     {% block testContent %}
     {% endblock %}
 {% endblock %}

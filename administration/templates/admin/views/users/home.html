@@ -2,13 +2,25 @@
 {% block userContent %}
     <div class="row pb-3">
         <div class="col-lg-12">
-            <a class="btn btn-primary btn-sm" href="{% url 'admin_users_user_form_create' %}"><i
-                    class="fas fa-plus-circle"></i> Create User</a>
-            <button class="btn btn-primary btn-sm is-checkbox-select-btn-users-table submit-btn-users-table" disabled
-                    value="validate"><i class="fas fa-check"></i> Validate selected
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0" href="{% url 'admin_users_user_form_create' %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus-circle"></i>
+                </span>
+                <span class="text">Create User</span>
+            </a>
+            <button class="btn btn-success btn-sm btn-icon-split is-checkbox-select-btn-users-table submit-btn-users-table w-sm-100 mb-3 mb-md-0" disabled
+                    value="validate">
+                <span class="icon text-white-50">
+                    <i class="fas fa-check"></i>
+                </span>
+                <span class="text">Validate selected</span>
             </button>
-            <button class="btn btn-primary btn-sm is-checkbox-select-btn-users-table submit-btn-users-table" disabled
-                    value="invalidate"><i class="fas fa-times"></i> Invalidate selected
+            <button class="btn btn-danger btn-sm btn-icon-split is-checkbox-select-btn-users-table submit-btn-users-table w-sm-100" disabled
+                    value="invalidate">
+                <span class="icon text-white-50">
+                    <i class="fas fa-times"></i>
+                </span>
+                <span class="text">Invalidate selected</span>
             </button>
         </div>
     </div>

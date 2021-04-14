@@ -2,3 +2,37 @@
   background-color: transparent;
   font-size: 2rem;
 }
+@media(max-width: 576px) {
+    .w-xs-100 {
+        width: 100%;
+    }
+}
+@media(max-width: 768px) {
+    .w-sm-100 {
+        width: 100%;
+    }
+}
+@media(max-width: 992px) {
+    .w-md-100 {
+        width: 100%;
+    }
+}
+@media(max-width: 1200px) {
+    .w-lg-100 {
+        width: 100%;
+    }
+}
+@media(min-width: 1200px) {
+    .w-xl-100 {
+        width: 100%;
+    }
+}
+
+.btn-icon-split{
+    justify-content: start;
+}
+
+.btn-icon-split .text{
+    width: 100%;
+    text-align: center;
+}
