@@ -41,6 +41,7 @@ def user_form_view(request, user_id):
                 context.update({"message": "An error occurred when saving user\'s data", "type": "danger"})
         context.update(getAdminUserDetailLayoutContext(user))
         context.update(getAdminUsersFormContext(userForm, profileForm))
+        context.update(getAdminUserDetailLayoutContext(user))
     else:
         context.update({"message": "User doesn\'t exists!", "type": "danger"})
     return render(request, template_name, context)

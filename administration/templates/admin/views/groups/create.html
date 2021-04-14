@@ -1,15 +1,8 @@
-{% extends "admin/layouts/base_layout.html" %}
-{% block pageContent %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Groups</li>
-        </ol>
-    </nav>
-    <div class="container-fluid">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-md-8">
-                {% include "admin/components/groups/form.html" %}
-            </div>
+{% extends "admin/layouts/groups/non_detail_layout.html" %}
+{% block groupContent %}
+    <div class="row">
+        <div class="offset-lg-2 col-lg-8">
+            {% include "admin/components/groups/form.html" %}
         </div>
     </div>
 {% endblock %}
