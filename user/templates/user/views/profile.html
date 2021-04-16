@@ -1,6 +1,12 @@
 {% extends "user/layouts/area_layout.html" %}
 {% block pageContent %}
-    <h3>User profile</h3>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_profile_view' %}">Profile</a>
+            </li>
+        </ol>
+    </nav>
     <hr>
     <div class="row pb-3">
         <div class="offset-lg-4 col-lg-4">

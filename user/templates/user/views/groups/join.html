@@ -1,12 +1,8 @@
-{% extends "user/layouts/area_layout.html" %}
-{% block pageContent %}
-    <h3>Groups</h3>
-    <hr>
-    <div class="container-fluid">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-lg-8">
-                {% include "user/components/groups/join_form.html" %}
-            </div>
+{% extends "user/layouts/groups/non_detail_layout.html" %}
+{% block groupContent %}
+    <div class="row justify-content-center align-items-center">
+        <div class="col-lg-8">
+            {% include "user/components/groups/join_form.html" %}
         </div>
     </div>
 {% endblock %}

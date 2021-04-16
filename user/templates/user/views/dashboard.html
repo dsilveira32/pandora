@@ -1,6 +1,12 @@
 {% extends "user/layouts/area_layout.html" %}
 {% block pageContent %}
-    <h3>Dashboard</h3>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_dashboard' %}">Dashboard</a>
+            </li>
+        </ol>
+    </nav>
     <hr>
     <div class="row pb-3">
         <div class="col-lg-3 pb-3">

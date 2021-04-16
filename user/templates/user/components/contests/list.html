@@ -1,6 +1,6 @@
 {% load helpers %}
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-lg-6 pb-3 pb-lg-0">
         <div class="card shadow">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-success">Open Contests</h6>
@@ -8,7 +8,7 @@
             <div class="card-body">
                 {% list_has_open_contests contest_list.contests as has_open_contests %}
                 {% if has_open_contests %}
-                    <table class="table">
+                    <table class="table table-responsive-md">
                         <thead>
                         <tr>
                             <th scope="col">Contest</th>
@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6 pb-3 pb-lg-0">
         <div class="card shadow">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-danger">Closed Contests</h6>
@@ -46,7 +46,7 @@
             <div class="card-body">
                 {% list_has_closed_contests contest_list.contests as has_closed_contests %}
                 {% if has_closed_contests %}
-                    <table class="table">
+                    <table class="table table-responsive-md">
                         <thead>
                         <tr>
                             <th scope="col">Contest</th>

@@ -1,14 +1,16 @@
-{% extends "admin/layouts/base_layout.html" %}
+{% extends "user/layouts/area_layout.html" %}
 {% block pageContent %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">
-                <a href="{% url 'manager_contests_home' %}">Contests</a>
+                <a href="{% url 'user_contests_home' %}">Contests</a>
             </li>
-            {% block contestDetailBreadcrumbs %}
+            {% block subContestBreadcrumbs %}
             {% endblock %}
         </ol>
     </nav>
+    {% block contestBelowBreadcrumbs %}
+    {% endblock %}
     <hr>
     {% block contestContent %}
     {% endblock %}

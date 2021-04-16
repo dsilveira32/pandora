@@ -1,6 +1,8 @@
-{% extends "user/layouts/area_layout.html" %}
-{% block pageContent %}
-    <h3>Contests</h3>
-    <hr>
-    {% include "user/components/contests/list.html" %}
+{% extends "user/layouts/contests/non_detail_layout.html" %}
+{% block contestContent %}
+    <div class="row">
+        <div class="col-lg-12">
+            {% include "user/components/contests/list.html" %}
+        </div>
+    </div>
 {% endblock %}

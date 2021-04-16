@@ -1,8 +1,13 @@
 {% extends "user/layouts/area_layout.html" %}
 {% block pageContent %}
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">About</h1>
-    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'about' %}">About</a>
+            </li>
+        </ol>
+    </nav>
+    <hr>
     <div class="row justify-content-center align-items-center">
         <div class="col-lg-6">
             <div class="card shadow mb-4">

@@ -1,27 +1,20 @@
-{% extends "user/layouts/area_layout.html" %}
-{% block pageContent %}
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active">
-                <a href="{% url 'user_contests_home' %}">Contests</a>
-            </li>
-            {% if contest_detail_layout.contest %}
-            <li class="breadcrumb-item active">
-                <a href="{% url 'user_contests_detail_dashboard' contest_detail_layout.contest.id %}">{{ contest_detail_layout.contest.short_name }}</a>
-            </li>
-            {% endif %}
-            {% if contest_detail_layout.subpage %}
-            <li class="breadcrumb-item " aria-current="page">{{ contest_detail_layout.subpage }}</li>
-            {% endif %}
-        </ol>
-    </nav>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h5>{{ contest_detail_layout.contest.short_name }} - {{ contest_detail_layout.contest.title }}</h5>
-        </div>
-        {% block contestDetailContent %}
-        {% endblock %}
+{% extends "user/layouts/contests/non_detail_layout.html" %}
+{% block subContestBreadcrumbs %}
+    {% if contest_detail_layout.contest %}
+        <li class="breadcrumb-item active">
+            <a href="{% url 'user_contests_detail_dashboard' contest_detail_layout.contest.id %}">{{ contest_detail_layout.contest.short_name }}</a>
+        </li>
+    {% endif %}
+    {% if contest_detail_layout.subpage %}
+        <li class="breadcrumb-item " aria-current="page">{{ contest_detail_layout.subpage }}</li>
+    {% endif %}
+{% endblock %}
+{% block contestBelowBreadcrumbs %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+        <h5>{{ contest_detail_layout.contest.title }}</h5>
     </div>
-
+{% endblock %}
+{% block contestContent %}
+    {% block contestDetailContent %}
+    {% endblock %}
 {% endblock %}
