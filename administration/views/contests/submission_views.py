@@ -10,7 +10,7 @@ from shared.routines import *
 
 @superuser_only
 def dashboard_view(request, contest_id):
-    template_name = 'admin/views/contests/submissions/dashboard.html'
+    template_name = 'admin/pages/contests/submissions/dashboard.html'
     context = {}
     contest = getContestByID(contest_id)
     submissions = contest.getSubmissions()
@@ -23,7 +23,7 @@ def dashboard_view(request, contest_id):
 
 @superuser_only
 def details_view(request, contest_id, attempt_id):
-    template_name = 'admin/views/contests/submissions/details.html'
+    template_name = 'admin/pages/contests/submissions/details.html'
     context = {}
     contest = Contest.getByID(contest_id)
 

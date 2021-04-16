@@ -10,7 +10,7 @@ from shared.routines import *
 
 @superuser_only
 def dashboard_view(request, contest_id):
-	template_name = 'admin/views/contests/teams/dashboard.html'
+	template_name = 'admin/pages/contests/teams/dashboard.html'
 	context = {}
 	contest = getContestByID(contest_id)
 
@@ -28,7 +28,7 @@ def dashboard_view(request, contest_id):
 # Admin team detail dashboard view
 @superuser_only
 def create_view(request, contest_id):
-	template_name = 'admin/views/contests/teams/create.html'
+	template_name = 'admin/pages/contests/teams/create.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	form = AdminTeamCreateForm(request.POST or None)
@@ -42,7 +42,7 @@ def create_view(request, contest_id):
 # Admin team detail dashboard view
 @superuser_only
 def detail_view(request, contest_id, team_id):
-	template_name = 'admin/views/contests/teams/detail.html'
+	template_name = 'admin/pages/contests/teams/detail.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	team = Team.getById(team_id)
@@ -63,7 +63,7 @@ def detail_view(request, contest_id, team_id):
 # Admin team detail dashboard view
 @superuser_only
 def edit_view(request, contest_id, team_id):
-	template_name = 'admin/views/contests/teams/edit.html'
+	template_name = 'admin/pages/contests/teams/edit.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	team = Team.getById(team_id)

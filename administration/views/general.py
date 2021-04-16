@@ -13,7 +13,7 @@ def superuser_only(function):
 
 @superuser_only
 def dashboard_view(request):
-	template_name = 'admin/views/dashboard.html'
+	template_name = 'admin/pages/dashboard.html'
 	context = {}
 	context.update(getAdminDashboardActiveContestsCardContext())
 	context.update(getAdminDashboardLastWeekSubmissionsCardContext())

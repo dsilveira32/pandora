@@ -35,7 +35,7 @@ def user_complete_profile_required(function):
 @user_approval_required
 def dashboard_view(request):
     #return redirect(contest_views.dashboard_view)
-    template_name = 'user/views/dashboard.html'
+    template_name = 'user/pages/dashboard.html'
     context = {}
     contests = Contest.getContestsForUser(request)
 
@@ -50,7 +50,7 @@ def dashboard_view(request):
 
 @login_required
 def profile_view(request):
-    template_name = 'user/views/profile.html'
+    template_name = 'user/pages/profile.html'
     context = {}
     profile_form = ProfileModelForm(request.POST or None, instance=request.user.profile)
     user_form = UserModelForm(request.POST or None, instance=request.user)
@@ -67,9 +67,9 @@ def profile_view(request):
 @login_required
 @user_complete_profile_required
 def about_view(request):
-    return render(request, "user/views/about.html", {"title": "About"})
+    return render(request, "user/pages/about.html", {"title": "About"})
 
 @login_required
 @user_complete_profile_required
 def awaiting_approval_view(request):
-    return render(request, 'user/views/awaiting_approval.html', {})
+    return render(request, 'user/pages/awaiting_approval.html', {})

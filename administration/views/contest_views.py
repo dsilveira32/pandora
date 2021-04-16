@@ -22,7 +22,7 @@ from shared.routines import *
 # Admin contest general view (list of contests)
 @superuser_only
 def dashboard_view(request):
-	template_name = 'admin/views/contests/dashboard.html'
+	template_name = 'admin/pages/contests/dashboard.html'
 	context = {}
 	contests = getContestsForAdmin(request)
 
@@ -33,7 +33,7 @@ def dashboard_view(request):
 # Admin Contest Create
 @superuser_only
 def create_view(request):
-	template_name = 'admin/views/contests/create.html'
+	template_name = 'admin/pages/contests/create.html'
 	context = {}
 	form = ContestModelForm(request.POST or None)
 	if form.is_valid():
@@ -48,7 +48,7 @@ def create_view(request):
 # Admin detail contest home view
 @superuser_only
 def detail_dashboard_view(request, contest_id):
-	template_name = 'admin/views/contests/detail_dashboard.html'
+	template_name = 'admin/pages/contests/detail_dashboard.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	submission_count = contest.attempt_set.count()
@@ -70,7 +70,7 @@ def detail_dashboard_view(request, contest_id):
 # Admin Contest Specification
 @superuser_only
 def detail_specification_view(request, contest_id):
-	template_name = 'admin/views/contests/detail_specification.html'
+	template_name = 'admin/pages/contests/detail_specification.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	specs = contest.getSpecifications()
@@ -92,7 +92,7 @@ def detail_specification_view(request, contest_id):
 # Admin Contest Edit
 @superuser_only
 def edit_view(request, contest_id):
-	template_name = 'admin/views/contests/edit.html'
+	template_name = 'admin/pages/contests/edit.html'
 	context = {}
 	contest = Contest.getByID(contest_id)
 	form = ContestModelForm(request.POST or None, instance=contest)

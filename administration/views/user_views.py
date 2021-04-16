@@ -8,7 +8,7 @@ from shared.forms import *
 
 @superuser_only
 def dashboard_view(request, pag=1):
-    template_name = 'admin/views/users/home.html'
+    template_name = 'admin/pages/users/home.html'
     context = {}
     #n_reg=2
     #f = pag * n_reg if pag > 1 else 0
@@ -24,7 +24,7 @@ def dashboard_view(request, pag=1):
 
 @superuser_only
 def user_form_view(request, user_id):
-    template_name = 'admin/views/users/user_form.html'
+    template_name = 'admin/pages/users/user_form.html'
     context = {}
     if User.objects.filter(id=user_id).exists():
         user = User.objects.get(id=user_id)
@@ -48,7 +48,7 @@ def user_form_view(request, user_id):
 
 @superuser_only
 def user_form_create_view(request):
-    template_name = 'admin/views/users/user_form.html'
+    template_name = 'admin/pages/users/user_form.html'
     context = {}
     userForm = AdminUserModelForm(request.POST or None)
     profileForm = AdminUserProfileModelForm(request.POST or None)

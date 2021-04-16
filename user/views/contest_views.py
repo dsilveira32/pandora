@@ -48,7 +48,7 @@ def team_can_submit(function):
 @user_complete_profile_required
 @user_approval_required
 def dashboard_view(request):
-    template_name = 'user/views/contests/dashboard.html'
+    template_name = 'user/pages/contests/dashboard.html'
     context = {'title': 'Contests',
                'description': 'PANDORA is an Automated Assessment Tool.',
                # TODO: FIND OUT WHAT THIS WAS FOR - PERG AO PROF 'team_contests': getTeamContests(request),
@@ -65,7 +65,7 @@ def dashboard_view(request):
 @user_has_access_to_contest
 def detail_dashboard_view(request, contest_id):
     context = {}
-    template_name = 'user/views/contests/detail_dashboard.html'
+    template_name = 'user/pages/contests/detail_dashboard.html'
 
     # Get required data
     contest = getContestByID(contest_id)
