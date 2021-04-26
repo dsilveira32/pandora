@@ -113,14 +113,18 @@ python3 manage.py createsuperuser
 cd static
 gcc ascii.c -o ascii
 mv ascii ../../data
+cd ..
 ```
 ### Instalar o Docker
 [Documentação oficial docker](https://docs.docker.com/get-docker/)
 ### Criar as imagens
 ```
-cd path/to/pandora/docker_files
-./c/build_docker.sh
-./java/build_docker.sh
+cd docker_files/
+cd c/
+sh build_docker.sh
+cd ../java/
+sh build_docker.sh
+cd ../../
 ```
 
 ### Executar o pandora
