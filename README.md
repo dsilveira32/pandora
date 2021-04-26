@@ -74,7 +74,7 @@ pip install -r requirements.txt
 cd pandora/
 nano local_settings.py
 ```
-O ficheiro local_settings.py tem de ter um aspeto semelhante ao código abaixo.  
+O ficheiro local_settings.py tem de ter um aspeto semelhante ao código abaixo.
 ```
 import os
 
@@ -84,7 +84,7 @@ SOCIAL_AUTH_GITHUB_SECRET = 'YOUR_GITHUB_APP_SECRET'
 DB_USER = 'django'
 DB_PASSWORD = 'YOUR_PASSWORD'
 SECRET_KEY = 'YOUR_SECRET_KEY'
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['*'] 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -99,12 +99,14 @@ DATABASES = {
     }
 }
 ```
+O * permite todos os HOSTS no ALLOWED_HOSTS. Trocar se necessário
 Não esquecer de trocar as credênciais para acesso à base de dados.
 As keys de github são apenas necessárias se o login for efetuado por lá, caso contrário podem efetuar o login pelo caminho /login/
 
 ```
 cd ..
 python3 manage.py makemigrations
+python3 manage.py makemigrations shared
 python3 manage.py migrate
 ```
 No comando seguinte, criar um utilizador cujo username seja um email.
