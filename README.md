@@ -36,6 +36,7 @@ sudo systemctl restart redis.service
 sudo systemctl status redis
 redis-cli
 ping
+exit
 ```
 Validar se o output é PONG.
 ### Configuração MYSQL
