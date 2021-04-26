@@ -106,7 +106,7 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 
 class Specification(models.Model):
     cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
-    mem = models.PositiveIntegerField(default=4, validators=[MinValueValidator(4), MaxValueValidator(
+    mem = models.PositiveIntegerField(default=50, validators=[MinValueValidator(50), MaxValueValidator(
         512)])  # <Mbytes>		Default: 32768 kbyte(s)
     run_arguments = models.CharField(max_length=512, null=True, blank=True)
     timeout = models.PositiveIntegerField(default=10)  # <seconds>
