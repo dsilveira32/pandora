@@ -1,7 +1,6 @@
 # PANDORA - Solução Proposta
-TODO: Fazer um README de jeito com documentação  
+TODO: Fazer um README de jeito
 TODO: Melhorar a descrição e o processo de instalação  
-FIXME: Este doc está desatualizado depois da realização do nosso trabalho e das novas funcionalidades, atualizar
 ## Autores
 Alexandre Brigolas, 21803430  
 Ricardo Nunes, 21805213  
@@ -117,6 +116,7 @@ cd ..
 ```
 ### Instalar o Docker
 [Documentação oficial docker](https://docs.docker.com/get-docker/)
+[Tutorial para instalação do Docker em Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04-pt)
 ### Criar as imagens
 ```
 cd docker_files/
