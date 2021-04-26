@@ -86,6 +86,10 @@
             <table class="table table-responsive-lg">
                 <tbody>
                 <tr>
+                    <td>Title</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.title }}</td>
+                </tr>
+                <tr>
                     <td>Language</td>
                     <td>{{ admin_contests_dashboard_cards.contest.language }}</td>
                 </tr>
@@ -98,12 +102,8 @@
                     <td>{{ admin_contests_dashboard_cards.contest.end_date }}</td>
                 </tr>
                 <tr>
-                    <td>Min Nr. of Elements</td>
-                    <td>{{ admin_contests_dashboard_cards.contest.min_team_members }}</td>
-                </tr>
-                <tr>
-                    <td>Max Nr. of Elements</td>
-                    <td>{{ admin_contests_dashboard_cards.contest.max_team_members }}</td>
+                    <td>Nr. of Elements (Min - Max)</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.min_team_members }} - {{ admin_contests_dashboard_cards.contest.max_team_members }}</td>
                 </tr>
                 <tr>
                     <td>Max Classification</td>

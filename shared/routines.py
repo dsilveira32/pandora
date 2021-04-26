@@ -799,7 +799,7 @@ def run_test_in_docker(test_id, attempt_id, compilation: bool):
         test_specifications = test.getSpecifications()
         if test_specifications is not None:
             specifications = test_specifications
-
+    # Just to be sure
     if specifications:
         language = contest.getLanguage()
         image = language.lower() + '_spec_test'
