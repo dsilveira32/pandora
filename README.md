@@ -130,7 +130,8 @@ cd ../../
 ```
 
 ### Inicializar workers do Celery
-Caso este passo não seja tomado, as submissões não serão processadas
+Caso este passo não seja tomado, as submissões não serão processadas  
+Executar dentro do pipenv
 ```
 celery -A pandora worker --loglevel=INFO
 ```
