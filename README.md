@@ -140,7 +140,8 @@ celery -A pandora worker --loglevel=INFO
 ### Executar o pandora
 Executar noutra janela cli para não interferir com a do celery
 ```
-cd path/to/pandora/pandora
+cd path/to/pandora/
 pipenv shell
+cd pandora/
 python3 manage.py runserver
 ```
