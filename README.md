@@ -84,7 +84,7 @@ SOCIAL_AUTH_GITHUB_SECRET = 'YOUR_GITHUB_APP_SECRET'
 DB_USER = 'django'
 DB_PASSWORD = 'YOUR_PASSWORD'
 SECRET_KEY = 'YOUR_SECRET_KEY'
-ALLOWED_HOSTS = ['']
+ALLOWED_HOSTS = ['localhost']
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
