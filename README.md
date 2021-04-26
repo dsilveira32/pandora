@@ -1,7 +1,6 @@
 # PANDORA - Solução Proposta
-TODO: Fazer um README de jeito com documentação  
+TODO: Fazer um README de jeito
 TODO: Melhorar a descrição e o processo de instalação  
-FIXME: Este doc está desatualizado depois da realização do nosso trabalho e das novas funcionalidades, atualizar
 ## Autores
 Alexandre Brigolas, 21803430  
 Ricardo Nunes, 21805213  
@@ -22,6 +21,10 @@ sudo apt install libmysqlclient-dev -y
 sudo apt install cmake -y  
 sudo apt install git -y  
 ```
+### Instalar o Docker
+[Documentação oficial docker](https://docs.docker.com/get-docker/)
+[Tutorial para instalação do Docker em Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04-pt)
+
 ### Configurar Redis
 ```
 sudo nano /etc/redis/redis.conf
@@ -71,7 +74,7 @@ pip install -r requirements.txt
 cd pandora/
 nano local_settings.py
 ```
-O ficheiro local_settings.py tem de ter um aspeto semelhante ao código abaixo.  
+O ficheiro local_settings.py tem de ter um aspeto semelhante ao código abaixo.
 ```
 import os
 
@@ -81,7 +84,7 @@ SOCIAL_AUTH_GITHUB_SECRET = 'YOUR_GITHUB_APP_SECRET'
 DB_USER = 'django'
 DB_PASSWORD = 'YOUR_PASSWORD'
 SECRET_KEY = 'YOUR_SECRET_KEY'
-ALLOWED_HOSTS = ['']
+ALLOWED_HOSTS = ['*'] 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -96,12 +99,14 @@ DATABASES = {
     }
 }
 ```
+O * permite todos os HOSTS no ALLOWED_HOSTS. Trocar se necessário
 Não esquecer de trocar as credênciais para acesso à base de dados.
 As keys de github são apenas necessárias se o login for efetuado por lá, caso contrário podem efetuar o login pelo caminho /login/
 
 ```
 cd ..
 python3 manage.py makemigrations
+python3 manage.py makemigrations shared
 python3 manage.py migrate
 ```
 No comando seguinte, criar um utilizador cujo username seja um email.
@@ -113,23 +118,42 @@ python3 manage.py createsuperuser
 cd static
 gcc ascii.c -o ascii
 mv ascii ../../data
-```
-### Instalar o Docker
-[Documentação oficial docker](https://docs.docker.com/get-docker/)
-### Criar as imagens
-```
-cd path/to/pandora/docker_files
-./c/build_docker.sh
-./java/build_docker.sh
+cd ..
 ```
 
-### Executar o pandora
+### Criar as imagens Docker
 ```
-cd path/to/pandora/pandora
-python3 manage.py runserver
+cd docker_files/
+cd c/
+sh build_docker.sh
+cd ../java/
+sh build_docker.sh
+cd ../../
 ```
+
 ### Inicializar workers do Celery
-Caso este passo não seja tomado, as submissões não serão processadas
+Caso este passo não seja tomado, as submissões não serão processadas  
+Executar dentro do pipenv  
+Deixar aberto
 ```
 celery -A pandora worker --loglevel=INFO
 ```
+
+### Executar o pandora
+Executar noutra janela cli para não interferir com a do celery
+```
+cd path/to/pandora/
+pipenv shell
+cd pandora/
+python3 manage.py runserver
+```
+
+### Fix devido à criação de user por cli
+Como criámos o user por cli, nao foi criado um profile  
+A plataforma apresenta erros até ser criado um // TODO: meter isto no zenkit e corrigir
+Navegar ate /admin-django/  
+Fazer login  
+Clicar em users  
+Editar o user  
+Completar a ultima secção, e selecionar 'valid'  
+Submeter  
