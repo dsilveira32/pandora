@@ -51,6 +51,7 @@ GRANT ALL PRIVILEGES ON * . * TO 'django'@'localhost';
 FLUSH PRIVILEGES;
 CREATE SCHEMA pandora;
 EXIT
+exit
 ```
 root user pw   : admin  
 pandora user   : django  
