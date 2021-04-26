@@ -26,7 +26,7 @@ sudo apt install git -y
 ```
 sudo nano /etc/redis/redis.conf
 ```
-Localizar (nano » Ctrl+w): supervised no
+Localizar (nano » Ctrl+w): supervised no  
 Substituir por: supervised systemd
 ``` 
 sudo systemctl restart redis.service
