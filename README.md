@@ -61,7 +61,7 @@ pandora user pw: YOUR_PASSWORD
 mkdir /path/to/pandora/
 cd /path/to/pandora/
 mkdir data
-git clone --branch develop https://github.com/parroz/pandora/tree/develop
+git clone --branch develop https://github.com/parroz/pandora
 pipenv shell
 cd pandora/
 pip install -r requirements.txt
