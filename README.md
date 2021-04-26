@@ -21,6 +21,10 @@ sudo apt install libmysqlclient-dev -y
 sudo apt install cmake -y  
 sudo apt install git -y  
 ```
+### Instalar o Docker
+[Documentação oficial docker](https://docs.docker.com/get-docker/)
+[Tutorial para instalação do Docker em Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04-pt)
+
 ### Configurar Redis
 ```
 sudo nano /etc/redis/redis.conf
@@ -114,10 +118,8 @@ gcc ascii.c -o ascii
 mv ascii ../../data
 cd ..
 ```
-### Instalar o Docker
-[Documentação oficial docker](https://docs.docker.com/get-docker/)
-[Tutorial para instalação do Docker em Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04-pt)
-### Criar as imagens
+
+### Criar as imagens Docker
 ```
 cd docker_files/
 cd c/
