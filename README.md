@@ -57,6 +57,7 @@ pandora user   : django
 pandora user pw: YOUR_PASSWORD  
 ### Instalar a Pandora (branch develop)
 ```
+mkdir /path/to/pandora/
 cd /path/to/pandora/
 mkdir data
 git clone --branch develop https://github.com/parroz/pandora/tree/develop
