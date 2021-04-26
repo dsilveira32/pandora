@@ -25,6 +25,10 @@ sudo apt install git -y
 ### Configurar Redis
 ```
 sudo nano /etc/redis/redis.conf
+```
+Localizar (nano » Ctrl+w): supervised no
+Substituir por: supervised systemd
+``` 
 sudo systemctl restart redis.service
 ```
 ### Testar Redis 
