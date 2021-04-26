@@ -129,13 +129,14 @@ sh build_docker.sh
 cd ../../
 ```
 
-### Executar o pandora
-```
-cd path/to/pandora/pandora
-python3 manage.py runserver
-```
 ### Inicializar workers do Celery
 Caso este passo não seja tomado, as submissões não serão processadas
 ```
 celery -A pandora worker --loglevel=INFO
+```
+
+### Executar o pandora
+```
+cd path/to/pandora/pandora
+python3 manage.py runserver
 ```
