@@ -48,16 +48,16 @@ EXIT
 root user pw   : admin  
 pandora user   : django  
 pandora user pw: YOUR_PASSWORD  
-### Instalar a PANDORA
+### Instalar a Pandora (branch develop)
 ```
 cd /path/to/pandora/
 mkdir data
-git clone --branch develop https://github.com/parroz/pandora.git
+git clone --branch develop https://github.com/parroz/pandora/tree/develop
 pipenv shell
 cd pandora/
 pip install -r requirements.txt
 ```
-### Configurar a PANDORA
+### Configurar a Pandora
 ```
 cd pandora/
 mv local_settings_example.py local_settings.py
@@ -99,9 +99,16 @@ mv ascii ../../data
 ```
 ### Instalar o Docker
 [Documentação oficial docker](https://docs.docker.com/get-docker/)
+### Criar as imagens
+```
+cd path/to/pandora/docker_files
+./c/build_docker.sh
+./java/build_docker.sh
+```
+
 ### Executar o pandora
 ```
-cd ../pandora
+cd path/to/pandora/pandora
 python3 manage.py runserver
 ```
 ### Inicializar workers do Celery
