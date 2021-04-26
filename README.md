@@ -132,11 +132,13 @@ cd ../../
 ### Inicializar workers do Celery
 Caso este passo não seja tomado, as submissões não serão processadas  
 Executar dentro do pipenv
+Deixar aberto
 ```
 celery -A pandora worker --loglevel=INFO
 ```
 
 ### Executar o pandora
+Executar noutra janela cli para não interferir com a do celery
 ```
 cd path/to/pandora/pandora
 python3 manage.py runserver
