@@ -69,9 +69,9 @@ pip install -r requirements.txt
 ### Configurar a Pandora
 ```
 cd pandora/
-mv local_settings_example.py local_settings.py
+nano local_settings.py
 ```
-O ficheiro local_settings.py tem de ter este aspecto:
+O ficheiro local_settings.py tem de ter um aspeto semelhante ao código abaixo.  
 ```
 import os
 
@@ -83,7 +83,7 @@ DB_PASSWORD = 'YOUR_PASSWORD'
 SECRET_KEY = 'YOUR_SECRET_KEY'
 ALLOWED_HOSTS = ['']
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(file)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DATABASES = {
     'default': {
@@ -96,12 +96,20 @@ DATABASES = {
     }
 }
 ```
+Não esquecer de trocar as credênciais para acesso à base de dados.
+As keys de github são apenas necessárias se o login for efetuado por lá, caso contrário podem efetuar o login pelo caminho /login/
+
 ```
 cd ..
 python3 manage.py makemigrations
 python3 manage.py migrate
-python3 manage.py loaddata pandora/inital_data.json
+```
+No comando seguinte, criar um utilizador cujo username seja um email.
+```
 python3 manage.py createsuperuser
+```
+
+```
 cd static
 gcc ascii.c -o ascii
 mv ascii ../../data
