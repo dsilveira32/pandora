@@ -1,5 +1,7 @@
 # PANDORA - Solução Proposta
-TODO: Este doc está desatualizado depois da realização do nosso trabalho e das novas funcionalidades, atualizar
+TODO: Fazer um README de jeito com documentação
+TODO: Melhorar o processo de instalação
+FIXME: Este doc está desatualizado depois da realização do nosso trabalho e das novas funcionalidades, atualizar
 ## Autores
 Alexandre Brigolas, 21803430  
 Ricardo Nunes, 21805213  
