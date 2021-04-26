@@ -1,6 +1,6 @@
 # PANDORA - Solução Proposta
 TODO: Fazer um README de jeito com documentação  
-TODO: Melhorar o processo de instalação  
+TODO: Melhorar a descrição e o processo de instalação  
 FIXME: Este doc está desatualizado depois da realização do nosso trabalho e das novas funcionalidades, atualizar
 ## Autores
 Alexandre Brigolas, 21803430  
@@ -22,7 +22,7 @@ sudo apt install libmysqlclient-dev -y
 sudo apt install cmake -y  
 sudo apt install git -y  
 ```
-### Instalar Redis
+### Configurar Redis
 ```
 sudo nano /etc/redis/redis.conf
 sudo systemctl restart redis.service
@@ -31,8 +31,9 @@ sudo systemctl restart redis.service
 ```
 sudo systemctl status redis
 redis-cli
+ping
 ```
-Escrever ping. Validar se o output é PONG.
+Validar se o output é PONG.
 ### Configuração MYSQL
 ```
 sudo su
