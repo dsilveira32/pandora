@@ -45,9 +45,9 @@ FLUSH PRIVILEGES;
 CREATE SCHEMA pandora;
 EXIT
 ```
-root user pw   : admin
-pandora user   : django
-pandora user pw: YOUR_PASSWORD
+root user pw   : admin  
+pandora user   : django  
+pandora user pw: YOUR_PASSWORD  
 ### Instalar a PANDORA
 ```
 cd /path/to/pandora/
