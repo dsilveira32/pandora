@@ -30,7 +30,7 @@ def user_belongs_to_group(function):
 @user_complete_profile_required
 @user_approval_required
 def dashboard_view(request):
-    template_name = 'user/views/groups/dashboard.html'
+    template_name = 'user/pages/groups/dashboard.html'
 
     context = {}
     groups = getGroupsForUser(request)
@@ -43,7 +43,7 @@ def dashboard_view(request):
 @user_complete_profile_required
 @user_approval_required
 def join_view(request):
-    template_name = 'user/views/groups/join.html'
+    template_name = 'user/pages/groups/join.html'
 
     context = {}
     form = GroupJoinForm(request.POST or None)
@@ -64,7 +64,7 @@ def join_view(request):
 @user_approval_required
 @user_belongs_to_group
 def detail_dashboard_view(request, group_id):
-    template_name = 'user/views/groups/detail.html'
+    template_name = 'user/pages/groups/detail.html'
     context = {}
     group = Group.objects.get(id=group_id)
     contests = group.getContests()

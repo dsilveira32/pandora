@@ -1,0 +1,12 @@
+{% extends "user/layouts/contests/detail_layout.html" %}
+{% block contestDetailContent %}
+    <div class="offset-lg-3 col-lg-6 pb-3">
+        {% include "user/components/contests/submissions/submit_button.html" %}
+    </div>
+    <div class="col-lg-12 pb-3">
+        {% include "user/components/contests/submissions/details.html" %}
+    </div>
+    <div class="col-lg-12">
+        {% include "user/components/contests/submissions/history.html" %}
+    </div>
+{% endblock %}

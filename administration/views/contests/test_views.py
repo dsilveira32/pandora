@@ -11,7 +11,7 @@ from shared.models import Test
 
 @superuser_only
 def dashboard_view(request, contest_id):
-	template_name = 'admin/views/contests/tests/dashboard.html'
+	template_name = 'admin/pages/contests/tests/dashboard.html'
 	context = {}
 
 	contest = getContestByID(contest_id)
@@ -28,7 +28,7 @@ def dashboard_view(request, contest_id):
 # Admin create test view
 @superuser_only
 def create_view(request, contest_id):
-	template_name = 'admin/views/contests/tests/create.html'
+	template_name = 'admin/pages/contests/tests/create.html'
 	context = {}
 	contest = getContestByID(contest_id)
 
@@ -49,7 +49,7 @@ def create_view(request, contest_id):
 # Admin mass create test view
 @superuser_only
 def mass_create_view(request, contest_id):
-	template_name = 'admin/views/contests/tests/mass_create.html'
+	template_name = 'admin/pages/contests/tests/mass_create.html'
 	context = {}
 	contest = getContestByID(contest_id)
 
@@ -68,7 +68,7 @@ def mass_create_view(request, contest_id):
 # Admin create test view
 @superuser_only
 def detail_view(request, contest_id, test_id):
-	template_name = 'admin/views/contests/tests/detail_dashboard.html'
+	template_name = 'admin/pages/contests/tests/detail_dashboard.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	test = Test.getByID(test_id)
@@ -81,7 +81,7 @@ def detail_view(request, contest_id, test_id):
 # Admin Test Specification
 @superuser_only
 def detail_specification_view(request, contest_id, test_id):
-	template_name = 'admin/views/contests/tests/detail_specification.html'
+	template_name = 'admin/pages/contests/tests/detail_specification.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	test = Test.objects.get(id=test_id)
@@ -102,7 +102,7 @@ def detail_specification_view(request, contest_id, test_id):
 # Admin create test view
 @superuser_only
 def detail_edit_view(request, contest_id, test_id):
-	template_name = 'admin/views/contests/tests/detail_edit.html'
+	template_name = 'admin/pages/contests/tests/detail_edit.html'
 	context = {}
 	contest = getContestByID(contest_id)
 
@@ -123,7 +123,7 @@ def detail_edit_view(request, contest_id, test_id):
 
 @superuser_only
 def list_edit_view(request, contest_id):
-	template_name = 'admin/views/contests/tests/list_edit.html'
+	template_name = 'admin/pages/contests/tests/list_edit.html'
 	context = {}
 	contest = getContestByID(contest_id)
 	contest_tests = contest.getTests()

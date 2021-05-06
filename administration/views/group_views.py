@@ -16,7 +16,7 @@ from shared.routines import *
 
 @superuser_only
 def dashboard_view(request):
-	template_name = 'admin/views/groups/dashboard.html'
+	template_name = 'admin/pages/groups/dashboard.html'
 	context = {}
 	groups = getGroupsForAdmin(request)
 	context.update(getAdminGroupListContext(groups))
@@ -25,7 +25,7 @@ def dashboard_view(request):
 # Admin Groups Create
 @superuser_only
 def create_view(request):
-	template_name = 'admin/views/groups/create.html'
+	template_name = 'admin/pages/groups/create.html'
 	context = {}
 	group_form = GroupModelForm(request.POST or None)
 	if group_form.is_valid():
@@ -41,7 +41,7 @@ def create_view(request):
 # Admin Groups Dashboard View
 @superuser_only
 def detail_dashboard_view(request, group_id):
-	template_name = 'admin/views/groups/detail_dashboard.html'
+	template_name = 'admin/pages/groups/detail_dashboard.html'
 	context = {}
 	group = getGroupByID(group_id)
 	contests = group.getContests()
@@ -67,7 +67,7 @@ def detail_dashboard_view(request, group_id):
 # Admin Groups Users Manager
 @superuser_only
 def users_manage_view(request, group_id):
-	template_name = 'admin/views/groups/users/manage.html'
+	template_name = 'admin/pages/groups/users/manage.html'
 	context = {}
 	group = getGroupByID(group_id)
 	users_not_in_group = User.objects.exclude(group__users__group__exact=group)
@@ -83,7 +83,7 @@ def users_manage_view(request, group_id):
 # Admin Groups Contests Manager
 @superuser_only
 def contests_manage_view(request, group_id):
-	template_name = 'admin/views/groups/contests/manage.html'
+	template_name = 'admin/pages/groups/contests/manage.html'
 	context = {}
 	group = getGroupByID(group_id)
 	contests = Contest.objects.exclude(group__contests__group__exact=group).all()
@@ -98,7 +98,7 @@ def contests_manage_view(request, group_id):
 # Admin Groups Edit
 @superuser_only
 def edit_view(request, group_id):
-	template_name = 'admin/views/groups/edit.html'
+	template_name = 'admin/pages/groups/edit.html'
 	context = {}
 	group = getGroupByID(group_id)
 	group_form = GroupModelForm(request.POST or None, instance=group)

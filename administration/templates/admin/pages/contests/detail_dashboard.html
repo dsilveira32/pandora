@@ -1,0 +1,14 @@
+{% extends "admin/layouts/contests/detail_layout.html" %}
+{% block contestContent %}
+    {% comment %}
+        <a class="btn btn-sm btn-info" href="{{ contest_detail_layout.contest.get_absolute_url }}zip-downloader/"><i class="fas fa-file-archive"></i> Extract Files</a>
+    {% endcomment %}
+    <div class="row pb-3">
+        {% include 'admin/components/contests/dashboard_cards.html' %}
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            {% include 'admin/components/contests/rankings.html' %}
+        </div>
+    </div>
+{% endblock %}

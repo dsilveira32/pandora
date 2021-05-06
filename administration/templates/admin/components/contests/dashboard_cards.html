@@ -1,6 +1,6 @@
 {% load helpers %}
 <!-- Some cards -->
-<div class="col-3">
+<div class="col-lg-3 mb-3 mb-lg-0">
     <div class="card border-left-success shadow h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -19,7 +19,7 @@
         </div>
     </div>
 </div>
-<div class="col-3">
+<div class="col-lg-3 mb-3 mb-lg-0">
     <div class="card border-left-warning shadow h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -38,7 +38,7 @@
         </div>
     </div>
 </div>
-<div class="col-3">
+<div class="col-lg-3 mb-3 mb-lg-0">
     <div class="card border-left-info shadow h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -57,7 +57,7 @@
         </div>
     </div>
 </div>
-<div class="col-3">
+<div class="col-lg-3">
     <div class="card border-left-primary shadow h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -76,18 +76,19 @@
         </div>
     </div>
 </div>
-
-
 <!-- Details -->
-
-<div class="col-6">
-    <div class="card border rounded shadow-sm mb-4 mt-4">
+<div class="col-lg-6 pt-3">
+    <div class="card shadow">
+        <div class="card-header text-center py-3">
+            <h5 class="m-0 font-weight-bold text-primary">Details</h5>
+        </div>
         <div class="card-body text-center">
-
-            <h5 class="car-title mb-2 text-primary ">Details</h5>
-            <p class="card-text mb-auto">
-            <table class="table">
+            <table class="table table-responsive-lg">
                 <tbody>
+                <tr>
+                    <td>Title</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.title }}</td>
+                </tr>
                 <tr>
                     <td>Language</td>
                     <td>{{ admin_contests_dashboard_cards.contest.language }}</td>
@@ -101,12 +102,8 @@
                     <td>{{ admin_contests_dashboard_cards.contest.end_date }}</td>
                 </tr>
                 <tr>
-                    <td>Min Nr. of Elements</td>
-                    <td>{{ admin_contests_dashboard_cards.contest.min_team_members }}</td>
-                </tr>
-                <tr>
-                    <td>Max Nr. of Elements</td>
-                    <td>{{ admin_contests_dashboard_cards.contest.max_team_members }}</td>
+                    <td>Nr. of Elements (Min - Max)</td>
+                    <td>{{ admin_contests_dashboard_cards.contest.min_team_members }} - {{ admin_contests_dashboard_cards.contest.max_team_members }}</td>
                 </tr>
                 <tr>
                     <td>Max Classification</td>
@@ -116,34 +113,42 @@
                 </tbody>
             </table>
             {% if admin_contests_dashboard_cards.contest.sow %}
-                <a class="d-inline-block mb-1 mt-2 btn btn-success" href="{{ admin_contests_dashboard_cards.contest.sow }}">
-                    <strong>
-                        View Statement Of Work
-                    </strong>
+                <a href="{{ admin_contests_dashboard_cards.contest.sow }}" class="btn btn-primary btn-icon-split btn-sm w-md-100 mb-3 mb-lg-0" >
+                    <span class="icon text-white-50">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                    <span class="text">View Statement Of Work</span>
                 </a>
             {% endif %}
-            <a class="d-inline-block mb-1 mt-2 btn btn-warning" href="{% url 'manager_contest_edit' admin_contests_dashboard_cards.contest.id %}">
-                <strong >
-                    Edit Contest
-                </strong>
+            <a href="{% url 'manager_contest_edit' admin_contests_dashboard_cards.contest.id %}" class="btn btn-warning btn-icon-split btn-sm w-md-100 mb-3 mb-lg-0" >
+                <span class="icon text-white-50">
+                    <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span class="text">Edit Contest</span>
             </a>
-            <a class="d-inline-block mb-1 mt-2 btn btn-info" href="{% url "manager_contests_extract_grades" admin_contests_dashboard_cards.contest.id %}">
-                <strong><i class="fas fa-file-csv"></i> Extract grades</strong>
+            <a href="{% url "manager_contests_extract_grades" admin_contests_dashboard_cards.contest.id %}" class="btn btn-info btn-icon-split btn-sm w-md-100 mb-3 mb-lg-0 " >
+                <span class="icon text-white-50">
+                    <i class="fas fa-file-csv"></i>
+                </span>
+                <span class="text">Extract grades</span>
             </a>
-            <a class="d-inline-block mb-1 mt-2 btn btn-info" href="{% url "manager_contests_extract_files" admin_contests_dashboard_cards.contest.id %}">
-                <strong><i class="fas fa-file-csv"></i> Extract Submissions</strong>
+            <a href="{% url "manager_contests_extract_files" admin_contests_dashboard_cards.contest.id %}" class="btn btn-info btn-icon-split btn-sm w-md-100 mb-3 mb-lg-0 " >
+                <span class="icon text-white-50">
+                    <i class="fas fa-file-csv"></i>
+                </span>
+                <span class="text">Extract Submissions</span>
             </a>
-            </p>
         </div>
     </div>
 
 </div>
-<div class="col-6">
-    <div class="card border rounded shadow-sm mb-4 mt-4">
+<div class="col-lg-6 pt-3">
+    <div class="card shadow">
+        <div class="card-header text-center py-3">
+            <h5 class="m-0 font-weight-bold text-primary">Default Specifications</h5>
+        </div>
         <div class="card-body text-center">
-            <h5 class="card-title mb-2 text-primary">Default Specifications</h5>
-            <p class="card-text mb-auto">
-            <table class="table">
+            <table class="table table-responsive-lg">
                 <tbody>
                 {% for field in admin_contests_dashboard_cards.contest.getSpecifications.getFields %}
                     <!-- Ignore contest, test, and id fields as they're redundant -->
@@ -160,14 +165,15 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a class="d-inline-block mb-1 btn btn-warning" href="{% url 'manager_contest_detail_specification' admin_contests_dashboard_cards.contest.id %}">
-                <strong >
-                    Edit Default Specifications
-                </strong>
+            <a href="{% url 'manager_contest_detail_specification' admin_contests_dashboard_cards.contest.id %}" class="btn btn-warning btn-icon-split btn-sm w-md-100" >
+                <span class="icon text-white-50">
+                    <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span class="text">Edit Default Specifications</span>
             </a>
-            </p>
         </div>
     </div>
 
 </div>
+
 

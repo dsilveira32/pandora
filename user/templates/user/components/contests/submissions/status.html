@@ -1,37 +1,40 @@
 {% load helpers %}
-<div class="card border rounded shadow-sm mb-4 mt-4">
+<div class="card shadow">
+    <div class="card-header text-center py-3">
+        <h5 class="m-0 font-weight-bold text-primary">
+            Current Status
+        </h5>
+    </div>
     <div class="card-body text-center">
-        <h5 class="car-title mb-2 text-primary">Current Status</h5>
         {% include "user/components/contests/submissions/submissions_left.html" %}
-        <p class="card-text mb-auto">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <td>Classification</td>
-                        <td>{{ team_submission_status.last_classification }}</td>
-                    </tr>
-                    <tr>
-                        <td>Number of Submissions</td>
-                        <td>{{ team_submission_status.number_of_submitions }}</td>
-                    </tr>
-                    <tr>
-                        <td>Time Benchmark</td>
-                        <td>{{ team_submission_status.last_execution_time }} (ms)</td>
-                    </tr>
-                    <tr>
-                        <td>Memory Benchmark</td>
-                        <td>{{ team_submission_status.last_memory_usage }} (kiB)</td>
-                    </tr>
-                    {% if team_submission_status.last_submission_id %}
-                    <tr>
-                        <td>File</td>
-                        <td>
-                            <a class="btn btn-info" href="{% url 'contest_submission_download' team_submission_status.contest.id team_submission_status.last_submission_id %}">download</a>
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </p>
+        <table class="table">
+            <tbody>
+            <tr>
+                <td>Classification</td>
+                <td>{{ team_submission_status.last_classification }}</td>
+            </tr>
+            <tr>
+                <td>Number of Submissions</td>
+                <td>{{ team_submission_status.number_of_submitions }}</td>
+            </tr>
+            <tr>
+                <td>Time Benchmark</td>
+                <td>{{ team_submission_status.last_execution_time }} (ms)</td>
+            </tr>
+            <tr>
+                <td>Memory Benchmark</td>
+                <td>{{ team_submission_status.last_memory_usage }} (kiB)</td>
+            </tr>
+            {% if team_submission_status.last_submission_id %}
+                <tr>
+                    <td>File</td>
+                    <td>
+                        <a class="btn btn-info"
+                           href="{% url 'contest_submission_download' team_submission_status.contest.id team_submission_status.last_submission_id %}">download</a>
+                    </td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
     </div>
 </div>

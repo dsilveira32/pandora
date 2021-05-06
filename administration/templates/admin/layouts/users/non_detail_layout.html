@@ -1,0 +1,15 @@
+{% extends "admin/layouts/base_layout.html" %}
+{% block pageContent %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'admin_users_home' %}">Users</a>
+            </li>
+            {% block userDetailBreadcrumbs %}
+            {% endblock %}
+        </ol>
+    </nav>
+    <hr>
+    {% block userContent %}
+    {% endblock %}
+{% endblock %}

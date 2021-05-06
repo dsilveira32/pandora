@@ -1,14 +1,4 @@
 {% load static from staticfiles %}
-<script>
-    //feather.replace()
-</script>
-{% comment %}
-<script src="{% static 'js/jquery-3.3.1.slim.min.js' %}"></script>
-<script src="{% static 'js/popper.min.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/feather.min.js' %}"></script>
-{% endcomment %}
-
 
 <!-- Bootstrap core JavaScript-->
 <script src="{% static 'startbootstrap/vendor/jquery/jquery.min.js' %}"></script>
@@ -16,17 +6,13 @@
 
 <!-- Core plugin JavaScript-->
 <script src="{% static 'startbootstrap/vendor/jquery-easing/jquery.easing.min.js' %}"></script>
-<!-- Custom scripts for all pages-->
-<script src="{% static 'startbootstrap/js/sb-admin-2.min.js' %}"></script>
+
+<script src="{% static 'startbootstrap/vendor/chart.js/Chart.bundle.js' %}"></script>
+
+<!-- DataTables -->
 <script src="{% static 'startbootstrap/vendor/datatables/jquery.dataTables.min.js' %}"></script>
-
 <script src="{% static 'startbootstrap/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
-{% comment %}
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.23/sl-1.3.1/datatables.min.js"></script>
-{% endcomment %}
 
-<!-- Page level plugins -->
-<script type="text/javascript" src="{% static 'startbootstrap/vendor/chart.js/Chart.bundle.js' %}"></script>
 
 <!-- XDSoft DateTimePicker -->
 <script src="{% static 'datetimepicker/build/jquery.datetimepicker.full.js' %}"></script>
@@ -76,9 +62,7 @@
     // Call the dataTables jQuery plugin
     $(document).ready(function () {
         $('.dataTablePandora').DataTable({
-            columnDefs: [
-              { targets: [0], orderable: false }
-            ]
+            columnDefs: []
         }).on("page.dt", function(){
             if(selection[$(this).attr("data-way")]){
                 selection[$(this).attr("data-way")] = 0;
@@ -89,9 +73,7 @@
         $('.dataTablePandoraReversed').DataTable({
             "order": [[0, "desc"]],
             select: true,
-            columnDefs: [
-              { targets: 'no-sort', orderable: false }
-            ]
+            columnDefs: []
         }).on("page.dt", function(){
             checkSelection(this)
         })

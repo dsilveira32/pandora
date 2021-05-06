@@ -1,45 +1,8 @@
-{% extends "admin/layouts/base_layout.html" %}
-{% block pageContent %}
-     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active">
-                <a href="{% url 'admin_users_home' %}">User</a>
-            </li>
-            {% if admin_users_detail_layout.user %}
-            <li class="breadcrumb-item " aria-current="page">{{ admin_users_detail_layout.user.get_full_name }}</li>
-            {% endif %}
-        </ol>
-    </nav>
-    <div class="container-fluid">
-        {% comment %}
-        #### Probably not needed
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h5>{{ admin_group_detail_layout.group.name }}</h5>
-        </div>
-        <nav class="navbar navbar-expand nav-pills">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarGroupUser"
-                    aria-controls="navbarGroupUser" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarGroupUser">
-                <a class="nav-link mr-2 {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
-                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}">
-                    Dashboard
-                </a>
-                <a class="nav-link mr-2 {% if '/tests' in request.path %}active{% endif %}"
-                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}/tests">
-                    Tests
-                </a>
-                <a class="nav-link mr-2 {% if '/teams' in request.path %}active{% endif %}"
-                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}/teams">
-                    Teams
-                </a>
-            </div>
-        </nav>
-        {% endcomment %}
-        <hr>
-        {% block groupDetailContent %}
-        {% endblock %}
-    </div>
-
+{% extends "admin/layouts/users/non_detail_layout.html" %}
+{% block userDetailBreadcrumbs %}
+    <li class="breadcrumb-item" aria-current="page">{{ admin_user_detail_layout.user.get_full_name }}</li>
+    {% block subUserBreadcrumbs %}
+    {% endblock %}
+{% endblock %}
+{% block userContent %}
 {% endblock %}

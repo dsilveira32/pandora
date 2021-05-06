@@ -1,0 +1,18 @@
+{% extends "admin/layouts/groups/non_detail_layout.html" %}
+{% block groupContent %}
+    <div class="row pb-3">
+        <div class="col-lg-2 pb-lg-0 pb-sm-3">
+            <a class="btn btn-sm btn-primary btn-icon-split w-md-100" href="{% url 'admin_group_create' %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus-circle"></i>
+                </span>
+                <span class="text">Create Group</span>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            {% include "admin/components/groups/list.html" %}
+        </div>
+    </div>
+{% endblock %}

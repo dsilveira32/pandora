@@ -1,0 +1,34 @@
+{% extends "user/layouts/area_layout.html" %}
+{% block pageContent %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="{% url 'user_dashboard' %}">Dashboard</a>
+            </li>
+        </ol>
+    </nav>
+    <hr>
+    <div class="row pb-3">
+        <div class="col-lg-3 pb-3">
+            {% include 'user/components/dashboard/number_card.html' %}
+        </div>
+        <div class="col-lg-3 pb-3">
+            {% include 'user/components/dashboard/avg_grade_card.html' %}
+        </div>
+        <div class="col-lg-3 pb-3">
+            {% include 'user/components/dashboard/avg_ranking_card.html' %}
+        </div>
+        <div class="col-lg-3 pb-3">
+            {% include 'user/components/dashboard/avg_n_submissions_card.html' %}
+        </div>
+
+    </div>
+    <div class="row pb-3">
+        <div class="col-lg-6">
+            {% include 'user/components/dashboard/recent_contests_progress.html' %}
+        </div>
+        <div class="col-lg-6">
+            {% include 'user/components/dashboard/grades_graph.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,61 +1,44 @@
-{% extends "admin/layouts/base_layout.html" %}
-{% block pageContent %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active">
-                <a href="{% url 'admin_groups_home' %}">Groups</a>
-            </li>
-            {% if admin_group_detail_layout.group %}
-                <li class="breadcrumb-item active">
-                    <a href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">{{ admin_group_detail_layout.group.name }}</a>
-                </li>
-            {% endif %}
-            {% if admin_group_detail_layout.subpage %}
-                <li class="breadcrumb-item " aria-current="page">{{ admin_group_detail_layout.subpage }}</li>
-            {% endif %}
-        </ol>
-    </nav>
-    <div class="container-fluid">
-
-        {% comment %}
-        #### Probably not needed
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h5>{{ admin_group_detail_layout.group.name }}</h5>
+{% extends "admin/layouts/groups/non_detail_layout.html" %}
+{% block groupDetailBreadcrumbs %}
+    <li class="breadcrumb-item active">
+        <a href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">{{ admin_group_detail_layout.group.name }}</a>
+    </li>
+    {% block subGroupBreadcrumbs %}
+    {% endblock %}
+{% endblock %}
+{% block groupContent %}
+    <div class="row pb-3">
+        <div class="col-lg-12">
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if '/users' not in request.path and '/contests' not in request.path and '/edit' not in request.path %}active{% endif %}"
+               href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-chart-line"></i>
+                </span>
+                <span class="text">Dashboard</span>
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if '/users' in request.path %}active{% endif %}"
+               href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-user-alt"></i>
+                </span>
+                <span class="text">Users</span>
+            </a>
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100 mb-3 mb-md-0 {% if '/contests' in request.path %}active{% endif %}"
+               href="{% url 'admin_group_contests_manager' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-list-alt"></i>
+                </span>
+                <span class="text">Contests</span>
+            </a>
+            <a class="btn btn-warning btn-sm btn-icon-split w-sm-100 {% if '/edit' in request.path %}active{% endif %}"
+               href="{% url 'admin_group_edit' admin_group_detail_layout.group.id %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span class="text">Edit</span>
+            </a>
         </div>
-        <nav class="navbar navbar-expand nav-pills">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarGroupUser"
-                    aria-controls="navbarGroupUser" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarGroupUser">
-                <a class="nav-link mr-2 {% if '/tests' not in request.path and '/teams' not in request.path %}active{% endif %}"
-                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}">
-                    Dashboard
-                </a>
-                <a class="nav-link mr-2 {% if '/tests' in request.path %}active{% endif %}"
-                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}/tests">
-                    Tests
-                </a>
-                <a class="nav-link mr-2 {% if '/teams' in request.path %}active{% endif %}"
-                   href="/admin/groups/{{ admin_group_detail_layout.Group.id }}/teams">
-                    Teams
-                </a>
-            </div>
-        </nav>
-        {% endcomment %}
-        <a class="btn btn-primary btn-sm {% if '/users' not in request.path and '/contests' not in request.path and '/edit' not in request.path %}active{% endif %}"
-           href="{% url 'admin_group_detail_dashboard' admin_group_detail_layout.group.id %}"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a class="btn btn-primary btn-sm {% if '/users' in request.path %}active{% endif %}"
-           href="{% url 'admin_group_users_manager' admin_group_detail_layout.group.id %}">Users</a>
-        <a class="btn btn-primary btn-sm {% if '/contests' in request.path %}active{% endif %}"
-           href="{% url 'admin_group_contests_manager' admin_group_detail_layout.group.id %}">Contests</a>
-        <a class="btn btn-warning btn-sm {% if '/edit' in request.path %}active{% endif %}"
-           href="{% url 'admin_group_edit' admin_group_detail_layout.group.id %}"><i class="fas fa-pencil-alt"></i> Edit</a>
-        <hr>
-        <div class="container-fluid">
-            {% block groupDetailContent %}
-            {% endblock %}
-        </div>
-
     </div>
+    {% block groupDetailContent %}
+    {% endblock %}
 {% endblock %}

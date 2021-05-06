@@ -42,7 +42,7 @@ def user_owns_submission(function):
 @team_can_submit
 def submit_view(request, contest_id):
     checkUserProfileInRequest(request)
-    template_name = 'user/views/contests/submissions/submission.html'
+    template_name = 'user/pages/contests/submissions/submission.html'
     context = {}
     can_submit = True
 
@@ -88,13 +88,13 @@ def submit_view(request, contest_id):
         context.update({'constest_id': contest.id})
         context.update({'attempt_id': attempt.id})
 
-        return render(request, 'user/views/contests/submissions/progress.html', context)
+        return render(request, 'user/pages/contests/submissions/progress.html', context)
 
     context.update(getContestDetailLayoutContext(contest))
     context.update(getContestFormContext(contest, form))
     context.update(getTeamSubmissionHistoryContext(attempts))
-    context.update(getContestSubmitAttemptButton(contest, team))
-    context.update(getUserContestsSubmissionsLeftContext(contest, attempts))
+    context.update(getContestSubmitFormContext(contest, attempts))
+    context.update(getContestSubmitAttemptButtonContext(contest, team))
     return render(request, template_name, context)
 
 @login_required
@@ -105,7 +105,7 @@ def submit_view(request, contest_id):
 def detail_view(request, contest_id, submission_id):
     print("Contest ID: %i | Attempt ID: %i" % (contest_id, submission_id))
     checkUserProfileInRequest(request)
-    template_name = 'user/views/contests/submissions/details.html'
+    template_name = 'user/pages/contests/submissions/details.html'
     context={}
 
     attempt = getAttemptByID(submission_id)
@@ -126,7 +126,7 @@ def detail_view(request, contest_id, submission_id):
 
     context.update(getTeamSubmissionDetailsContext(contest, request.user, attempt, n_passed, n_tests, mandatory_passed, n_mandatory, passed_diff, n_diff, results, "9"))
     context.update(getTeamSubmissionHistoryContext(team.getAttempts()))
-    context.update(getContestSubmitAttemptButton(contest, team))
+    context.update(getContestSubmitAttemptButtonContext(contest, team))
     return render(request, template_name, context)
 
 @login_required

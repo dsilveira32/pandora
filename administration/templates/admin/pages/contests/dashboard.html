@@ -1,0 +1,18 @@
+{% extends "admin/layouts/contests/non_detail_layout.html" %}
+{% block contestContent %}
+    <div class="row pb-3">
+        <div class="col-lg-12">
+            <a class="btn btn-primary btn-sm btn-icon-split w-sm-100" href="{% url 'manager_contests_create' %}">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus-circle"></i>
+                </span>
+                <span class="text">Create Contest</span>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            {% include "admin/components/contests/list.html" %}
+        </div>
+    </div>
+{% endblock %}

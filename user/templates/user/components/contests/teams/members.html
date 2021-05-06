@@ -1,17 +1,19 @@
-<div class="card border rounded shadow-sm mb-4">
-    <div class="card-body text-center">
-        <div class="row p-3">
+<div class="card shadow">
+    <div class="card-header text-center py-3">
+        <div class="row px-3">
             <div class="offset-4 col-4 pt-1">
-                <h5 class="car-title mb-2 text-primary ">Team: {{ team_members.team.name }}</h5>
+                <h5 class="m-0 font-weight-bold text-primary">Team: {{ team_members.team.name }}</h5>
             </div>
             <div class="col-4">
-                <button class="btn btn-sm btn-info" id="teamJoinCode" data-placement="top" title="" code="{{ team_members.team.join_code }}">Copy
-                    join code
+                <button class="btn btn-sm btn-info float-right" id="teamJoinCode" data-placement="top" title=""
+                        code="{{ team_members.team.join_code }}">
+                    Copy join code
                 </button>
             </div>
         </div>
-        <p class="card-text mb-auto">
-        <table class="table">
+    </div>
+    <div class="card-body text-center">
+        <table class="table table-borderless">
             <tbody>
             {% for m in team_members.team.getUsers %}
                 <tr>
@@ -21,19 +23,18 @@
             {% endfor %}
             </tbody>
         </table>
-        </p>
     </div>
 </div>
 <script>
     function copyToClipboard(textToCopy, callback) {
-        try{
+        try {
             var $temp = $("<input>");
             $("body").append($temp);
             $temp.val(textToCopy).select();
             document.execCommand("copy");
             $temp.remove();
             callback(true);
-        }catch (e) {
+        } catch (e) {
             callback(false);
         }
     }
@@ -43,9 +44,9 @@
             e.preventDefault()
             $(this).tooltip("hide")
             copyToClipboard($(this).attr("code"), function (done) {
-                if(done){
+                if (done) {
                     $("#teamJoinCode").attr("title", "Join code copied to clipboard!").tooltip("show");
-                }else{
+                } else {
                     $("#teamJoinCode").tooltip("hide")
                 }
             })

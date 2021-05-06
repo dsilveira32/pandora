@@ -1,0 +1,12 @@
+{% extends "admin/layouts/contests/teams/detail_layout.html" %}
+{% block teamContent %}
+    <div class="container-fluid">
+        <div class="offset-lg-3 col-lg-6">
+            {% include "admin/components/contests/teams/form.html" %}
+        </div>
+        <hr>
+        <div class="col-12">
+            {% include "admin/components/contests/teams/manager.html" %}
+        </div>
+    </div>
+{% endblock %}

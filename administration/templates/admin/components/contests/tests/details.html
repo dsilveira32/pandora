@@ -1,21 +1,24 @@
 {% load helpers %}
-<div class="col-6">
-    <div class="card border rounded shadow-sm mb-4 mt-4">
-        <div class="card-body text-center">
-            <div class="row p-3">
+<div class="col-lg-6 mb-3 mb-lg-0">
+    <div class="card shadow">
+        <div class="card-header text-center">
+            <div class="row px-3">
                 <div class="col-4">
                     <a href="{% url 'manager_contest_detail_test_detail_edit' admin_test_details.test.contest.id admin_test_details.test.id %}"
-                       class="btn btn-warning btn-sm">
-                        <i class="fas fa-pencil-square"></i>
-                        Edit Test
+                       class="btn btn-warning btn-sm btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-pencil-alt"></i>
+                        </span>
+                        <span class="text">Edit Test</span>
                     </a>
                 </div>
                 <div class="col-4 pt-1">
-                    <h5 class="car-title mb-2 text-primary ">Details</h5>
+                    <h5 class="m-0 font-weight-bold text-primary">Details</h5>
                 </div>
             </div>
-            <p class="card-text mb-auto">
-            <table class="table">
+        </div>
+        <div class="card-body text-center">
+            <table class="table table-responsive-lg">
                 <tbody>
                 <tr>
                     <td>Name</td>
@@ -39,51 +42,48 @@
                 </tr>
                 </tbody>
             </table>
-            </p>
         </div>
     </div>
 </div>
-<div class="col-6">
-    <div class="card border rounded shadow-sm mb-4 mt-4">
+<div class="col-lg-6">
+    <div class="card shadow">
+        <div class="card-header text-center py-3">
+            <h5 class="m-0 font-weight-bold text-primary">Specifications</h5>
+        </div>
         <div class="card-body text-center">
-            <h5 class="card-title mb-2 text-primary">Specifications</h5>
-            <p class="card-text mb-auto">
-                {% if admin_test_details.test.getSpecifications %}
-                    <table class="table">
-                        <tbody>
-                        {% for field in admin_test_details.test.getSpecifications.getFields %}
-                            <!-- Ignore contest, test, and id fields as they're redundant -->
-                            {% if field.name != 'contest' and field.name != 'id' and field.name != 'test' %}
-                                <tr>
-                                    <td>
-                                        {{ field.name }}
-                                    </td>
-                                    <td>
-                                        {% call_method admin_test_details.test.getSpecifications 'getAttribute' field.name %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <a href="{% url 'manager_contest_detail_test_detail_specification' admin_test_details.test.contest.id admin_test_details.test.id %}">
-                        <strong class="d-inline-block mb-1 btn btn-warning">
-                            Edit Specifications
-                        </strong>
-                    </a>
-                {% else %}
-                    <p class="text-center">
-                        This test uses the default contest specifications.
-                    </p>
-                    <hr>
-                     <a href="{% url 'manager_contest_detail_test_detail_specification' admin_test_details.test.contest.id admin_test_details.test.id %}">
-                        <strong class="d-inline-block mb-1 btn btn-success">
-                        Create custom specifications
-                        </strong>
-                    </a>
+            {% if admin_test_details.test.getSpecifications %}
+                <table class="table table-responsive-lg">
+                    <tbody>
+                    {% for field in admin_test_details.test.getSpecifications.getFields %}
+                        <!-- Ignore contest, test, and id fields as they're redundant -->
+                        {% if field.name != 'contest' and field.name != 'id' and field.name != 'test' %}
+                            <tr>
+                                <td>
+                                    {{ field.name }}
+                                </td>
+                                <td>
+                                    {% call_method admin_test_details.test.getSpecifications 'getAttribute' field.name %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <a href="{% url 'manager_contest_detail_test_detail_specification' admin_test_details.test.contest.id admin_test_details.test.id %}">
+                    <strong class="d-inline-block mb-1 btn btn-warning">
+                        Edit Specifications
+                    </strong>
+                </a>
+            {% else %}
+                <p class="text-center">
+                    This test uses the default contest specifications.
+                </p>
+                <hr>
+                <a class="btn btn-success btn-block mb-1" href="{% url 'manager_contest_detail_test_detail_specification' admin_test_details.test.contest.id admin_test_details.test.id %}">
+                    Create custom specifications
+                </a>
 
-                {% endif %}
-            </p>
+            {% endif %}
         </div>
     </div>
 </div>

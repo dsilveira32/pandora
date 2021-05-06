@@ -1,0 +1,9 @@
+{% extends "user/layouts/contests/detail_layout.html" %}
+{% block contestDetailContent %}
+    <div class="offset-lg-3 col-lg-6 pt-1 pb-4">
+        {% include "user/components/contests/submissions/form.html" %}
+    </div>
+    <div class="col-lg-12">
+        {% include "user/components/contests/submissions/history.html" %}
+    </div>
+{% endblock %}

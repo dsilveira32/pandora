@@ -43,3 +43,24 @@ def get_percent(current, max, reverse):
     if ret < 0:
         ret = 0
     return int(round(ret, 0))
+
+@register.simple_tag
+def list_has_open_contests(contests):
+    for c in contests:
+        try:
+            if c.isOpen():
+                return True
+        except:
+            pass
+    return False
+
+@register.simple_tag
+def list_has_closed_contests(contests):
+    for c in contests:
+        try:
+            if not c.isOpen():
+                return True
+        except:
+            pass
+    return False
+

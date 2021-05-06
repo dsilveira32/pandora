@@ -43,7 +43,7 @@ def user_belongs_to_team(function):
 @user_approval_required
 def join_view(request, contest_id):
     context = {}
-    template_name = 'user/views/contests/teams/join.html'
+    template_name = 'user/pages/contests/teams/join.html'
 
     contest = getContestByID(contest_id)
 
