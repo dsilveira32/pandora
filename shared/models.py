@@ -250,7 +250,7 @@ class Test(models.Model):
     output_file = models.FileField(max_length=512, upload_to=get_tests_path, blank=False, null=False)
     mandatory = models.BooleanField(null=False, default=False)
     weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
-    run_arguments = models.CharField(max_length=512, null=True, blank=True)
+    run_arguments = models.CharField(max_length=512, null=False, default="", blank=True)
 
     view_diff = models.BooleanField(null=False, default=True)
     view_input = models.BooleanField(null=False, default=True)

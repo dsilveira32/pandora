@@ -775,12 +775,12 @@ def exec_command(command, cwd):
 
 # DOCKER FUNCTIONS #
 
-def get_docker_env_vars(attempt_id, test, contest_id, specifications):
+def get_docker_env_vars(attempt_id, test_id, contest_id, run_args, specifications):
     ignored_attributes = ['contest', 'test', 'id', 'cpu', 'mem', 'run_arguments']
     string = ' --attempt "' + str(attempt_id) + '"'
-    string += ' --test "' + str(test.getID()) + '"'
+    string += ' --test "' + str(test_id) + '"'
     string += ' --contest "' + str(contest_id) + '"'
-    string += ' --run_arguments "' + str(test.getRunArgs()) + '"'
+    string += ' --run_arguments "' + str(run_args) + '"'
     for field in specifications.getFields():
         if field.name not in ignored_attributes:
             if specifications.getAttribute(field.name) is None:
@@ -796,9 +796,11 @@ def run_test_in_docker(test_id, attempt_id):
     attempt = Attempt.getByID(attempt_id)
     contest = attempt.getContest()
     specifications = contest.getSpecifications()
+    run_args = ""
     # Test id 0 means compilation
     if test_id > 0:
         test = Test.getByID(test_id)
+        run_args = test.getRunArgs()
         test_specifications = test.getSpecifications()
         if test_specifications is not None:
             specifications = test_specifications
@@ -824,7 +826,7 @@ def run_test_in_docker(test_id, attempt_id):
         docker_command += f'--runargs "{specifications.getAttribute("run_arguments")}" '
         """
         docker_command = f'docker exec -i atempt{attempt_id} {script}'
-        docker_command += get_docker_env_vars(attempt_id, test, contest.id, specifications)
+        docker_command += get_docker_env_vars(attempt_id, test_id, contest.id, run_args, specifications)
         exec_command(docker_command, data_path)
         print(docker_command)
     else:
