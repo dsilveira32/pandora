@@ -365,12 +365,13 @@ class TestListEditForm(forms.Form):
 
             weight_pct_list = request.POST.getlist('weight_pct')
             name_list = request.POST.getlist('name')
-
+            run_args_list = request.POST.getlist('run_arguments')
             idx = 0
             for t in contest_tests:
                 if idx < len(weight_pct_list):
                     t.weight_pct = weight_pct_list[idx]
                     t.name = name_list[idx]
+                    t.run_arguments = run_args_list[idx]
                 idx = idx + 1
                 t.save()
 
