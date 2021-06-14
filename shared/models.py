@@ -346,6 +346,7 @@ class C_Specification(Specification):
     compile_flags = models.CharField(max_length=120, blank=True, default="-Wall")
     linkage_flags = models.CharField(max_length=120, blank=True, default="-lc")
     fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+    check_leak = models.BooleanField(null=False, default=False)
 
 
     class Meta:

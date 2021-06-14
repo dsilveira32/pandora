@@ -17,7 +17,7 @@ declare -a ARGUMENT_LIST=(
 	"compile_flags"
 	"linkage_flags"
 	"run_arguments"
-	"leak"
+	"check_leak"
 )
 
 # read arguments
@@ -68,7 +68,7 @@ while true; do
         shift
         run_arguments=$1
         ;;
-    --leak)  
+    --check_leak)  
         shift
         leak=$1
         ;;												
@@ -202,14 +202,13 @@ catch() {
 	34)
 		echo "SIGAIO		Ignore	Asynchronous I/O" > /disco/submission_results/$2/$3.test 
 		;;
+	77)
+		echo "LEAK		Memory Leak Test: FAILED" > /disco/submission_results/$2/$3.test 
+		;;
   esac
 
 	if [ "$1" == "124" ]; then #timeout error code
 		echo "Error: Timeout!" > /disco/submission_results/$2/$3.test ;
-		fi
-
-		if [ "$1" == "124" ]; then #timeout error code
-			echo "Error: Timeout!" > /disco/submission_results/$2/$3.test ;
 		fi
 
 		if [ "$1" == "153" ]; then #filesize excceded error code
@@ -247,7 +246,7 @@ if [ "$test" == "0" ]; then # Run compilation
   compile.sh $attempt "$compile_flags" "$linkage_flags"
 else # Run test
   trap 'catch $? $attempt $test' EXIT
-  run.sh $attempt $test $timeout $run_arguments
+  run.sh $attempt $test $timeout "$run_arguments" "$leak"
 #	cd /usr/src/compiled
 #	echo "Running Test"
 #	echo "/usr/bin/time --quiet -f %U %K %p %e %M %x -o /disco/submission_results/$attempt/$test.time timeout $timeout ./program < /disco/tests/$test/test.in > /disco/submission_results/$attempt/$test.out && echo Ok > /disco/submission_results/$attempt/$test.test"
