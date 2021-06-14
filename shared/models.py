@@ -108,6 +108,7 @@ class Specification(models.Model):
     cpu = models.PositiveIntegerField(default=1)  # <seconds>		Default: 1 second(s)
     mem = models.PositiveIntegerField(default=50, validators=[MinValueValidator(50), MaxValueValidator(
         512)])  # <Mbytes>		Default: 32768 kbyte(s)
+    # TODO: Delete these run_args as they are now being placed in the Test model
     run_arguments = models.CharField(max_length=512, null=True, blank=True)
     timeout = models.PositiveIntegerField(default=10)  # <seconds>
 
@@ -249,11 +250,14 @@ class Test(models.Model):
     output_file = models.FileField(max_length=512, upload_to=get_tests_path, blank=False, null=False)
     mandatory = models.BooleanField(null=False, default=False)
     weight_pct = models.DecimalField(default=10, null=False, decimal_places=2, max_digits=6)
+    run_arguments = models.CharField(max_length=512, null=False, default="", blank=True)
 
     view_diff = models.BooleanField(null=False, default=True)
     view_input = models.BooleanField(null=False, default=True)
     view_args = models.BooleanField(null=False, default=True)
     view_error = models.BooleanField(null=False, default=True)
+
+
 
     #type_of_feedback = models.PositiveIntegerField(default=1, null=False, blank=False)
 
@@ -332,6 +336,18 @@ class Test(models.Model):
     def getContest(self):
         return self.contest
 
+
+    def getRunArgs(self):
+        """
+        Returns run_args for this test. Returns an empty string when null.
+        """
+        if self.hasRunArgs():
+            return self.run_arguments
+        return ""
+
+    def hasRunArgs(self):
+        return self.run_arguments and self.run_arguments != ""
+
     def getDetails(self):
         # TODO: Check the minuid and maxuid
         specs = self.getSpecifications()
@@ -346,6 +362,7 @@ class C_Specification(Specification):
     compile_flags = models.CharField(max_length=120, blank=True, default="-Wall")
     linkage_flags = models.CharField(max_length=120, blank=True, default="-lc")
     fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+    check_leak = models.BooleanField(null=False, default=False)
 
 
     class Meta:
@@ -593,7 +610,7 @@ class Attempt(models.Model):
 #        exec_command("mkdir ./tmp/" + str(self.id) + "/", data_path)
  #       exec_command("mkdir ./tmp/"+str(self.id)+"/", data_path)
         # Run compilation
-        run_test_in_docker(0, self.id, True)
+        run_test_in_docker(0, self.id)
         # Reading static analisys
         self.static_analysis = read_file(os.path.join(attempt_path, 'static.out'))
         # Checking compilation
@@ -613,7 +630,7 @@ class Attempt(models.Model):
 
                     ref_out = test.getOutFileContent()
                     input = test.getInFileContent()
-                    args = test.getExistingSpecifications().getRunArgs()
+                    args = test.getRunArgs()
 
                     # Create a new Classification
                     classification = Classification()
@@ -625,7 +642,7 @@ class Attempt(models.Model):
                     classification.input = input
                     classification.run_arguments = args
                     # Run Docker
-                    run_test_in_docker(test.getID(), self.id, False)
+                    run_test_in_docker(test.getID(), self.id)
                     # Read check file
                     test_check_file = read_file(os.path.join(attempt_path, str(test.getID()) + ".test"))
                     # Read time file

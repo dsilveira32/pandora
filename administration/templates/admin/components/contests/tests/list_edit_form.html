@@ -19,6 +19,7 @@
                     <th>View Args</th>
                     <th>View Input</th>
                     <th>View Diff</th>
+                    <th>Run Args</th>
                     <!-- <th>Actions</th> -->
                 </tr>
                 </thead>
@@ -59,6 +60,11 @@
                             <input type="checkbox" class="form-control" id="view_diff" name="view_diff"
                                    value="{{ t.id }}"
                                    {% if t.view_diff %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="run_arguments"
+                                   value="{{ t.run_arguments }}">
+
                         </td>
                         <!--
                             <td>
