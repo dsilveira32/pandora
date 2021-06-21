@@ -68,7 +68,7 @@ def detail_dashboard_view(request, contest_id):
     template_name = 'user/pages/contests/detail_dashboard.html'
 
     # Get required data
-    contest = getContestByID(contest_id)
+    contest = Contest.getByID(contest_id)
     team = contest.getUserTeam(request.user)
 
     if not team and contest.max_team_members == 1:
@@ -85,7 +85,6 @@ def detail_dashboard_view(request, contest_id):
         context.update(getContestSingleRankingContext(team_attempt, rank))
 
     # Update context
-    print_variable_debug(team)
     context.update(getContestDetailLayoutContext(contest))
     context.update(getTeamMembersContext(team))
     context.update(getContestDetailsContext(contest))

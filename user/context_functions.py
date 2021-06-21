@@ -171,32 +171,32 @@ def getTeamSubmissionHistoryContext(attempts):
 
 # For status.html
 def getTeamSubmissionStatusContext(attempts, contest):
-    context = {}
-    context.update(getUserContestsSubmissionsLeftContext(contest, attempts))
-    context.update({
+    context_aux = {}
+    context_aux.update({
         'contest': contest
     })
     if attempts:
-        context.update({'number_of_submitions': attempts.count()})
-        context.update({'last_classification': attempts.first().grade})
-        context.update({'last_submission_id': attempts.first().id})
-        context.update({'last_execution_time': attempts.first().time_benchmark})
-        context.update({'last_memory_usage': attempts.first().memory_benchmark})
+        context_aux.update({'number_of_submitions': attempts.count()})
+        context_aux.update({'last_classification': attempts.first().grade})
+        context_aux.update({'last_submission_id': attempts.first().id})
+        context_aux.update({'last_execution_time': attempts.first().time_benchmark})
+        context_aux.update({'last_memory_usage': attempts.first().memory_benchmark})
         # TODO: Catch this exception
         if os.path.isfile(attempts.first().file.path):
-            context.update({'download': attempts.first().file})
+            context_aux.update({'download': attempts.first().file})
         else:
-            context.update({'download': 0})
+            context_aux.update({'download': 0})
     else:
-        context.update({'number_of_submitions': 0})
-        context.update({'last_classification': 0})
-        context.update({'last_execution_time': 0})
-        context.update({'last_memory_usage': 0})
-        context.update({'download': 0})
-    return {
-        'team_submission_status': context
-    }
+        context_aux.update({'number_of_submitions': 0})
+        context_aux.update({'last_classification': 0})
+        context_aux.update({'last_execution_time': 0})
+        context_aux.update({'last_memory_usage': 0})
+        context_aux.update({'download': 0})
 
+    context = {}
+    context.update({'team_submission_status': context_aux})
+    context.update(getUserContestsSubmissionsLeftContext(contest, attempts))
+    return context
 
 # For rankings.html
 def getContestRankingsContext(attempts):
@@ -349,6 +349,7 @@ def getContestSubmitAttemptButtonContext(contest, team):
     }
 
 def getContestSubmitFormContext(contest, attempts):
+
     return getUserContestsSubmissionsLeftContext(contest, attempts)
 
 # REQUIRED IN ALL VIEWS THAT EXTEND contest_team_join.html
