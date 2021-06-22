@@ -242,6 +242,14 @@ class Contest(models.Model):
     def getSubmissions(self):
         return self.attempt_set.all()
 
+    def getSubmissionsLastThirtyDays(self):
+        """
+        Returns the submissions of the last 30 days.
+        """
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.today() - timedelta(days=30)
+        return self.attempt_set.filter(date__gt=thirty_days_ago)
+
 
 class Test(models.Model):
     name = models.CharField(max_length=512, null=False, blank=True)

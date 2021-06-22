@@ -7,12 +7,10 @@
 #############################
 
 # CONTESTS #
-from datetime import timedelta, datetime
 
 from shared.models import Contest, Profile, Team, Attempt
 
 from datetime import datetime, timedelta
-import random
 
 
 def getAdminContestNonDetailLayoutContext():
@@ -352,11 +350,43 @@ def getAdminContestSubmissionListContext(submissions):
 
 
 # For admin/components/contests/submissions/chart.html
-def getAdminContestSubmissionChartContext(submissions, contest):
+def getAdminContestSubmissionsOver30DaysChartContext(contest):
+    dict = {}
+    labels = []
+    datasets = []
+
+    thirtyDaysAgo = datetime.today() - timedelta(days=30)
+    days = 1
+    # Get all dates
+    while days <= 30:
+        date = thirtyDaysAgo + timedelta(days=days)
+        labels.append(f"{date.day}/{date.month}")
+        days += 1
+    # Update dictionary and add all dates
+    for date in labels:
+        dict.update({
+            date: 0
+        })
+    for s in contest.getSubmissionsLastThirtyDays():
+        key = f"{s.date.day}/{s.date.month}"
+        if key in dict:
+            dict[key] += 1
+        else:
+            dict[key] = 0
+
+    dataset = {
+        'label': contest.title,
+        'data': list(dict.values()),
+        'backgroundColor': "#4e73df",
+        'hoverBackgroundColor': "#2e59d9",
+        'borderColor': "#4e73df",
+    }
+    datasets.append(dataset)
+
     return {
-        'admin_contests_submissions_chart': {
-            'submissions': list(submissions.values()),
-            'contest': contest
+        'admin_contests_submissions_over_30_days_chart': {
+            'labels': labels,
+            'datasets': datasets
         }
     }
 
@@ -440,7 +470,7 @@ def getAdminDashboardSubmissionsPerContestContext():
 
     thirtyDaysAgo = datetime.today() - timedelta(days=30)
     days = 1
-    while days < 30:
+    while days <= 30:
         date = thirtyDaysAgo + timedelta(days=days)
         labels.append(f"{date.day}/{date.month}")
         days += 1
@@ -454,11 +484,11 @@ def getAdminDashboardSubmissionsPerContestContext():
                 dict[s.contest.title].update({
                     date: 0
                 })
-            if key in dict[s.contest.title]:
-                dict[s.contest.title][key] += 1
-            else:
-                dict[s.contest.title][key] = 0
-    idx = 0;
+        if key in dict[s.contest.title]:
+            dict[s.contest.title][key] += 1
+        else:
+            dict[s.contest.title][key] = 0
+    idx = 0
     for contest in dict:
         if idx >= len(colors):
             idx = 0
@@ -523,7 +553,6 @@ def getAdminDashboardGradesAvgContext():
             data.append(round(gradeSum / len(teams), 2))
         else:
             data.append(0)
-    print(labels)
     return {
         'admin_dashboard_grades_avg': {
             'labels': labels,

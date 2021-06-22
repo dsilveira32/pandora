@@ -17,7 +17,7 @@ def dashboard_view(request, contest_id):
 
     context.update(getAdminSubmissionNonDetailLayoutContext(contest))
     context.update(getAdminContestSubmissionListContext(submissions))
-    context.update(getAdminContestSubmissionChartContext(submissions, contest))
+    context.update(getAdminContestSubmissionsOver30DaysChartContext(contest))
 
     return render(request, template_name, context)
 
@@ -55,8 +55,6 @@ def details_view(request, contest_id, attempt_id):
 
 @superuser_only
 def download_submission(request, contest_id, attempt_id):
-    print(contest_id)
-    print(attempt_id)
     attempt = Attempt.getByID(attempt_id)
     file = attempt.getFile()
     fdir, fname = os.path.split(file.path)
