@@ -7,7 +7,8 @@
         <table class="table table-bordered table-hover table-responsive-lg dataTablePandora" width="100%" cellspacing="0">
             <thead>
             <tr>
-                <th>Contest</th>
+                <th>Title</th>
+                <th>Short Name</th>
                 <th>Start</th>
                 <th>End</th>
                 <th>Time Left</th>
@@ -15,22 +16,13 @@
                 <th>Actions</th>
             </tr>
             </thead>
-            <tfoot>
-            <tr>
-                <th>Contest</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Time Left</th>
-                <th>Open</th>
-                <th>Actions</th>
-            </tr>
-            </tfoot>
             <tbody>
             {% for o in admin_contest_list.contests %}
                 <tr>
+                    <td>{{ o.title }}</td>
                     <td>{{ o.short_name }}</td>
-                    <td>{{ o.start_date }}</td>
-                    <td>{{ o.end_date }}</td>
+                    <td>{{ o.start_date | date:'d/m/Y H:i' }}</td>
+                    <td>{{ o.end_date | date:'d/m/Y H:i' }}</td>
                     <td>{{ o.end_date|timeuntil }}</td>
                     <td>
                         {% if o.isOpen %}
