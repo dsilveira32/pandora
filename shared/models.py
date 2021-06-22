@@ -251,6 +251,7 @@ class Contest(models.Model):
         return self.attempt_set.filter(date__gt=thirty_days_ago)
 
 
+
 class Test(models.Model):
     name = models.CharField(max_length=512, null=False, blank=True)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)

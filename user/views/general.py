@@ -39,7 +39,7 @@ def dashboard_view(request):
     context = {}
     contests = Contest.getContestsForUser(request)
 
-    context.update(getUserGradesDasboardContext(request, contests))
+    context.update(getUserGradesDasboardContext(request))
     context.update(getUserDashboardOngoingContestsProgressContext(contests))
     context.update(getUserContestsNumberCardContext(request))
     context.update(getUserDashboardAvgGradeCardContext(request, contests))

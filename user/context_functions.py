@@ -489,23 +489,19 @@ def getTeamJoinFormContext(create_form, join_form):
 
 
 # REQUIRED IN ALL VIEWS THAT EXTEND user_grades_dashboard.html
-def getUserGradesDasboardContext(request, contests):
+def getUserGradesDasboardContext(request):
     labels = []
     data = []
     bgcolors = []
+    contests = Contest.getContestsForUser(request).order_by("-end_date")[:5]
     if contests:
-        today = datetime.datetime.now()
-        for contest in contests.order_by("end_date")[:5]:
-            print(contest.getName())
+        for contest in contests:
             team = contest.getUserTeam(request.user)
             labels.append(contest.getName())
             bgcolors.append('#4e73df')
             if team:
                 submission = team.getLatestAttempt()
-                print(submission)
-
                 if submission:
-                    print(submission.getGrade())
                     data.append(submission.getGrade())
                 else:
                     data.append(0)
