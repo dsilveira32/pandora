@@ -5,9 +5,9 @@
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-success">Open Contests</h6>
             </div>
-            <div class="card-body">
-                {% list_has_open_contests contest_list.contests as has_open_contests %}
-                {% if has_open_contests %}
+            {% list_has_open_contests contest_list.contests as has_open_contests %}
+            {% if has_open_contests %}
+                {% comment %}
                     <table class="table table-responsive-md">
                         <thead>
                         <tr>
@@ -24,18 +24,34 @@
                                     <td scope="row"><a
                                             href="{% url 'user_contests_detail_dashboard' o.id %}">{{ o.title }}</a>
                                     </td>
-                                    <td>{{ o.start_date }}</td>
-                                    <td>{{ o.end_date }}</td>
+                                    <td>{{ o.start_date | date:"d/m/Y - H:i" }}</td>
+                                    <td>{{ o.end_date | date:"d/m/Y - H:i" }}</td>
                                     <td>{{ o.end_date|timeuntil }}</td>
                                 </tr>
                             {% endif %}
                         {% endfor %}
                         </tbody>
                     </table>
-                {% else %}
-                    <p>No open contests are available.</p>
-                {% endif %}
-            </div>
+                    {% endcomment %}
+                <ul class="list-group list-group-flush">
+                    {% for o in contest_list.contests %}
+                        {% if o.isOpen %}
+                            <li class="list-group-item border-left-success">
+                                <a class="stretched-link" href="{% url 'user_contests_detail_dashboard' o.id %}">
+                                    {{ o.title }}
+                                </a>
+                                <span class="float-right">
+                                    Time left: {{ o.end_date|timeuntil }}
+                                </span>
+                                <br>
+                                Ends at: {{ o.end_date | date:"d/m/Y - H:i" }}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No open contests are available.</p>
+            {% endif %}
         </div>
     </div>
     <div class="col-lg-6 pb-3 pb-lg-0">
@@ -43,35 +59,29 @@
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-danger">Closed Contests</h6>
             </div>
-            <div class="card-body">
-                {% list_has_closed_contests contest_list.contests as has_closed_contests %}
-                {% if has_closed_contests %}
-                    <table class="table table-responsive-md">
-                        <thead>
-                        <tr>
-                            <th scope="col">Contest</th>
-                            <th scope="col">Start</th>
-                            <th scope="col">End</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for o in contest_list.contests %}
-                            {% if not o.isOpen %}
-                                <tr>
-                                    <td scope="row"><a
-                                            href="{% url 'user_contests_detail_dashboard' o.id %}">{{ o.title }}</a>
-                                    </td>
-                                    <td>{{ o.start_date }}</td>
-                                    <td>{{ o.end_date }}</td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>No closed contests are available.</p>
-                {% endif %}
-            </div>
+            {% list_has_closed_contests contest_list.contests as has_closed_contests %}
+            {% if has_closed_contests %}
+                <ul class="list-group list-group-flush">
+                    {% for o in contest_list.contests %}
+                        {% if not o.isOpen %}
+                            <li class="list-group-item border-left-danger">
+                                <a class="stretched-link" href="{% url 'user_contests_detail_dashboard' o.id %}">
+                                    {{ o.title }}
+                                </a>
+                                <br>
+                                <span class="float-left">
+                                    Started at: {{ o.start_date | date:"d/m/Y - H:i" }}
+                                </span>
+                                <span class="float-right">
+                                    Ended at: {{ o.end_date | date:"d/m/Y - H:i" }}
+                                </span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No closed contests are available.</p>
+            {% endif %}
         </div>
     </div>
 </div>
