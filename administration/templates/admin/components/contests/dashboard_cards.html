@@ -109,7 +109,16 @@
                     <td>Max Classification</td>
                     <td>{{ admin_contests_dashboard_cards.contest.max_classification }}</td>
                 </tr>
-
+                <tr>
+                    <td>Max Submissions</td>
+                    <td>
+                        {% if admin_contests_dashboard_cards.contest.max_submitions == 0 %}
+                            Unlimited
+                        {% else %}
+                            {{ admin_contests_dashboard_cards.contest.max_submitions }}
+                        {% endif %}
+                    </td>
+                </tr>
                 </tbody>
             </table>
             {% if admin_contests_dashboard_cards.contest.sow %}
