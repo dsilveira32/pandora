@@ -3,51 +3,102 @@
         <h5 class="m-0 font-weight-bold text-primary">Details</h5>
     </div>
     <div class="card-body text-center">
-        <p class="lead my-3">{{ contest_details.contest.description }}</p>
-        <table class="table">
-            <tbody>
-            <tr>
-                <td>Language</td>
-                <td>{{ contest_details.contest.language }}</td>
-            </tr>
-            <tr>
-                <td>Kick Off</td>
-                <td>{{ contest_details.contest.start_date }}</td>
-            </tr>
-            <tr>
-                <td>Deadline</td>
-                <td>{{ contest_details.contest.end_date }}</td>
-            </tr>
-            <tr>
-                <td>Min Nr. of Elements</td>
-                <td>{{ contest_details.contest.min_team_members }}</td>
-            </tr>
-            <tr>
-                <td>Max Nr. of Elements</td>
-                <td>{{ contest_details.contest.max_team_members }}</td>
-            </tr>
-            <tr>
-                <td>Max Classification</td>
-                <td>{{ contest_details.contest.max_classification }}</td>
-            </tr>
-            <tr>
-                <td>Max Submissions</td>
-                <td>
-                    {% if contest_details.contest.max_submitions == 0 %}
-                        Unlimited
-                    {% else %}
-                        {{ contest_details.contest.max_submitions }}
-                    {% endif %}
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <p class="lead py-2">{{ contest_details.contest.description }}</p>
+        <div class="row pt-2">
+            <div class="col-lg-4">
+                <div class="card border-primary shadow">
+                    <div class="card-body">
+                        <div class="font-weight-bold text-primary text-uppercase mb-1">
+                            Language
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ contest_details.contest.language }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-primary shadow">
+                    <div class="card-body">
+                        <div class="font-weight-bold text-primary text-uppercase mb-1">
+                            Team Size
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ contest_details.contest.min_team_members }}
+                            - {{ contest_details.contest.max_team_members }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 pt-2 pt-lg-0">
+                <div class="card border-primary shadow">
+                    <div class="card-body">
+                        <div class="font-weight-bold text-primary text-uppercase mb-1">
+                            Max Grade
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ contest_details.contest.max_classification }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-2">
+
+            <div class="col-lg-4">
+                <div class="card border-primary shadow">
+                    <div class="card-body">
+                        <div class="font-weight-bold text-primary text-uppercase mb-1">
+                            Kick Off
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ contest_details.contest.start_date | date:"d/m/Y" }}
+                            <br>
+                            {{ contest_details.contest.start_date | date:"H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 pt-2 pt-lg-0">
+                <div class="card border-primary shadow">
+                    <div class="card-body">
+                        <div class="font-weight-bold text-primary text-uppercase mb-1">
+                            Deadline
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ contest_details.contest.end_date | date:"d/m/Y" }}
+                            <br>
+                            {{ contest_details.contest.end_date | date:"H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 pt-2 pt-lg-0">
+                <div class="card border-primary shadow">
+                    <div class="card-body">
+                        <div class="font-weight-bold text-primary text-uppercase mb-1">
+                            Submission Limit
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {% if contest_details.contest.max_submitions == 0 %}
+                                Unlimited
+                            {% else %}
+                                {{ contest_details.contest.max_submitions }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% if contest_details.contest.sow %}
-            <a href="{{ contest_details.contest.sow }}" target="_blank">
-                <strong class="d-inline-block mb-1 btn btn-success">
-                    View Statement Of Work
-                </strong>
-            </a>
+            <div class="row pt-2 pt-lg-3">
+                <div class="col-12">
+                    <a class="btn btn-success btn-block" href="{{ contest_details.contest.sow }}" target="_blank">
+                        View Statement Of Work
+                    </a>
+                </div>
+            </div>
         {% endif %}
     </div>
 </div>
