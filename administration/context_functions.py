@@ -192,9 +192,13 @@ def getAdminTestFormContext(contest, form):
 
 
 def getAdminTestListContext(tests):
+    weight_sum = 0
+    for t in tests:
+        weight_sum += t.weight_pct
     return {
         'admin_test_list': {
-            'tests': tests
+            'tests': tests,
+            'weight_sum': weight_sum
         }
     }
 

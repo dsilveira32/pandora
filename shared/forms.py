@@ -333,7 +333,6 @@ class AdminTeamCreateForm(forms.ModelForm):
         team = self.save(commit=False)
         team.contest = contest
         team.save()
-        print(self.data.get("include_user"))
         if self.data.get("include_user"):
             team.users.add(user)
         return True
