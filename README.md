@@ -150,7 +150,7 @@ python3 manage.py runserver
 
 ### Fix devido à criação de user por cli
 Como criámos o user por cli, nao foi criado um profile  
-A plataforma apresenta erros até ser criado um // TODO: meter isto no zenkit e corrigir
+A plataforma apresenta erros até ser criado um // TODO: meter isto no zenkit e corrigir  
 Navegar ate /admin-django/  
 Fazer login  
 Clicar em users  
