@@ -40,7 +40,7 @@ def login_view(request):
         try:
             user = autenticate(request.POST['email'], request.POST['password'])
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect("user_contests_home")
+            return redirect("user_dashboard")
         except LoginException as error:
             context.update({"error": error.getMessage()})
         except:
