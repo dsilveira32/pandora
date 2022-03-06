@@ -62,7 +62,11 @@
     // Call the dataTables jQuery plugin
     $(document).ready(function () {
         $('.dataTablePandora').DataTable({
-            columnDefs: []
+            aLengthMenu: [
+               [25, 50, 100, 200, -1],
+               [25, 50, 100, 200, "All"]
+            ],
+            iDisplayLength: -1
         }).on("page.dt", function(){
             if(selection[$(this).attr("data-way")]){
                 selection[$(this).attr("data-way")] = 0;

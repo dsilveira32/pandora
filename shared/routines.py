@@ -418,7 +418,7 @@ def getContestsForUser(request):
 
 def getContestsForAdmin(request):
     if request.user.is_superuser:
-        return Contest.objects.all()
+        return Contest.objects.filter(archived="False")
     else:
         return getContestsForUser(request)
 

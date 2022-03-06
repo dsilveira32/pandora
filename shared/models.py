@@ -45,9 +45,6 @@ def get_data_files_path(instance, filename):
     return os.path.join(DATAFILES_ROOT, str(instance.contest.id), filename)
 
 
-
-
-
 # TODO: Mark for deletion
 def get_contest_detail_path(instance, filename):
     ext = filename.split('.')[-1]
@@ -144,6 +141,7 @@ class Contest(models.Model):
     automatic_weight = models.BooleanField(null=False, default=True, blank=False)
     max_submitions = models.PositiveIntegerField(default=0)
     language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C'), ('Java', 'Java')])
+    archived = models.BooleanField(null=False, default=False, blank=False)
 
     @classmethod
     def getContestsForUser(cls, request):
