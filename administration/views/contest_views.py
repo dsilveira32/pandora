@@ -13,7 +13,7 @@ from django.http import HttpResponse
 
 from shared.routines import *
 from django.core import serializers
-
+import json
 
 
 #############################
@@ -198,26 +198,46 @@ def export_contest(request, contest_id):
     contest_tests = contest_obj.getTests()
     data_files = contest_obj.contesttestdatafile_set.all()
 
-    contest_info = serializers.serialize("json", [contest_obj])
-    specs_info = serializers.serialize("json", [specs])
-    data_files_info = serializers.serialize("json", data_files)
-
-    contest_info += "\n"
-    contest_info += specs_info
-    contest_info += "\n"
-    contest_info += data_files_info
+    contest =  {}
+    contest["title"] = contest_obj.title
+    contest["short_name"] = contest_obj.short_name
+    contest["description"] = contest_obj.description
+    contest["sow"] = contest_obj.sow
+    contest["start_date"] = str(contest_obj.start_date)
+    contest["end_date"] = str(contest_obj.end_date)
+    contest["min_team_members"] = str(contest_obj.min_team_members)
+    contest["max_team_members"] = str(contest_obj.max_team_members)
+    contest["max_classification"] = str(contest_obj.max_classification)
+    contest["visible"] = contest_obj.visible
+    contest["max_submissions"] = str(contest_obj.max_submitions)
+    contest["language"] = contest_obj.language
+    contest["tests"] = []
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
         for test in contest_tests:
-            test_info = serializers.serialize("json", [test])
             test_specs = test.getSpecifications()
-            if test_specs is not None:
-                test_specs_nfo = serializers.serialize("json", [test_specs])
-            else:
-                test_specs_nfo = ""
 
-            zip_file.writestr(f"{test.name}.nfo", test_info + '\n' + test_specs_nfo)			
+            test2json = {}
+            test2json["name"] = test.name
+            test2json["mandatory"] = test.mandatory
+            test2json["weight_pct"] = str(test.weight_pct)
+            test2json["run_arguments"] = test.run_arguments
+            test2json["view_diff"] = test.view_diff
+            test2json["view_args"] = test.view_args
+            test2json["view_error"] = test.view_error
+            test2json["description"] = test.name # change to description
+            if test_specs is not None:
+                test2json["specs"] = {}
+                test2json["specs"]["cpu"] = str(test_specs.cpu)
+                test2json["specs"]["mem"] = str(test_specs.mem)
+                test2json["specs"]["run_arguments"] = test_specs.run_arguments
+                test2json["specs"]["timeout"] = str(test_specs.timeout)
+                test2json["specs"]["compile_flags"] = test_specs.compile_flags
+                test2json["specs"]["linkage_flags"] = test_specs.linkage_flags
+                test2json["specs"]["fsize"] = str(test_specs.fsize)
+                test2json["specs"]["check_leak"] = test_specs.check_leak
+
 
             if test.input_file and os.path.isfile(test.input_file.path):
                 in_file = open(os.path.abspath(test.input_file.path), "rb")
@@ -225,19 +245,33 @@ def export_contest(request, contest_id):
                 in_file.close()
                 zip_file.writestr(f"{test.name}.in", data_in)
 
+                in_file = open(os.path.abspath(test.input_file.path), "r")
+                lines = in_file.readlines()
+                test2json["input"] = lines
+
+
             if test.output_file and os.path.isfile(test.output_file.path):
                 out_file = open(os.path.abspath(test.output_file.path), "rb")
                 data_out = out_file.read()
                 out_file.close()
                 zip_file.writestr(f"{test.name}.out", data_in)
+                out_file = open(os.path.abspath(test.output_file.path), "r")
+                lines = out_file.readlines()
+                test2json["output"] = lines
+
+            contest["tests"].append(test2json)
+
+        if data_files:
+            contest["dataFiles"] = []
 
         for dfile in data_files:
             data_file = open(os.path.abspath(dfile.data_file.path, "rb"))
             data_file_data = in_file.read()
             data_file.close()
             zip_file.writestr(dfile.data_file, data_file_data)
+            contest["dataFiles"].append(dfile.data_file)
 
-        zip_file.writestr(f"{contest_obj.short_name}.nfo", contest_info)
+        zip_file.writestr(f"{contest_obj.short_name}.nfo", json.dumps(contest, indent=4))
 
     zip_buffer.seek(0)
 
