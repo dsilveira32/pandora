@@ -1,4 +1,5 @@
 import csv
+from errno import ESTALE
 import io
 
 from django.contrib.auth.models import User
@@ -11,6 +12,8 @@ from shared.forms import ContestModelForm
 from django.http import HttpResponse
 
 from shared.routines import *
+from django.core import serializers
+
 
 
 #############################
@@ -177,6 +180,55 @@ def extract_zip(request, contest_id):
                 moss_str = moss_str + a.team.name + "/*.c "
 
         zip_file.writestr("moss.txt", moss_str)
+    zip_buffer.seek(0)
+
+    resp = HttpResponse(zip_buffer, content_type='application/zip')
+    resp['Content-Disposition'] = 'attachment; filename = %s' % str(contest_obj.short_name)+'.zip'
+    return resp
+
+
+
+# extract grades
+@superuser_only
+def export_contest(request, contest_id):
+    # get the contest
+    contest_obj = Contest.getByID(contest_id)
+
+    specs = contest_obj.getSpecifications()
+    contest_tests = contest_obj.getTests()
+
+    contest_info = serializers.serialize("json", [contest_obj])
+    specs_info = serializers.serialize("json", [specs])
+
+    contest_info += "\n"
+    contest_info += specs_info
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+        for test in contest_tests:
+            test_info = serializers.serialize("json", [test])
+            test_specs = test.getSpecifications()
+            if test_specs is not None:
+                test_specs_nfo = serializers.serialize("json", [test_specs])
+            else:
+                test_specs_nfo = ""
+
+            zip_file.writestr(f"{test.name}.nfo", test_info + '\n' + test_specs_nfo)			
+
+            if test.input_file and os.path.isfile(test.input_file.path):
+                in_file = open(os.path.abspath(test.input_file.path), "rb")
+                data_in = in_file.read()
+                in_file.close()
+                zip_file.writestr(f"{test.name}.in", data_in)
+
+            if test.output_file and os.path.isfile(test.output_file.path):
+                out_file = open(os.path.abspath(test.output_file.path), "rb")
+                data_out = out_file.read()
+                out_file.close()
+                zip_file.writestr(f"{test.name}.out", data_in)
+
+        zip_file.writestr(f"{contest_obj.short_name}.nfo", contest_info)
+
     zip_buffer.seek(0)
 
     resp = HttpResponse(zip_buffer, content_type='application/zip')
