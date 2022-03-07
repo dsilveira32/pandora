@@ -196,12 +196,16 @@ def export_contest(request, contest_id):
 
     specs = contest_obj.getSpecifications()
     contest_tests = contest_obj.getTests()
+    data_files = contest_obj.contesttestdatafile_set.all()
 
     contest_info = serializers.serialize("json", [contest_obj])
     specs_info = serializers.serialize("json", [specs])
+    data_files_info = serializers.serialize("json", data_files)
 
     contest_info += "\n"
     contest_info += specs_info
+    contest_info += "\n"
+    contest_info += data_files_info
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
@@ -226,6 +230,12 @@ def export_contest(request, contest_id):
                 data_out = out_file.read()
                 out_file.close()
                 zip_file.writestr(f"{test.name}.out", data_in)
+
+        for dfile in data_files:
+            data_file = open(os.path.abspath(dfile.data_file.path, "rb"))
+            data_file_data = in_file.read()
+            data_file.close()
+            zip_file.writestr(dfile.data_file, data_file_data)
 
         zip_file.writestr(f"{contest_obj.short_name}.nfo", contest_info)
 
