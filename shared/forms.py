@@ -10,7 +10,7 @@ from django.db import transaction
 
 from shared.utils import print_variables_debug
 from .models import Attempt, Team, Contest, Test, Profile, Group, C_Specification, TeamContestDateException, \
-    Java_Specification
+    Java_Specification, Python_Specification
 from .routines import extract, unzip
 
 
@@ -175,6 +175,30 @@ class Java_SpecificationModelForm(forms.ModelForm):
             return False
         spec.save()
         return True
+
+
+class Python_SpecificationModelForm(forms.ModelForm):
+    class Meta:
+        model = Python_Specification
+        exclude = ['contest', 'test']
+
+    # fields = "__all__"
+
+    def submit(self, obj):
+
+        if not self.is_valid() or not obj:
+            return False
+
+        spec = self.save(commit=False)
+        if type(obj) == Contest:
+            spec.contest = obj
+        elif type(obj) == Test:
+            spec.test = obj
+        else:
+            return False
+        spec.save()
+        return True
+
 
 
 class ContestModelForm(forms.ModelForm):

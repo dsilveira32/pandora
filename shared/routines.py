@@ -671,10 +671,9 @@ def run_test(record, paths, data_files, i):
 
     dmp = diff_match_patch.diff_match_patch()
 
-    str1 = " ".join(fromlines)
-    str2 = " ".join(tolines)
-    print(str2)
-    is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
+    str1 = "".join(fromlines)
+    str2 = "".join(tolines)
+    is_same = True if re.sub("[\s*\'*\"*,*)*(*]", "", str1) == re.sub("[\s*\'*\"*,*)*(*]", "", str2) else False
 
     diffs = dmp.diff_main(str1, str2)
     # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable
@@ -745,9 +744,13 @@ def read_file_lines(file):
 
 def get_diffs(fromlines, tolines):
     dmp = diff_match_patch.diff_match_patch()
-    str1 = " ".join(fromlines)
-    str2 = " ".join(tolines)
-    is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
+    str1 = "".join(fromlines).lower()
+    str2 = "".join(tolines).lower()
+
+    regex = re.compile(r'[\s*\'*\"*,*)*(*]')
+    is_same = True if regex.sub("", str1) == regex.sub("", str2) else False
+
+#    is_same = True if re.sub("\s*", "", str1) == re.sub("\s*", "", str2) else False
     diffs = dmp.diff_main(str1, str2)
     HTMLdiff = dmp.diff_prettyHtml(
         diffs)  # dmp.diff_cleanupSemantic(diffs) # make the diffs array more "human" readable

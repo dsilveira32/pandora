@@ -1,0 +1,1 @@
+docker build -t python_spec_test .

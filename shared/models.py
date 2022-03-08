@@ -10,6 +10,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils import timezone
+from celery.utils.log import get_task_logger
+
 
 import shared
 from .storage import OverwriteStorage
@@ -26,6 +28,8 @@ def get_submissions_file_path(instance, filename):
     ext = filename.split('.')[-1]
     if ext == 'java':
         filename = "Main.%s" % ext
+    if ext == 'py':
+        filename = "main.%s" % ext        
     else:
         filename = "src.%s" % ext
     return os.path.join(SUBMISSIONS_ROOT, str(instance.id), filename)
@@ -140,7 +144,7 @@ class Contest(models.Model):
     visible = models.BooleanField(null=False, default=True, blank=False)
     automatic_weight = models.BooleanField(null=False, default=True, blank=False)
     max_submitions = models.PositiveIntegerField(default=0)
-    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C'), ('Java', 'Java')])
+    language = models.CharField(max_length=512, null=False, blank=False, choices=[('C', 'C'), ('Java', 'Java'), ('Python', 'Python')])
     archived = models.BooleanField(null=False, default=False, blank=False)
 
     @classmethod
@@ -168,6 +172,8 @@ class Contest(models.Model):
                 return self.c_specifications
             if self.language == 'Java':
                 return self.java_specifications
+            if self.language == 'Python':
+                return self.python_specifications                
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -179,11 +185,13 @@ class Contest(models.Model):
 
     def getSpecificationFormType(self):
         # Importing here avoids circular import
-        from shared.forms import C_SpecificationModelForm, Java_SpecificationModelForm
+        from shared.forms import C_SpecificationModelForm, Java_SpecificationModelForm, Python_SpecificationModelForm
         if self.language == 'C':
             return C_SpecificationModelForm
         if self.language == 'Java':
             return Java_SpecificationModelForm
+        if self.language == 'Python':
+            return Python_SpecificationModelForm            
         else:
             return None
 
@@ -309,6 +317,8 @@ class Test(models.Model):
                 return self.contest.c_specifications
             if self.contest.language == 'Java':
                 return self.contest.java_specifications
+            if self.contest.language == 'Python':
+                return self.contest.python_specifications                
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -319,6 +329,8 @@ class Test(models.Model):
                 return self.c_specifications
             if self.contest.language == 'Java':
                 return self.java_specifications
+            if self.contest.language == 'Python':
+                return self.python_specifications                
         # Catches RelatedObjectNotFound exception
         except Exception:
             return None
@@ -404,6 +416,31 @@ class Java_Specification(Specification):
             # is filled. Rejects if both are or if none are.
             models.CheckConstraint(
                 name="java_specifications_contest_test_one_only_constraint",
+                check=models.Q(contest__isnull=False) & models.Q(test__isnull=True) | models.Q(
+                    contest__isnull=True) & models.Q(test__isnull=False)
+            )
+        ]
+
+    def getFields(self):
+        return self._meta.get_fields()
+
+    def getAttribute(self, name):
+        return self.__getattribute__(name)
+
+
+class Python_Specification(Specification):
+    contest = models.OneToOneField(Contest, null=True, blank=True, on_delete=models.CASCADE,
+                                   related_name='python_specifications')
+    test = models.OneToOneField(Test, null=True, blank=True, on_delete=models.CASCADE, related_name='python_specifications')
+
+    fsize = models.PositiveIntegerField(default=8192)  # <kbytes>		Default: 8192 kbyte(s)
+
+    class Meta:
+        constraints = [
+            # This constraint checks if exactly one of either contest or test
+            # is filled. Rejects if both are or if none are.
+            models.CheckConstraint(
+                name="python_specifications_contest_test_one_only_constraint",
                 check=models.Q(contest__isnull=False) & models.Q(test__isnull=True) | models.Q(
                     contest__isnull=True) & models.Q(test__isnull=False)
             )
@@ -609,6 +646,10 @@ class Attempt(models.Model):
         tests = contest.getTests()
         total_steps = 1 + tests.count() + 1
         progress_recorder.set_progress(0, total_steps, "Running compilation")
+
+        logger = get_task_logger(__name__)
+
+
         try:
             os.makedirs(data_path + '/tmp/'+ str(self.id) + "/")
         except OSError as e:
