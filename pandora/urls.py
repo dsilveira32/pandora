@@ -36,13 +36,15 @@ urlpatterns = [
     # re_path(r'^login/$', auth_views.LoginView.as_view(), name='login'),
     re_path(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
 	re_path('oauth/', include('social_django.urls', namespace='social')),
-    re_path(r'^celery-progress/', include('celery_progress.urls'))
+    re_path(r'^celery-progress/', include('celery_progress.urls')),
 	#path(
     #'logout/',
     #LogoutView.as_view(template_name=settings.LOGOUT_REDIRECT_URL),
     #name='logout'
     #),
 	#path('manage/', manage, name='manage'),
+    path('api/', include('api.urls')),
+    path('api/', include('shared.urls')),
 ] + staticfiles_urlpatterns()
 
 

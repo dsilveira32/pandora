@@ -97,6 +97,13 @@ class Profile(models.Model):
     def setValid(self, value: bool):
         self.valid = value
 
+    def groups(self):
+        return self.user.group_set.all()
+
+    def teams(self):
+        return self.user.team_set.all()
+
+
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
@@ -809,7 +816,7 @@ class Group(models.Model):
     name = models.CharField(max_length=50, blank=False, unique=True)
     users = models.ManyToManyField(User, blank=True)
     contests = models.ManyToManyField(Contest, blank=True)
-    join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True, default="replace_me")
+    join_code = models.SlugField(max_length=32, unique=False)
     registration_open = models.BooleanField(null=False, default=False)
 
     def getName(self):

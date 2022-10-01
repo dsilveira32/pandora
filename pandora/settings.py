@@ -35,13 +35,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+	'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
+	'rest_framework_simplejwt',
     'administration',
     'shared',
     'social_django',
     'fontawesome-free',
     # Celery apps
     'celery',
-    'celery_progress'
+    'celery_progress',
+	'api',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -164,3 +169,18 @@ LOGGING = {
         'level': 'DEBUG',
     },  
 }
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+         "api.authentication.TokenAuthentication",
+         "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly"
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 100
+}
+

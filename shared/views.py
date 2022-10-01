@@ -36,6 +36,7 @@ def autenticate(email, password):
 def login_view(request):
     template_name = 'registration/login.html'
     context = {}
+    print('123')
     if request.POST:
         try:
             user = autenticate(request.POST['email'], request.POST['password'])
