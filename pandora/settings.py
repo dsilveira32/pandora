@@ -164,3 +164,9 @@ LOGGING = {
         'level': 'DEBUG',
     },  
 }
+
+
+
+#BASE_USR_PATH = 'pandora/'
+BASE_USR_PATH = ''
+
