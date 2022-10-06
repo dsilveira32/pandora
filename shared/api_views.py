@@ -4,7 +4,14 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import permissions
 from rest_framework import status
-from api.permissions import IsStaffEditorPermission, OwnUserPermission, OwnTeamPermission
+from django.core.exceptions import PermissionDenied
+from rest_framework import serializers
+from rest_framework.views import APIView
+from django.db import transaction
+
+
+
+from api.permissions import IsStaffEditorPermission, OwnUserPermission, OwnTeamPermission, UserDoesNotHaveTeamOnContest, IsAdminGroupStaffTeamOwner
 from shared.models import Group, Team
 
 
@@ -25,7 +32,11 @@ from .serializers import (
 	GroupSerializer, 
 	GroupAdminSerializer, 
 	GroupAdminDetailSerializer,
-	TeamSerializer)
+	TeamSerializer,
+	TeamCreateSerializer,
+	TeamUpdateSerializer,
+	TeamJoinSerializer,
+	)
 
 class ContestListCreateAPIView(
 	UserQuerySetMixin,
@@ -181,9 +192,7 @@ profile_list_create_view = UserListCreateAPIView.as_view()
 
 
 
-#################################################
-# Groups
-#################################################
+######################## Group Api Views ########################
 
 class GroupDetailAPIView(generics.RetrieveAPIView):
 	permission_classes = [permissions.IsAuthenticated]
@@ -195,16 +204,11 @@ class GroupDetailAPIView(generics.RetrieveAPIView):
 			return GroupAdminDetailSerializer
 		return GroupSerializer
 
-
 class GroupUpdateAPIView(generics.UpdateAPIView):
 	permission_classes = [permissions.IsAdminUser]
 	queryset = Group.objects.all()
 	lookup_field = 'pk'
-	serializer_class = GroupAdminSerializer
-
-group_detail_view = GroupDetailAPIView.as_view()
-group_update_view = GroupUpdateAPIView.as_view()
-
+	serializer_class = GroupAdminDetailSerializer
 
 class GroupListAPIView(generics.ListAPIView):
 	permission_classes = [permissions.IsAuthenticated]
@@ -221,27 +225,29 @@ class GroupCreateAPIView(generics.CreateAPIView):
 	queryset = Group.objects.all()
 	serializer_class = GroupAdminSerializer
 
-
-group_list_view = GroupListAPIView.as_view()
-group_create_view = GroupCreateAPIView.as_view()
-
-
-
 class GroupDestroyAPIView(generics.DestroyAPIView):
 	permission_classes = [permissions.IsAdminUser]
 	queryset = Group.objects.all()
 	serializer_class = GroupAdminSerializer
 	lookup_field = 'pk'
 	def perform_destroy(self, instance):
-#         # instance 
 		super().perform_destroy(instance)
-		
-group_destroy_view = GroupDestroyAPIView.as_view()
 
+group_destroy_view = GroupDestroyAPIView.as_view()
+group_detail_view = GroupDetailAPIView.as_view()
+group_update_view = GroupUpdateAPIView.as_view()
+group_list_view = GroupListAPIView.as_view()
+group_create_view = GroupCreateAPIView.as_view()
 
 #################################################
 # Teams
 #################################################
+def isAdminOrGroupStaff(user, contest):
+	return user.is_superuser or (user.is_staff and contest.hasUser(user))
+
+
+def isAdminOrGroupStaffOrTeamOwner(user, team):
+	return isAdminOrGroupStaff(user, team.contest) or team.created_by == user
 
 
 ## team Detail (admin or user's team)
@@ -250,29 +256,47 @@ class TeamDetailAPIView(generics.RetrieveAPIView):
 	queryset = Team.objects.all()
 	lookup_field = 'pk'
 	serializer_class = TeamSerializer
+	
+"""
+* create team *
+Must:
+	- be authenticated
+	- belong to group in which the contest also belongs
+	- not have a team on the contest
+"""
+class TeamCreateAPIView(generics.CreateAPIView):
+	permission_classes = [permissions.IsAuthenticated]
+	
+	queryset = Team.objects.all()
+	serializer_class = TeamCreateSerializer
+
+	def perform_create(self, serializer):
+		if not 'contest' in serializer.validated_data:
+			raise PermissionDenied()
+
+		contest_obj = get_object_or_404(Contest, pk=serializer.validated_data['contest'])
+		user = self.request.user
+
+		# check if user belongs to group
+		if not contest_obj.hasUser(user=user):
+			raise PermissionDenied()
+
+		# check if user has a team
+		if contest_obj.getUserTeam(user=user):
+			raise serializers.ValidationError('User already has a team on this contest') 
+
+		# create a new team
+		team = Team.objects.create(name = serializer.validated_data['name'], contest = contest_obj, created_by = self.request.user)
+		team.users.add(user)
+		team.save()
+		return team
 
 
-team_detail_view = TeamDetailAPIView.as_view()
-
-## create (any user)
-# conditions to be able to create:
-# authenticated
-# 	does not have a team on the selected contest
-
-
-
-
-## join (any user)
-# conditions to be able to join:
-# authenticated
-# 	does not have a team on the selected contest
-#	must provide the valid code
-
-## leave a team (any user)
-
-
-
-
+"""
+* list teams *
+Must:
+	- be admin or staff of the group
+"""
 ## list (admins)
 class TeamListAPIView(generics.ListAPIView):
 	permission_classes = [permissions.IsAdminUser]
@@ -281,4 +305,135 @@ class TeamListAPIView(generics.ListAPIView):
 	serializer_class = TeamSerializer
 
 
+
+"""
+* team patch *
+Must:
+	- be authenticated and
+		- be admin or group staff, or
+		- belong to a team, or
+		- be the team owner
+"""
+class TeamUpdateAPIView(generics.UpdateAPIView):
+	permission_classes = [permissions.IsAuthenticated]
+	queryset = Team.objects.all()
+	lookup_field = 'pk'
+	serializer_class = TeamUpdateSerializer
+
+	@transaction.atomic
+	def perform_update(self, serializer):
+		team = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+		contest = team.contest
+		user = self.request.user
+
+		if not isAdminOrGroupStaffOrTeamOwner(user, team):
+			raise PermissionDenied()
+
+		if "users" in serializer.initial_data:
+			for user_id in serializer.initial_data["users"]:
+				user_obj = get_object_or_404(User, id=user_id)
+				if team.hasUser(user=user_obj):
+					continue
+
+				if (isAdminOrGroupStaff(user, contest)):
+						team.users.add(user_obj)
+				else:
+					raise PermissionDenied()
+
+		if "remove_users" in serializer.initial_data:
+			for user_id in serializer.initial_data["remove_users"]:
+				user_obj = get_object_or_404(User, id=user_id)
+
+				if team.hasUser(user=user_obj):
+					if (isAdminOrGroupStaff(user, contest)) or user != user_obj:
+						team.users.remove(user_obj)
+					else:
+						raise PermissionDenied()					
+
+		if "name" in serializer.validated_data:
+			if serializer.validated_data['name'] != team.name:
+				team.name = serializer.validated_data['name']
+			
+		team.save()
+		return team
+
+"""
+* team destroy *
+Must:
+	- be authenticated
+	- be admin, staff on that group, or team owner
+	- team must not have any submissions
+"""
+class TeamDestroyAPIView(generics.DestroyAPIView):
+	permission_classes = [IsAdminGroupStaffTeamOwner]
+	queryset = Team.objects.all()
+	serializer_class = TeamSerializer
+	lookup_field = 'pk'
+
+	def perform_destroy(self, instance):
+		if len(instance.getAttempts()) > 0:
+			raise serializers.ValidationError('Impossible to delete this team') 
+
+		super().perform_destroy(instance)
+
+
+"""
+* team join *
+Must:
+	- be authenticated
+	- not blong to another team of the same contest
+	- number of members of team must be blow maximum
+	- user must belong to group
+"""
+class TeamJoinAPIView(APIView):
+	permission_classes = [permissions.IsAuthenticated]
+	serializer_class = TeamJoinSerializer
+
+	def put(self, request):
+		if 'join_code' in request.data:
+			team = Team.objects.get(join_code = request.data['join_code'])
+			if not team:
+				raise PermissionDenied()					
+
+			if len(team.getUsers()) >= team.contest.max_team_members:
+				raise serializers.ValidationError('Team reached maximum number of members') 
+
+			if team.contest.getUserTeam(request.user):
+				raise serializers.ValidationError('User already has a team')
+
+			if not team.contest.hasUser(request.user):
+				raise PermissionDenied()
+
+			team.users.add(request.user)
+			team.save()
+			return Response({"id" : team.id, "join_code" : team.join_code}, status=status.HTTP_201_CREATED)
+		
+		raise PermissionDenied()
+
+class TeamLeaveAPIView(generics.UpdateAPIView):
+	permission_classes = [permissions.IsAuthenticated]
+	queryset = Team.objects.all()
+	lookup_field = 'pk'
+	serializer_class = TeamJoinSerializer
+
+	@transaction.atomic
+	def perform_update(self, serializer):
+		team = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+		contest = team.contest
+		user = self.request.user
+
+		if not team.hasUser(user=user) or user == team.created_by:
+			raise PermissionDenied()
+
+		team.users.remove(user)
+		team.save()
+
+		return team
+
+team_leave_view = TeamLeaveAPIView.as_view()
+team_join_view = TeamJoinAPIView.as_view()
+team_delete_view = TeamDestroyAPIView.as_view()
+team_detail_view = TeamDetailAPIView.as_view()
+team_create_view = TeamCreateAPIView.as_view()
 team_list_view = TeamListAPIView.as_view()
+team_update_view = TeamUpdateAPIView.as_view()

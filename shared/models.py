@@ -163,12 +163,18 @@ class Contest(models.Model):
         from django.utils import timezone
         return cls.objects.filter(end_date__gt=timezone.now(), start_date__lt=timezone.now())
 
+
     @classmethod
     def getByID(cls, contest_id):
         return cls.objects.get(id=contest_id)
 
     def getUsers(self):
         return Group.objects.get(contests__exact=self).getUsers()
+
+    def hasUser(self, user):
+        if self.getUsers().filter(id=user.id).first():
+            return True
+        return False
 
     def getLanguage(self):
         return self.language
@@ -210,7 +216,6 @@ class Contest(models.Model):
         return False
 
     # objects = ContestManager()
-
     def getUserTeam(self, user):
         return self.team_set.filter(contest=self, users__exact=user).first()
 
@@ -464,8 +469,9 @@ class Python_Specification(Specification):
 class Team(models.Model):
     name = models.SlugField(max_length=50, blank=False)
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
-    join_code = models.SlugField(max_length=32, blank=False, null=False, unique=True)
+    join_code = models.UUIDField(max_length=32, unique=True, default = uuid.uuid1())
     users = models.ManyToManyField(User)
+    created_by = models.ForeignKey(User, default=1, null=False, on_delete=models.CASCADE, related_name='team_owner')
 
     # image  = models.ImageField(upload_to='images/', blank=True, null=True)
 
@@ -804,7 +810,6 @@ class UserContestDateException(models.Model):
     unique_together = ('contest', 'user')
 
 
-# TODO: Falar com o prof. esta classe e utilizada?
 class ContestTestDataFile(models.Model):
     contest = models.ForeignKey(Contest, default=1, null=False, on_delete=models.CASCADE)
     data_file = models.FileField(upload_to=get_data_files_path, blank=False, null=False, max_length=512)
@@ -816,7 +821,7 @@ class Group(models.Model):
     name = models.CharField(max_length=50, blank=False, unique=True)
     users = models.ManyToManyField(User, blank=True)
     contests = models.ManyToManyField(Contest, blank=True)
-    join_code = models.SlugField(max_length=32, unique=False)
+    join_code = models.UUIDField(primary_key = False, max_length=32, unique=True, default = uuid.uuid1())
     registration_open = models.BooleanField(null=False, default=False)
 
     def getName(self):
@@ -836,6 +841,9 @@ class Group(models.Model):
 
     def hasUser(self, user):
         return self.users.filter(id=user.id).exists()
+
+    def hasContest(self, contest):
+        return self.contests.filter(id=contest.id).exists()
 
     @classmethod
     def getGroupsForUser(cls, request):

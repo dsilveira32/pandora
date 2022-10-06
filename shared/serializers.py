@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import get_object_or_404
+from django.db import transaction
+from django.core.exceptions import PermissionDenied
+
 
 from api.serializers import UserPublicSerializer
 from django.contrib.auth.models import User
@@ -9,6 +13,8 @@ from shared.models import Group, Team
 
 from .models import Contest, Profile
 from . import validators
+
+######################## Contest Serializers ########################
 
 class ContestInlineSerializer(serializers.Serializer):
 	url = serializers.HyperlinkedIdentityField(
@@ -25,15 +31,9 @@ class ContestSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-class GroupSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Group
-		fields = ['id', 'name']
 
-class TeamSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Team
-		fields = '__all__'
+######################## User Serializers ########################
+
 
 class ProfileSerializer(serializers.ModelSerializer):
 	groups = serializers.SerializerMethodField()
@@ -43,7 +43,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 		return GroupSerializer(obj.groups(), many=True).data
 
 	def get_teams(self, obj):
-		return GroupSerializer(obj.teams(), many=True).data
+		return TeamSerializer(obj.teams(), many=True).data
 
 
 	number = serializers.IntegerField(required=False, default=0)
@@ -108,7 +108,7 @@ class UserSerializer(serializers.ModelSerializer):
 			instance.last_name = validated_data['last_name']
 
 		user = self.context.get('request').user
-		if user.is_authenticated and user.is_superuser:
+		if (user.is_superuser or user.is_staff):
 			if 'is_superuser' in validated_data:
 				instance.is_superuser = validated_data['is_superuser']
 			if 'is_staff' in validated_data:
@@ -126,8 +126,13 @@ class UserSerializer(serializers.ModelSerializer):
 		try:
 			profile_data = validated_data.pop('profile')
 			profile = Profile.objects.get(user=instance)
-			profile.number = profile_data['number']
-			profile.valid = profile_data['valid']
+
+			if 'number' in profile_data:
+				profile.number = profile_data['number']
+
+			if (user.is_superuser or user.is_staff) and 'valid' in profile_data:
+				profile.valid = profile_data['valid']
+
 			profile.save()
 		except:
 			pass		
@@ -135,9 +140,15 @@ class UserSerializer(serializers.ModelSerializer):
 		instance.save()
 		return instance
 
+######################## Group Serializers ########################
+
+class GroupSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Group
+		fields = ['id', 'name']
+
 class GroupAdminSerializer(serializers.ModelSerializer):
-	
-	join_code = serializers.SlugField(required=False, default="")
+	join_code = serializers.SlugField(required=False)
 	registration_open = serializers.BooleanField(required=False, default=False)
 
 	class Meta:
@@ -147,7 +158,7 @@ class GroupAdminSerializer(serializers.ModelSerializer):
 
 
 class GroupAdminDetailSerializer(serializers.ModelSerializer):
-	join_code = serializers.SlugField(required=False, default="")
+	join_code = serializers.SlugField(required=False)
 	registration_open = serializers.BooleanField(required=False, default=False)
 	contests = serializers.SerializerMethodField()
 	users = serializers.SerializerMethodField()
@@ -162,3 +173,94 @@ class GroupAdminDetailSerializer(serializers.ModelSerializer):
 		model = Group
 		fields = ['id', 'name', 'join_code', 'registration_open', 'contests', 'users']
 		read_only_fields = ['id']
+
+	@transaction.atomic
+	def update(self, instance, validated_data):
+		for attr, value in validated_data.items():
+			setattr(instance, attr, value)
+
+		if "users" in self.initial_data:
+			for user_id in self.initial_data["users"]:
+				user_obj = get_object_or_404(User, id=user_id)
+				if not instance.hasUser(user=user_obj):
+					instance.users.add(user_obj)
+		
+		if "remove_users" in self.initial_data:
+			for user_id in self.initial_data["remove_users"]:
+				user_obj = get_object_or_404(User, id=user_id)
+				if instance.hasUser(user=user_obj):
+					instance.users.remove(user_obj)
+
+		if "contests" in self.initial_data:
+			for contest_id in self.initial_data["contests"]:
+				contest_obj = get_object_or_404(Contest, id=contest_id)
+				if not instance.hasContest(contest=contest_obj):
+					instance.contests.add(contest_obj)
+		
+		if "remove_contests" in self.initial_data:
+			for contest_id in self.initial_data["remove_contests"]:
+				contest_obj = get_object_or_404(Contest, id=contest_id)
+				if instance.hasContest(contest=contest_obj):
+					instance.contests.remove(contest_obj)
+
+		instance.save()		
+		return instance	
+
+
+######################## Team Serializers ########################
+
+
+class TeamSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Team
+		fields = '__all__'
+
+
+class TeamJoinSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Team
+		fields = ['id', 'join_code']
+		read_only_fields = ['id', 'join_code']
+
+class TeamUpdateSerializer(serializers.ModelSerializer):
+	users = serializers.SerializerMethodField()
+
+	def get_users(self, obj):
+		return obj.getUsers().values_list('id', flat=True)
+
+	class Meta:
+		model = Team
+		fields = ['id', 'name', 'join_code', 'users', 'created_by']
+		read_only_fields = ['id', 'join_code', 'contest', 'created_by']
+
+
+
+class TeamCreateSerializer(serializers.ModelSerializer):
+	contest = serializers.SerializerMethodField()
+
+	def get_contest(self, obj):
+		return obj.contest.id
+
+	class Meta:
+		model = Team
+		fields = ['id', 'name', 'join_code', 'contest',]
+		read_only_fields = ['id', 'join_code']
+
+
+	# def create(self, validated_data):
+	# #	"""Create and return a new team"""
+	# #	print(dir(self.request))
+	# 	contest_obj = get_object_or_404(Contest, pk=validated_data['contest'])
+	# 	return None
+	# 	user = self.request.user
+
+	# 	if not contest_obj.hasUser(user=user): # does not have access to group where contest is
+	# 		raise PermissionDenied()
+
+	# 	if contest_obj.getUserTeam(user=user): # already has a team
+	# 		raise PermissionDenied()
+
+	# 	teamInstance = Team.objects.create(name=validated_data['name'], contest=contest_obj)
+	# 	teamInstance.users.add(user)
+	# 	teamInstance.save()
+	# 	return teamInstance

@@ -19,4 +19,9 @@ urlpatterns = [
 	#
 	path('teams/', api_views.team_list_view, name='team-list'),
 	path('teams/<int:pk>/', api_views.team_detail_view, name='team-detail'),
+	path('teams/create/', api_views.team_create_view, name='team-create'),
+	path('teams/<int:pk>/delete/', api_views.team_delete_view, name='team-delete'),
+	path('teams/<int:pk>/update/', api_views.team_update_view, name='group-update'),
+	path('teams/join/', api_views.team_join_view, name='group-join'),
+	path('teams/<int:pk>/leave/', api_views.team_leave_view, name='group-leave'),
 ]

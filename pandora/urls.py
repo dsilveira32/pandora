@@ -26,7 +26,10 @@ from .views import (
     manage,
 )
 
-urlpatterns = [
+
+
+
+base_urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('admin-django/', admin.site.urls),
     path('admin/', include('administration.urls')),
@@ -47,6 +50,11 @@ urlpatterns = [
     path('api/', include('shared.urls')),
 ] + staticfiles_urlpatterns()
 
+
+
+urlpatterns = [
+    path(settings.BASE_USR_PATH, include(base_urlpatterns)),
+]
 
 
 if settings.DEBUG:

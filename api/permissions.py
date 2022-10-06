@@ -35,6 +35,7 @@ class IsOwnerOrModelPermission(permissions.DjangoModelPermissions):
 
 
 class OwnUserPermission(permissions.BasePermission):
+
 	def has_object_permission(self, request, view, obj):
 		if request.user.is_superuser:
 			return True
@@ -47,14 +48,52 @@ class OwnUserPermission(permissions.BasePermission):
 
 class OwnTeamPermission(permissions.BasePermission):
 	def has_object_permission(self, request, view, obj):
-		print(obj)
 
 		if request.user.is_superuser:
 			return True
+
+		if not obj:
+			return False
 
 		if obj.hasUser(user=request.user):
 			return True
 
 		return False
 
+
+
+class UserDoesNotHaveTeamOnContest(permissions.BasePermission):
+
+	def has_object_permission(self, request, view, obj):
+		print(obj)
+
+		if request.user.is_superuser:
+			return True
+
+		if not obj:
+			return False
+
+		if not obj.hasUser(user=request.user):
+			return False
+
+		if obj.getUserTeam(user=request.user):
+			return False
+
+		return True
+
+
+class IsAdminGroupStaffTeamOwner(permissions.BasePermission):
+
+	def has_object_permission(self, request, view, obj):
+
+		if request.user.is_superuser:			
+			return True
+
+		if obj.create_by == request.user:
+			return True
+
+		if request.user.is_staff and obj.getContest().hasUser(request.user):
+			return True
+
+		return False
 
