@@ -8,10 +8,11 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 from rest_framework.views import APIView
 from django.db import transaction
+from rest_framework.permissions import AllowAny
 
 
 
-from api.permissions import IsStaffEditorPermission, OwnUserPermission, OwnTeamPermission, UserDoesNotHaveTeamOnContest, IsAdminGroupStaffTeamOwner
+from api.permissions import IsStaffEditorPermission, OwnUserPermission, OwnTeamPermission, UserDoesNotHaveTeamOnContest, IsAdminGroupStaffTeamOwner, IsAdminOrStaff, AnyUser
 from shared.models import Group, Team
 
 
@@ -160,36 +161,23 @@ class UserDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = UserSerializer
 	lookup_field = 'pk'
 
-user_detail_update_view = UserDetailUpdateAPIView.as_view()
-
-class UserListCreateAPIView(generics.ListCreateAPIView):
-	permission_classes = [permissions.IsAdminUser]
+class UserListAPIView(generics.ListAPIView):
+	permission_classes = [IsAdminOrStaff]
 
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 	lookup_field = 'pk'
 
-	def perform_create(self, serializer):
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserCreateAPIView(generics.CreateAPIView):
+	permission_classes = [AnyUser]
 
-profile_list_create_view = UserListCreateAPIView.as_view()
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	lookup_field = 'pk'
 
-
-
-# Delete User - Can we even allow a user to be deleted?
-# class UserDestroy(generics.DestroyAPIView):
-#     permission_classes = [permissions.IsAdminUser]
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     lookup_field = 'pk'
-#     def perform_destroy(self, instance):
-#         # instance 
-#         super().perform_destroy(instance)
-# user_destroy_view = UserDestroy.as_view()
-
+profile_list_view = UserListAPIView.as_view()
+user_detail_update_view = UserDetailUpdateAPIView.as_view()
+profile_create_view = UserCreateAPIView.as_view()
 
 
 ######################## Group Api Views ########################
@@ -211,8 +199,7 @@ class GroupUpdateAPIView(generics.UpdateAPIView):
 	serializer_class = GroupAdminDetailSerializer
 
 class GroupListAPIView(generics.ListAPIView):
-	permission_classes = [permissions.IsAuthenticated]
-
+	permission_classes = [IsAdminOrStaff]
 	queryset = Group.objects.all()
 	def get_serializer_class(self):
 		if self.request.user.is_staff:

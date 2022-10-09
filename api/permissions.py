@@ -1,6 +1,6 @@
 from rest_framework import permissions
 from django.contrib.auth.models import User
-
+from pandora import settings
 
 class IsStaffEditorPermission(permissions.DjangoModelPermissions):
 	perms_map = {
@@ -35,13 +35,26 @@ class IsOwnerOrModelPermission(permissions.DjangoModelPermissions):
 
 
 class OwnUserPermission(permissions.BasePermission):
-
 	def has_object_permission(self, request, view, obj):
-		if request.user.is_superuser:
+		if request.user.is_superuser or request.user.is_staff:
 			return True
 		if isinstance(obj, User) and obj.id == request.user.id:
 			return True
 		return False
+
+
+
+class IsAdminOrStaff(permissions.BasePermission):
+	def has_permission(self, request, view):
+		if request.user.is_superuser or request.user.is_staff:
+			return True
+		return False
+
+
+class AnyUser(permissions.BasePermission):
+	def has_permission(self, request, view):
+		if settings.ENABLE_USER_REGISTRATION or request.user.is_superuser or request.user.is_staff:
+			return True
 
 
 

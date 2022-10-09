@@ -8,7 +8,8 @@ urlpatterns = [
     path('contests/<int:pk>/delete/', api_views.contest_destroy_view),
     path('contests/<int:pk>/', api_views.contest_detail_view, name='contest-detail'),
 	#
-	path('users/', api_views.profile_list_create_view, name='user-list-create'),
+	path('users/', api_views.profile_list_view, name='user-list'),
+	path('users/create/', api_views.profile_create_view, name='user-create'),
 	path('users/<int:pk>/', api_views.user_detail_update_view, name='user-detail-update'),
 	#
 	path('groups/', api_views.group_list_view, name='group-list'),

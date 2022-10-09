@@ -89,11 +89,19 @@ class UserSerializer(serializers.ModelSerializer):
 											is_active=True
 											)
 		userInstance.set_password(validated_data['password'])
+		userInstance.save()
+	
 		try:
 			profile_data = validated_data.pop('profile')
 			profile = Profile.objects.get(user=userInstance)
-			profile.number = profile_data['number']
-			profile.valid = profile_data['valid']
+
+			if 'number' in profile_data:
+				profile.number = profile_data['number']
+
+			user = self.context.get('request').user
+			if (user.is_superuser or user.is_staff):
+				if 'valid' in profile_data:
+					profile.valid = profile_data['valid']
 			profile.save()
 		except:
 			pass
@@ -108,15 +116,16 @@ class UserSerializer(serializers.ModelSerializer):
 			instance.last_name = validated_data['last_name']
 
 		user = self.context.get('request').user
-		if (user.is_superuser or user.is_staff):
+		if (user.is_superuser):
 			if 'is_superuser' in validated_data:
 				instance.is_superuser = validated_data['is_superuser']
+
+		if (user.is_superuser or user.is_staff):
 			if 'is_staff' in validated_data:
 				instance.is_staff = validated_data['is_staff']
 			if 'is_active' in validated_data:
 				instance.is_active = validated_data['is_active']
-			if 'username' in validated_data:
-				instance.username = validated_data['username']
+
 
 		try:
 			instance.set_password(validated_data['password'])
